@@ -6,6 +6,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "bootstrap": "^5.1.1",
     "vue": "^3.0.4"
   },
   "devDependencies": {

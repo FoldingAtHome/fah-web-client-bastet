@@ -1,7 +1,7 @@
 <template>
-  <img alt="Vue logo" src="./assets/fahlogo.png" />
-  <h2>Folding@Home Frontend</h2>
-  <AppPage msg="This page is under construction!" />
+<img alt="Folding@Home logo" src="./assets/fahlogo.png">
+<h2>Folding@Home</h2>
+<AppPage msg="This page is under construction!"></AppPage>
 </template>
 
 <script>
