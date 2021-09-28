@@ -1,12 +1,16 @@
-import { toRef, toRefs, reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
 let ws_url = "";
 
 const ws_data = reactive({
-    data: { "units": [] },
+    data: { units: [], config: {}, info: {}},
     socket: null,
     isInitialized: false,
 })
+
+const config = computed(() => ws_data.data.config);
+const units = computed(() => ws_data.data.units);
+const info = computed(() => ws_data.data.info);
 
 const openWebSocket = (url) => {
     ws_url = url;
@@ -59,6 +63,6 @@ function onOpen(event) {
     ws_data.isInitialized = false;
 }
 
-const useWebSocket = { ...toRefs(ws_data), openWebSocket, send, close };
+const useWebSocket = { config, info, units, openWebSocket, send, close };
 
 export default useWebSocket;

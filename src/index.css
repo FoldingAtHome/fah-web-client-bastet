@@ -5,3 +5,8 @@
   text-align: center;
   color: #2c3e50;
 }
+
+.view {
+    margin: 0px auto;
+    padding: 1rem;
+}

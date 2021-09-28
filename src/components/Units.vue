@@ -1,10 +1,9 @@
 <template>
-    <div>
-        <br/>
-        <h2>Work Units      
-            <button type="button" @click="pauseAll" ref="toggleAll" class="btn" 
-            :class="[ !areAllPaused ? 'btn-success' : 'btn-warning']">
-                {{ !areAllPaused ? "Start All" : "Pause All" }}
+    <div class="view">
+        <h2>Work Units
+            <button type="button" @click="pauseAll" class="btn pauseBtn"
+            :class="[ !areAllRunning ? 'btn-success' : 'btn-warning']">
+                {{ !areAllRunning ? "Start All" : "Pause All" }}
             </button>
         </h2>
         <table class="table">
@@ -18,22 +17,24 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(unit, index) in data['units']" :key="index">
+                <tr v-for="(unit, index) in units" :key="index">
                     <th scope="row">{{ index + 1 }}</th>
                     <td>WorkUnit {{ index + 1 }} </td>
-                    <td>{{ unit["state"] }}</td>
+                    <td>{{ unit.state }}</td>
                     <td>
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success " role="progressbar" 
-                            :style="{ width: unit['progress']*100 + '%'}" aria-valuenow="50"
-                            aria-valuemin="0" aria-valuemax="100">{{ (unit['progress']*100).toFixed() }}%</div>
+                        <div class="progress" v-if="unit.state == 'RUN'">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success " role="progressbar"
+                            :style="{ width: unit.progress*100 + '%'}" aria-valuenow="50"
+                            aria-valuemin="0" aria-valuemax="100">{{ (unit.progress*100).toFixed() }}%</div>
                         </div>
+                        <div v-else>Unit is downloading...</div>
                     </td>
                     <td>
-                        <button type="button" v-on:click="pause(index)" class="btn" 
-                        :class="[ unit['paused'] ? 'btn-success' : 'btn-warning']">
-                            {{ unit['paused'] ? "Start" : "Pause" }}
+                        <button type="button" v-on:click="pause(unit.id, unit.paused)" class="btn" v-if="unit.state =='RUN'"
+                        :class="[ unit.paused ? 'btn-success' : 'btn-warning']">
+                            {{ unit.paused ? "Start" : "Pause" }}
                         </button>
+                        <div v-else>None</div>
                     </td>
                 </tr>
             </tbody>
@@ -42,51 +43,44 @@
 </template>
 
 <script>
-import { ref } from "@vue/reactivity";
+import { computed } from "@vue/reactivity";
 import useWebSocket from "../composables/useWebSocket";
 
 export default {
     name: 'Units',
     setup() {
 
-        const { data, send }  = useWebSocket;
+        const { units, send }  = useWebSocket;
 
-        const areAllPaused = ref(false)
+        const areAllRunning = computed(() => {
+            let running = true;
 
-        const update = () => {
-            let paused = true;
-                
-            for(var i = 0; i < data.value.units.length; i++) {
-                if(data.value.units[i]["paused"] == false) {
-                    paused = false;
+            for(var i = 0; i < units.value.length; i++) {
+                if(units.value[i]["paused"] == true) {
+                    running = false;
                     break;
                 }
             }
-            areAllPaused.value = paused
-            return paused;
-        };
+            return running;
+        })
 
-        const toggleAll = ref(null);
-
-        const pause = (id) => {
-
-            update();
-
-            let isPaused = false;
-            if(data.value.units.hasOwnProperty(id))
-                isPaused = data.value.units[id]["paused"];
-
-            let msg = { cmd: isPaused ? "unpause" : "pause", unit: id }
-            send(msg);   
-        }
-
-        const pauseAll = () => {
-            update();
-            let msg = { cmd: areAllPaused.value ? "unpause" : "pause" }
+        const pause = (id, isPaused) => {
+            let msg = { cmd: isPaused ? "unpause" : "pause", unit: id };
             send(msg);
         }
 
-        return { data, pause, areAllPaused, pauseAll, toggleAll}
+        const pauseAll = () => {
+            let msg = { cmd: areAllRunning.value ? "pause" : "unpause" };
+            send(msg);
+        }
+
+        return { units, areAllRunning, pause, pauseAll }
     }
 }
 </script>
+
+<style>
+.pauseBtn {
+    margin: 10px;
+}
+</style>
