@@ -86,7 +86,7 @@
 
 <script>
 import useWebSocket from '../composables/useWebSocket'
-import { reactive, toRefs, onBeforeUnmount, watchEffect } from 'vue'
+import { reactive, toRefs, onBeforeUnmount, watchEffect, computed } from 'vue'
 
 export default {
     name: "Config",
@@ -106,14 +106,23 @@ export default {
 
         const saveSettings = () => {
             console.log("Save Settings called");
-            if(cached.config.power != "custom") delete cached.config.cpus;
-            send({ cmd : "config", config : cached.config});
+            send({ cmd : "config", config : changedData.value});
         }
 
         const clear = () => {
             console.log("Clear Clicked");
             update();
         }
+
+        const changedData = computed(() => {
+            const tmp = JSON.parse(JSON.stringify(cached.config));
+            const result = Object.entries(tmp)
+                .filter(([key, value]) => {
+                    return ((typeof config.value[key] == 'undefined') ||
+                            (JSON.stringify(config.value[key]) != JSON.stringify(tmp[key])));
+                })
+            return Object.fromEntries(result);
+        })
 
         watchEffect(update);
 
