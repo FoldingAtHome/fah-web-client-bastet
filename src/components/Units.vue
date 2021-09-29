@@ -9,11 +9,11 @@
         <table class="table">
             <thead>
                 <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">State</th>
-                <th scope="col">Progress</th>
-                <th scope="col">Action</th>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">State</th>
+                    <th scope="col">Progress</th>
+                    <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,7 +23,8 @@
                     <td>{{ unit.state }}</td>
                     <td>
                         <div class="progress" v-if="unit.state == 'RUN'">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success " role="progressbar"
+                            <div class="progress-bar progress-bar-striped" role="progressbar"
+                            :class="[ unit.paused ? 'bg-secondary' : 'progress-bar-animated bg-success']"
                             :style="{ width: unit.progress*100 + '%'}" aria-valuenow="50"
                             aria-valuemin="0" aria-valuemax="100">{{ (unit.progress*100).toFixed() }}%</div>
                         </div>
@@ -79,7 +80,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .pauseBtn {
     margin: 10px;
 }
