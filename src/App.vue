@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Navbar></Navbar>
-    <router-view/>
-  </div> 
+    <Navbar />
+    <router-view />
+  </div>
 </template>
 
 <script>
@@ -19,7 +19,6 @@ export default {
     Navbar
   },
   setup() {
-    
     const { openWebSocket, close} = useWebSocket;
 
     openWebSocket(ws_url);

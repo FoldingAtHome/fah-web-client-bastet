@@ -7,17 +7,17 @@
 }
 
 .view {
-    margin: 0px auto;
-    padding: 1rem;
+  margin: 0px auto;
+  padding: 1rem;
 }
 
 .navbar-toggler {
-    margin-right: 20px;
+  margin-right: 20px;
 }
 
 .navbar-dark .navbar-nav .nav-link {
-    color: white;
-    font-size: 1.2rem;
-    font-family: inherit;
-    font-weight: 400;
+  color: white;
+  font-size: 1.2rem;
+  font-family: inherit;
+  font-weight: 400;
 }

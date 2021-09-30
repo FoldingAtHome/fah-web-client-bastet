@@ -1,12 +1,11 @@
 <template>
-    <div>
-        <br/>
-        <p>This is under construction!</p>
-    </div>
+  <div class="view">
+    <p>This is under construction!</p>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'UnderConstruction'
-}
+  name: "UnderConstruction",
+};
 </script>
