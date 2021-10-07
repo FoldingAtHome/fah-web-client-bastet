@@ -36,13 +36,10 @@
             </div>
           </td>
           <td>
-            <button v-if="unit.state == 'RUN'" type="button" class="btn"
+            <button type="button" class="btn"
                     :class="[unit.paused ? 'btn-success' : 'btn-warning']" @click="pause(unit.id, unit.paused)">
               {{ unit.paused ? "Start" : "Pause" }}
             </button>
-            <div v-else>
-              None
-            </div>
           </td>
         </tr>
       </tbody>

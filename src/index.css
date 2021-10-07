@@ -6,6 +6,10 @@
   color: #2c3e50;
 }
 
+body {
+  padding-top: 90px;
+}
+
 .view {
   margin: 0px auto;
   padding: 1rem;

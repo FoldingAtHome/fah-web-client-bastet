@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark">
             <a class="navbar-brand" href="#">
               <img src="../assets/fahlogo2.png" width="170" height="70" class="d-inline-block align-top" alt="">
             </a>
@@ -17,7 +17,7 @@
                   <router-link class="nav-link" :to="{ name : 'Config' }">Configuration</router-link>
                 </li>
                 <li class="nav-item">
-                  <router-link class="nav-link" :to="{ name : 'Todo' }">Feature2</router-link>
+                  <router-link class="nav-link" :to="{ name : 'Visualize' }">Visualization</router-link>
                 </li>
                 <li class="nav-item">
                   <router-link class="nav-link" :to="{ name : 'Todo' }">Feature3</router-link>
