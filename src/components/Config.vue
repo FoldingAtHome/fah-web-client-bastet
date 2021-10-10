@@ -1,87 +1,65 @@
-:<template>
-  <div class="view">
-    <h2> Configuration </h2>
-    <form>
-      <div class="col-md-8 col-lg-7">
-        <div class="mb-3">
-          <div class="form-check form-switch">
-            <input id="on_idle" v-model="config.on_idle" class="form-check-input" type="checkbox">
-            <label class="form-check-label" for="on_idle">Use only when idle</label>
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label class="col-sm-3 col-md-3 col-form-label">Power :</label>
-          <div class="col-sm-9 btn-group" role="group">
-            <template v-for="power in powerValues" :key="power">
-              <input :id="power" v-model="config.power" type="radio" class="btn-check" name="power"
-                     :value="power.toLowerCase()">
-              <label class="btn btn-outline-dark" :for="power">{{ power }}</label>
-            </template>
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label for="cpus" class="col-sm-3 col-md-3 col-form-label"># of CPUs :</label>
-          <div class="col-sm-9">
-            <input id="cpus" v-model="config.cpus" type="number" class="form-control" min="1" :max="info.cpus-1"
-                   :disabled="config.power != 'custom'">
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label for="key" class="col-sm-3 col-md-3 col-form-label">Key :</label>
-          <div class="col-sm-9">
-            <input id="key" v-model="config.key" type="number" class="form-control" min="0">
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label class="col-sm-3 col-md-3 col-form-label">Release :</label>
-          <div class="col-sm-9">
-            <select v-model="config.release" class="form-select" aria-label="Select Release">
-              <option v-for="release in releases" :key="release" :value="release.toLowerCase()">
-                {{ release }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label for="cpus" class="col-sm-3 col-md-3 col-form-label">Causes :</label>
-          <div class="col-sm-9">
-            <select v-model="config.cause" class="form-select" aria-label="Select Cause">
-              <option v-for="cause in causes" :key="cause" :value="cause.toLowerCase()">
-                {{ cause }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="row mb-3">
-          <table>
-            <tr>
-              <th>GPU</th>
-              <th>Enable</th>
-              <th>Options</th>
-            </tr>
-            <tr v-for="(gpu, index) in config.gpus" :key="index" class="mb-7">
-              <td>{{ info.gpus[index].description }}</td>
-              <td>
-                <div class="form-check form-switch">
-                  <input v-model="gpu.enabled" class="form-check-input" type="checkbox">
-                </div>
-              </td>
-              <td>
-                <div class="form-floating">
-                  <textarea id="gpuOptions" v-model="gpu.options" class="form-control" placeholder="GPU Options" />
-                  <label for="gpuOptions">GPU Options</label>
-                </div>
-              </td>
-            </tr>
-          </table>
-        </div>
-        <div class="offset-sm-2">
-          <button type="button" class="btn btn-warning" @click="clear">Clear</button>
-          <button type="button" class="btn btn-primary" @click="saveSettings">Save</button>
-        </div>
-      </div>
-    </form>
-  </div>
+<template lang="pug">
+.view
+  h2 Configuration
+  form
+    .col-md-8.col-lg-7
+      .mb-3
+        .form-check.form-switch
+          input#on_idle.form-check-input(v-model="config.on_idle" type="checkbox")
+          label.form-check-label(for="on_idle")
+            | Use only when idle
+      .row.mb-3
+        label.col-sm-3.col-md-3.col-form-label Power :
+        .col-sm-9.btn-group(role="group")
+          template(v-for="power in powerValues" :key="power")
+            input.btn-check(:id="power" v-model="config.power" type="radio" name="power" :value="power.toLowerCase()")
+            label.btn.btn-outline-dark(:for="power")
+              | {{ power }}
+      .row.mb-3
+        label.col-sm-3.col-md-3.col-form-label(for="cpus")
+          | # of CPUs :
+        .col-sm-9
+          input#cpus.form-control(v-model="config.cpus", type="number", min="1", :max="info.cpus-1", 
+                                    :disabled="config.power != 'custom'")
+      .row.mb-3
+        label.col-sm-3.col-md-3.col-form-label(for="key")
+          | Key :
+        .col-sm-9
+          input#key.form-control(v-model="config.key" type="number" min="0")
+      .row.mb-3
+        label.col-sm-3.col-md-3.col-form-label Release :
+        .col-sm-9
+          select.form-select(v-model="config.release" aria-label="Select Release")
+            option(v-for="release in releases" :key="release" :value="release.toLowerCase()")
+              | {{ release }}
+      .row.mb-3
+        label.col-sm-3.col-md-3.col-form-label(for="cpus")
+          | Causes :
+        .col-sm-9
+          select.form-select(v-model="config.cause" aria-label="Select Cause")
+            option(v-for="cause in causes" :key="cause" :value="cause.toLowerCase()")
+              | {{ cause }}
+      .row.mb-3
+        table
+          tr
+            th GPU
+            th Enable
+            th Options
+          tr.mb-7(v-for="(gpu, index) in config.gpus" :key="index")
+            td {{ info.gpus[index].description }}
+            td
+              .form-check.form-switch
+                input.form-check-input(v-model="gpu.enabled" type="checkbox")
+            td
+              .form-floating
+                textarea#gpuOptions.form-control(v-model="gpu.options" placeholder="GPU Options")
+                label(for="gpuOptions")
+                  | GPU Options
+      .offset-sm-2
+        button.btn.btn-warning(type="button" @click="clear")
+          | Clear
+        button.btn.btn-primary(type="button" @click="saveSettings")
+          | Save
 </template>
 
 <script>
@@ -139,26 +117,20 @@ export default {
 
 </script>
 
-<style scoped>
-.form-check {
-  display: inline-block;
-}
+<style lang="stylus" scoped>
+.form-check
+  display: inline-block
 
-.col-form-label {
-  text-align: left;
-}
+.col-form-label
+  text-align: left
 
-@media (min-width: 768px) {
-  .col-form-label {
-      text-align: right;
-  }
-}
-.form-check-input:checked {
-  background-color: black;
-  border-color: black;
-}
+  @media (min-width: 768px)
+    text-align: right
 
-button {
-  margin: 10px;
-}
+.form-check-input:checked
+  background-color: black
+  border-color: black
+
+button
+  margin: 10px
 </style>

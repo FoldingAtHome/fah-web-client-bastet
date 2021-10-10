@@ -1,7 +1,6 @@
-<template>
-  <div class="view">
-    <p>This is under construction!</p>
-  </div>
+<template lang="pug">
+.view
+  p This is under construction!
 </template>
 
 <script>

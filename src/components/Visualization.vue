@@ -1,88 +1,68 @@
-<template>
-  <div class="view">
-    <div class="row">
-      <div class="col-md-2 col-sm-2">
-      <div class="card">
-        <ul class="list-group list-group-flush">
-          <li v-for="(unit, index) in units" :key="index" @click="showImage(index, 0)"
-              class="list-group-item" :class="{ active : index == unitId }">
-              WorkUnit {{ index + 1 }}
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="col-md-10 col-sm-10">
-      <div class="card h-100">
-        <div class="card-body">
-          <div ref="root" class="proteinImage">
-          </div>
-          <div class="row" :style="{ 'margin-top' : '5px' }">
-            <div class="col-lg-3 col-md-3">
-              <nav>
-                <ul v-if="unit.frames.length" class="pagination justify-content-center">
-                  <li class="page-item" :class="{ disabled : frameCounter == 0 }" @click="frameCounter--">
-                    <a class="page-link" href="#">Prev</a>
-                  </li>
-                  <li class="page-item" v-for="(frame, index) in (Math.min(3, unit.frames.length))" :class="{ active : frameId == frameCounter + index }"
-                      :key="index" @click="showImage(unitId, frameCounter + index)">
-                    <a class="page-link" href="#">{{ frameCounter + index + 1 }}</a>
-                  </li>
-                  <li class="page-item" :class="{ disabled : frameCounter >= unit.frames.length-3 }" @click="frameCounter++">
-                    <a class="page-link" href="#">Next</a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-            <div class="col-lg-3 col-md-3">
-              <span>Zoom</span>
-              <button type="button" class="btn btn-dark" @click="zoom_out"> - </button>
-              <button type="button" class="btn btn-dark" @click="zoom_in"> + </button>
-            </div>
-            <div class="col-lg-6 col-md-6">
-              <span>Rotation</span>
-              <button type="button" class="btn btn-dark" @click="pause_rotation = !pause_rotation">
-                {{ pause_rotation ? "Start" : "Pause" }}
-              </button>
-              <button type="button" class="btn btn-dark" :disabled="!pause_rotation" @click="rotate(-10)">Left</button>
-              <button type="button" class="btn btn-dark" :disabled="!pause_rotation" @click="rotate(10)">Right</button>
-            </div>
-            <div class="col-lg-4 col-md-6 btn-group" role="group">
-              <template v-for="view in 3" :key="view">
-                <input :id="view" v-model="draw_type" type="radio" class="btn-check" name="view"
-                      :value="view" @click="set_draw_type(view)">
-                <label class="btn btn-outline-dark" :for="view"> View {{ view }}</label>
-              </template>
-            </div>
-          </div>
-          <div class="row">
-            <table>
-              <td>
-                <th>CPUs Assigned</th>
-                <tr>{{ unit.cpus }}</tr>
-              </td>
-              <td>
-                <th>Credit</th>
-                <tr>{{ unit.assignment.credit }}</tr>
-              </td>
-              <td>
-                <th>Project</th>
-                <tr>{{ unit.assignment.project }}</tr>
-              </td>
-              <td>
-                <th>State</th>
-                <tr>{{ unit.state }}</tr>
-              </td>
-              <td>
-                <th>Progress</th>
-                <tr>{{ (unit.progress*100).toFixed() + '%' || 0 }}</tr>
-              </td>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
+<template lang="pug">
+.view
+  .row
+    .col-md-2.col-sm-2
+      .card
+        ul.list-group.list-group-flush
+          li.list-group-item(v-for="(unit, index) in units", :key="index", @click="showImage(index, 0)",
+                            :class="{ active : index == unitId }")
+            | WorkUnit {{ index + 1 }}
+    .col-md-10.col-sm-10
+      .card.h-100
+        .card-body
+          .proteinImage(ref="root")
+          .row.mt-2
+            .col-lg-3.col-md-3
+              nav
+                ul.pagination.justify-content-center(v-if="unit.frames.length")
+                  li.page-item(:class="{ disabled : frameCounter == 0 }" @click="frameCounter--")
+                    a.page-link(href="#")
+                      | Prev
+                  li.page-item(v-for="(frame, index) in (Math.min(3, unit.frames.length))",
+                                :class="{ active : frameId == frameCounter + index }", :key="index",
+                                @click="showImage(unitId, frameCounter + index)")
+                    a.page-link(href="#")
+                      | {{ frameCounter + index + 1 }}
+                  li.page-item(:class="{ disabled : frameCounter >= unit.frames.length-3 }" @click="frameCounter++")
+                    a.page-link(href="#")
+                      | Next
+            .col-lg-3.col-md-3
+              span Zoom
+              button.btn.btn-dark(type="button" @click="zoom_out")
+                | -
+              button.btn.btn-dark(type="button" @click="zoom_in")
+                | +
+            .col-lg-6.col-md-6
+              span Rotation
+              button.btn.btn-dark(type="button" @click="pause_rotation = !pause_rotation")
+                | {{ pause_rotation ? "Start" : "Pause" }}
+              button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(-10)")
+                | Left
+              button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(10)")
+                | Right
+            .col-lg-4.col-md-6.btn-group(role="group")
+              template(v-for="view in 3" :key="view")
+                input.btn-check(:id="view", v-model="draw_type", type="radio", name="view", :value="view",
+                               @click="set_draw_type(view)")
+                label.btn.btn-outline-dark(:for="view")
+                  | View {{ view }}
+          .row
+            table
+              td
+                th CPUs Assigned
+                tr {{ unit.cpus }}
+              td
+                th Credit
+                tr {{ unit.assignment.credit }}
+              td
+                th Project
+                tr {{ unit.assignment.project }}
+              td
+                th State
+                tr {{ unit.state }}
+              td
+                th Progress
+                tr {{ (unit.progress*100).toFixed() + '%' || 0 }}
 </template>
 
 <script>
@@ -131,40 +111,30 @@ export default {
 }
 </script>
 
-<style scoped>
-.proteinImage {
-  height: 520px;
-  background-color:lightblue;
-}
+<style lang="stylus" scoped>
+.proteinImage
+  height: 520px
+  background-color: lightblue
 
-@media screen and (max-width: 768px){
-  .proteinImage {
-    height: 300px;
-  }
-}
+  @media screen and (max-width: 768px)
+    height: 300px
 
-.row [class*="col-md-"]{
-  margin-top: 5px;
-}
+.row [class*="col-md-"]
+  margin-top: 5px
 
-li.disabled {
-  pointer-events: none;
-}
+li.disabled
+  pointer-events: none
 
-.btn-dark {
-  margin-left: 5px;
-}
+button.btn-dark
+  margin-left: 5px
 
-.list-group-item.active {
-  background-color: black;
-}
+.list-group-item.active
+  background-color: black
 
-.page-item.active .page-link {
-  background-color: black;
-  border-color: black;
-}
+.page-item.active .page-link
+  background-color: black
+  border-color: black
 
-.page-link {
-  color: black;
-}
+.page-link
+  color: black
 </style>

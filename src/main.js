@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import './index.css'
+import './index.styl'
 import 'bootstrap'
 import router from './router'
 

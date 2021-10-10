@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Units from '../components/Units.vue'
 import UnderConstruction from '../components/UnderConstruction.vue'
-import Visualization from '../components/Visualization.vue'
 
 const routes = [
 	{
@@ -17,7 +16,7 @@ const routes = [
 	{
 		path: '/visualize',
 		name: 'Visualize',
-		component: Visualization,
+		component: () => import(/* webpackChunkName: "visualize" */ '../components/Visualization.vue')
 	},
 	{
 		path: '/todo',

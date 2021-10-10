@@ -101,7 +101,6 @@ export default function useGraphicsLibrary() {
     window.addEventListener('resize', update_view, false);
   }
 
-  const target = computed(() => { return this.$el });
 
   const render = () => {
     animate = window.requestAnimationFrame(render);
