@@ -4,8 +4,8 @@
       <div class="col-md-2 col-sm-2">
       <div class="card">
         <ul class="list-group list-group-flush">
-          <li v-for="(unit, index) in units" :key="unit.id" @click="setUnitIndex(index)"
-              class="list-group-item" :class="{ active : index == id }">
+          <li v-for="(unit, index) in units" :key="index" @click="showImage(index, 0)"
+              class="list-group-item" :class="{ active : index == unitId }">
               WorkUnit {{ index + 1 }}
           </li>
         </ul>
@@ -16,20 +16,29 @@
         <div class="card-body">
           <div ref="root" class="proteinImage">
           </div>
-          <div class="row" :style="{ 'margin-top' : '10px' }">
-            <div class="col-sm-4 btn-group" role="group">
-              <template v-for="view in 3" :key="view">
-                <input :id="view" v-model="draw_type" type="radio" class="btn-check" name="view"
-                      :value="view" @click="set_draw_type(view)">
-                <label class="btn btn-outline-dark" :for="view"> View {{ view }}</label>
-              </template>
+          <div class="row" :style="{ 'margin-top' : '5px' }">
+            <div class="col-lg-3 col-md-3">
+              <nav>
+                <ul v-if="unit.frames.length" class="pagination justify-content-center">
+                  <li class="page-item" :class="{ disabled : frameCounter == 0 }" @click="frameCounter--">
+                    <a class="page-link" href="#">Prev</a>
+                  </li>
+                  <li class="page-item" v-for="(frame, index) in (Math.min(3, unit.frames.length))" :class="{ active : frameId == frameCounter + index }"
+                      :key="index" @click="showImage(unitId, frameCounter + index)">
+                    <a class="page-link" href="#">{{ frameCounter + index + 1 }}</a>
+                  </li>
+                  <li class="page-item" :class="{ disabled : frameCounter >= unit.frames.length-3 }" @click="frameCounter++">
+                    <a class="page-link" href="#">Next</a>
+                  </li>
+                </ul>
+              </nav>
             </div>
-            <div class="col-sm-3">
+            <div class="col-lg-3 col-md-3">
               <span>Zoom</span>
               <button type="button" class="btn btn-dark" @click="zoom_out"> - </button>
               <button type="button" class="btn btn-dark" @click="zoom_in"> + </button>
             </div>
-            <div class="col-sm-5">
+            <div class="col-lg-6 col-md-6">
               <span>Rotation</span>
               <button type="button" class="btn btn-dark" @click="pause_rotation = !pause_rotation">
                 {{ pause_rotation ? "Start" : "Pause" }}
@@ -37,8 +46,14 @@
               <button type="button" class="btn btn-dark" :disabled="!pause_rotation" @click="rotate(-10)">Left</button>
               <button type="button" class="btn btn-dark" :disabled="!pause_rotation" @click="rotate(10)">Right</button>
             </div>
+            <div class="col-lg-4 col-md-6 btn-group" role="group">
+              <template v-for="view in 3" :key="view">
+                <input :id="view" v-model="draw_type" type="radio" class="btn-check" name="view"
+                      :value="view" @click="set_draw_type(view)">
+                <label class="btn btn-outline-dark" :for="view"> View {{ view }}</label>
+              </template>
+            </div>
           </div>
-          <br>
           <div class="row">
             <table>
               <td>
@@ -71,7 +86,7 @@
 </template>
 
 <script>
-import { ref, computed } from '@vue/reactivity'
+import { reactive, computed, ref, toRefs } from '@vue/reactivity'
 import { onMounted, onUnmounted } from '@vue/runtime-core'
 import useGraphicsLibrary from '../composables/useGraphicsLibrary'
 import useWebSocket from '../composables/useWebSocket'
@@ -84,12 +99,18 @@ export default {
             = useGraphicsLibrary()
     const { units } = useWebSocket
 
-    const id = ref(0)
-    const unit = computed(() => units.value[id.value])
+    const data = reactive({
+      unitId: 0,
+      frameId: 0,
+      frameCounter: 0,
+    })
 
-    const setUnitIndex = (index) => {
-      id.value = index
-      showProtein(units.value[index]["topology"], units.value[index]["frames"][0], root)
+    const unit = computed(() => units.value[data.unitId])
+
+    const showImage = (unitId, frameId) => {
+      data.unitId = unitId
+      data.frameId = frameId
+      showProtein(units.value[unitId]["topology"], units.value[unitId]["frames"][frameId])
     }
 
     onMounted(() => {
@@ -101,34 +122,33 @@ export default {
     })
 
     setTimeout(() => {
-      showProtein(units.value[id.value]["topology"], units.value[id.value]["frames"][0], root)
+      showProtein(units.value[data.unitId]["topology"], units.value[data.unitId]["frames"][0])
     }, 1000)
 
-    return { units, root, id, unit, draw_type, pause_rotation, setUnitIndex, set_draw_type, zoom_in, zoom_out, rotate }
+    return { ...toRefs(data), root, units, unit, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
+             zoom_out }
   }
 }
 </script>
 
 <style scoped>
 .proteinImage {
-  height: 550px;
+  height: 520px;
   background-color:lightblue;
 }
 
-  @media screen and (max-width: 768px){
-    .proteinImage {
-      height: 300px;
-    }
+@media screen and (max-width: 768px){
+  .proteinImage {
+    height: 300px;
   }
+}
 
-.row {
+.row [class*="col-md-"]{
   margin-top: 5px;
 }
 
-@media (max-width: 768px) {
-    .row [class*="col-sm-"] {
-        margin-top: 5px;
-    }
+li.disabled {
+  pointer-events: none;
 }
 
 .btn-dark {
@@ -139,5 +159,12 @@ export default {
   background-color: black;
 }
 
+.page-item.active .page-link {
+  background-color: black;
+  border-color: black;
+}
 
+.page-link {
+  color: black;
+}
 </style>

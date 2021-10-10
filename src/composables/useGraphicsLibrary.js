@@ -37,17 +37,11 @@ export default function useGraphicsLibrary() {
 
 
   const showProtein = (topo, pos, root) => {
-    console.log("Level1");
     topology = topo;
-    console.log("Sh"+ topology)
     positions = pos;
-    console.log("Level2");
     draw();
-    console.log("Level3");
     update_view();
-    console.log("Level4");
     render();
-    console.log("Level5");
 
     graphics.message = '';
 
