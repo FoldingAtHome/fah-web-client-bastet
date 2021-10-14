@@ -14,6 +14,11 @@ const routes = [
 		component: () => import(/* webpackChunkName: "config" */ '../components/Config.vue')
 	},
 	{
+		path: '/visualize',
+		name: 'Visualize',
+		component: () => import(/* webpackChunkName: "visualize" */ '../components/Visualization.vue')
+	},
+	{
 		path: '/todo',
 		name: 'Todo',
 		component: UnderConstruction
