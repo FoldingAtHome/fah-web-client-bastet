@@ -19,11 +19,11 @@
         label.col-sm-3.col-md-3.col-form-label(for="cpus")
           | # of CPUs :
         .col-sm-9
-          input#cpus.form-control(v-model="config.cpus", type="number", min="1", :max="info.cpus-1", 
+          input#cpus.form-control(v-model="config.cpus", type="number", min="1", :max="info.cpus-1",
                                     :disabled="config.power != 'custom'")
       .row.mb-3
         label.col-sm-3.col-md-3.col-form-label(for="key")
-          | Key :
+          | Project-Key :
         .col-sm-9
           input#key.form-control(v-model="config.key" type="number" min="0")
       .row.mb-3
@@ -44,17 +44,11 @@
           tr
             th GPU
             th Enable
-            th Options
           tr.mb-7(v-for="(gpu, index) in config.gpus" :key="index")
             td {{ info.gpus[index].description }}
             td
               .form-check.form-switch
                 input.form-check-input(v-model="gpu.enabled" type="checkbox")
-            td
-              .form-floating
-                textarea#gpuOptions.form-control(v-model="gpu.options" placeholder="GPU Options")
-                label(for="gpuOptions")
-                  | GPU Options
       .offset-sm-2
         button.btn.btn-warning(type="button" @click="clear")
           | Clear
