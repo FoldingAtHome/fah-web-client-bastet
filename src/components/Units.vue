@@ -9,7 +9,7 @@
         th(scope="col")
           | #
         th(scope="col")
-          | Name
+          | Project (Run, Clone, Gen)
         th(scope="col")
           | State
         th(scope="col")
@@ -18,9 +18,8 @@
           | Action
     tbody
       tr(v-for="(unit, index) in units" :key="index")
-        th(scope="row")
-          | {{ index + 1 }}
-        td WorkUnit {{ index + 1 }}
+        th(scope="row") {{ index + 1 }}
+        td {{ unitPRCG(index) }}
         td {{ unit.state }}
         td
           .progress(v-if="unit.state == 'RUN'")
@@ -32,7 +31,7 @@
             | Unit is downloading...
         td
           button.btn(type="button", :class="[unit.paused ? 'btn-success' : 'btn-warning']",
-                      @click="pause(unit.id, unit.paused)")
+                     @click="pause(unit.id, unit.paused)")
             | {{ unit.paused ? "Start" : "Pause" }}
 </template>
 
@@ -49,7 +48,7 @@ export default {
       let running = true;
 
       for (var i = 0; i < units.value.length; i++) {
-        if (units.value[i]["paused"] == true) {
+        if (units.value[i]["paused"] == true && units.value[i]["pauseMsg"] != "resources") {
           running = false;
           break;
         }
@@ -63,11 +62,23 @@ export default {
     }
 
     const pauseAll = () => {
-      let msg = { cmd: areAllRunning.value ? "pause" : "unpause" };
-      send(msg);
+      for (var i = 0; i < units.value.length; i++) {
+        if(units.value[i]["pauseMsg"] != "resources") {
+          let msg = { cmd: areAllRunning.value ? "pause" : "unpause", unit: units.value[i]["id"] };
+          send(msg);
+        }
+      }
     }
 
-    return { units, areAllRunning, pause, pauseAll }
+    const unitPRCG = (index) => {
+      const unitData = units.value[index];
+      if(unitData.assignment && unitData.wu)
+        return `${unitData.assignment.project} (${unitData.wu.run}, ${unitData.wu.clone}, ${unitData.wu.gen})`
+      else
+        return "Will be assigned shortly."
+    }
+
+    return { units, areAllRunning, unitPRCG, pause, pauseAll }
   }
 }
 </script>
@@ -75,4 +86,7 @@ export default {
 <style lang="stylus" scoped>
 .pauseBtn
   margin: 10px
+
+tr.disabled
+  background-color #d3d3d3
 </style>
