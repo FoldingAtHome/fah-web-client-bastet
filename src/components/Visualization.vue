@@ -11,7 +11,9 @@
       .card.h-100
         .card-body
           .proteinImage(ref="root")
-          .row.mt-2
+            .container.center(v-if="!unit.hasOwnProperty('frames')")
+              p There are no frames available for this unit.
+          .row.mt-2(v-if="unit.hasOwnProperty('frames')")
             .col-lg-3.col-md-3
               nav
                 ul.pagination.justify-content-center(v-if="unit.frames.length")
@@ -46,7 +48,7 @@
                                @click="set_draw_type(view)")
                 label.btn.btn-outline-dark(:for="view")
                   | View {{ view }}
-          .row
+          .row(v-if="unit.state =='RUN'")
             table
               td
                 th CPUs Assigned
@@ -90,7 +92,8 @@ export default {
     const showImage = (unitId, frameId) => {
       data.unitId = unitId
       data.frameId = frameId
-      showProtein(units.value[unitId]["topology"], units.value[unitId]["frames"][frameId])
+      if(units.value[unitId].hasOwnProperty('frames'))
+        showProtein(units.value[unitId]["topology"], units.value[unitId]["frames"][frameId])
     }
 
     onMounted(() => {
@@ -102,7 +105,7 @@ export default {
     })
 
     setTimeout(() => {
-      showProtein(units.value[data.unitId]["topology"], units.value[data.unitId]["frames"][0])
+      showImage(0, 0);
     }, 1000)
 
     return { ...toRefs(data), root, units, unit, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
@@ -118,6 +121,15 @@ export default {
 
   @media screen and (max-width: 768px)
     height: 300px
+
+.center
+  height: 100%
+  display: table
+  text-align: center
+
+.center p
+  display: table-cell
+  vertical-align: middle
 
 .row [class*="col-md-"]
   margin-top: 5px
