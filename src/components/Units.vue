@@ -17,22 +17,25 @@
         th(scope="col")
           | Action
     tbody
-      tr(v-for="(unit, index) in units" :key="index")
-        th(scope="row") {{ index + 1 }}
-        td {{ unitPRCG(index) }}
-        td {{ unit.state }}
-        td
-          .progress(v-if="unit.state == 'RUN'")
-            .progress-bar.progress-bar-striped(role="progressbar",
-              :class="[unit.paused ? 'bg-secondary' : 'progress-bar-animated bg-success']",
-              :style="{ width: unit.progress * 100 + '%' }" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100")
-              | {{ (unit.progress * 100).toFixed() }}%
-          div(v-else)
-            | Unit is downloading...
-        td
-          button.btn(type="button", :class="[unit.paused ? 'btn-success' : 'btn-warning']",
-                     @click="pause(unit.id, unit.paused)")
-            | {{ unit.paused ? "Start" : "Pause" }}
+      template(v-for="(unit, index) in units" :key="index")
+        tr(tabindex="0" data-bs-container="body" data-bs-toggle="tooltip" :title="pauseMsg(index)",
+           :class='{ disabled: pauseMsg(index) != "" }')
+          th(scope="row") {{ index + 1 }}
+          td {{ unitPRCG(index) }}
+          td {{ unit.state }}
+          td
+            .progress(v-if="unit.state == 'RUN'")
+              .progress-bar.progress-bar-striped(role="progressbar",
+                :class="[unit.paused ? 'bg-secondary' : 'progress-bar-animated bg-success']",
+                :style="{ width: unit.progress * 100 + '%' }" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100")
+                | {{ (unit.progress * 100).toFixed() }}%
+            div(v-else)
+              | Unit is {{ unitMsg[unit.state] }}
+          td
+            button.btn(type="button", :class="[unit.paused ? 'btn-success' : 'btn-warning']",
+                       :disabled='unit.pauseMsg == "resources"',
+                       @click="pause(unit.id, unit.paused)")
+              | {{ unit.paused ? "Start" : "Pause" }}
 </template>
 
 <script>
@@ -42,7 +45,26 @@ import useWebSocket from "../composables/useWebSocket";
 export default {
   name: 'Units',
   setup() {
+    var unitMsg = {
+      "ASSIGN": "getting assigned.",
+      "DOWNLOAD": "downloading...",
+      "UPLOAD": "uploading...",
+      "CORE": "in core state.",
+      "CLEAN": "about to be removed.",
+      "DONE": "finished",
+    }
+
     const { units, send } = useWebSocket;
+    const pauseMsg = (unitId) => {
+      if(!units.value[unitId].hasOwnProperty("pauseMsg")) return ""
+      if(units.value[unitId]["pauseMsg"] == "user")
+        return "Paused by user.";
+      else if(units.value[unitId]["pauseMsg"] == "resources") {
+        let gpus = units.value[unitId]["gpus"] != "undefined" ? units.value[unitId]["gpus"].length : 0;
+        return ("Requires " + units.value[unitId]["cpus"] + " cpus and " + gpus + " gpus.");
+      }
+      else return ""
+    }
 
     const areAllRunning = computed(() => {
       let running = true;
@@ -78,7 +100,7 @@ export default {
         return "Will be assigned shortly."
     }
 
-    return { units, areAllRunning, unitPRCG, pause, pauseAll }
+    return { units, areAllRunning, unitMsg, unitPRCG, pause, pauseAll, pauseMsg }
   }
 }
 </script>
