@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue';
+import { computed, reactive, toRef } from 'vue';
 
 const ws_data = reactive({
   url: "",
@@ -10,6 +10,11 @@ const ws_data = reactive({
 const config = computed(() => ws_data.data.config);
 const units = computed(() => ws_data.data.units);
 const info = computed(() => ws_data.data.info);
+const isInitialized = toRef(ws_data, 'isInitialized')
+
+const isWSOpen = () => {
+  return ws_data.socket != null && ws_data.socket.readyState == WebSocket.OPEN;
+}
 
 const openWebSocket = (url) => {
   ws_data.url = url;
@@ -17,6 +22,7 @@ const openWebSocket = (url) => {
   ws_data.socket = new WebSocket(ws_data.url);
   ws_data.socket.addEventListener('message', onMessage);
   ws_data.socket.addEventListener('open', onOpen);
+  ws_data.socket.addEventListener('close', onClose);
 }
 
 const send = (msg) => {
@@ -59,6 +65,11 @@ const onOpen = () => {
   ws_data.isInitialized = false;
 }
 
-const useWebSocket = { config, info, units, openWebSocket, send, close };
+const onClose = () => {
+  ws_data.isInitialized = false;
+  setTimeout(openWebSocket(ws_data.url), 2000);
+}
+
+const useWebSocket = { config, info, units, isInitialized, isWSOpen, openWebSocket, send, close };
 
 export default useWebSocket;

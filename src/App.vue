@@ -1,7 +1,11 @@
 <template lang="pug">
-div
+div(v-if="isWSOpen && isInitialized")
   Navbar
   router-view
+div(v-else)
+  .spinner-border.text-success(role="status")
+    span.visually-hidden Loading...
+  h3 Connecting to Folding@Home Client
 </template>
 
 <script>
@@ -18,7 +22,7 @@ export default {
     Navbar
   },
   setup() {
-    const { openWebSocket, close} = useWebSocket;
+    const { isWSOpen, isInitialized, openWebSocket, close} = useWebSocket;
 
     openWebSocket(ws_url);
 
@@ -26,6 +30,7 @@ export default {
       close();
     })
 
+    return { isWSOpen, isInitialized }
   }
 }
 </script>
