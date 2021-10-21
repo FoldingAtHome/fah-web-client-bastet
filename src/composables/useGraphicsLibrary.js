@@ -61,7 +61,6 @@ export default function useGraphicsLibrary() {
   const setGraphics = (root) => {
     try {
       _target = root;
-      console.log(_target.value)
       // Renderer
       data_renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
       data_renderer.setPixelRatio(window.devicePixelRatio);
@@ -151,11 +150,10 @@ export default function useGraphicsLibrary() {
     var material = graphics.draw_type == 3 ? THREE.MeshPhysicalMaterial :
         THREE.MeshPhongMaterial;
 
-    // this.atom_materials = []
-    for (var i = 0; i < 6; i++)
-      atom_materials.push(
-        new material({
-          shininess: shine[i], specular: specular[i], color: color[i]}))
+    for (var i = 0; i < 6; i++) {
+      if(graphics.draw_type == 3) atom_materials.push(new material({ color: color[i] }))
+      else atom_materials.push(new material({ shininess: shine[i], specular: specular[i], color: color[i] }))
+    }
 
     bond_material =
       new THREE.MeshPhongMaterial({
@@ -212,7 +210,7 @@ export default function useGraphicsLibrary() {
 
     return {
       number: number, type: type, radius: radius,
-      geometry: new THREE.SphereBufferGeometry(radius, segs, segs)
+      geometry: new THREE.SphereGeometry(radius, segs, segs)
     }
   }
 
@@ -234,6 +232,8 @@ export default function useGraphicsLibrary() {
     }
 
     for (var type = 0; type < 5; type++) {
+      console.log("Sh "+type+" "+atom_geometries[type].length)
+      if(atom_geometries[type].length == 0) continue;
       var geo = BufferGeometryUtils.mergeBufferGeometries(atom_geometries[type]);
       var mesh = new THREE.Mesh(geo, atom_materials[type]);
       group.add(mesh);
@@ -249,7 +249,7 @@ export default function useGraphicsLibrary() {
     var length = vA.distanceTo(vB);
     var r = 0.02;
 
-    var geometry = new THREE.CylinderBufferGeometry(r, r, length, 8, 1, true);
+    var geometry = new THREE.CylinderGeometry(r, r, length, 8, 1, true);
     geometry.translate(0, length / 2, 0);
 
     // Rotate
