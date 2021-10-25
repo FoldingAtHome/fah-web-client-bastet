@@ -1,7 +1,7 @@
 
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { computed, reactive, toRefs } from 'vue';
+import { reactive, toRefs } from 'vue';
 /* globals PerfectScrollbar, Chart, THREE */
 var HYDROGEN = 1;
 var CARBON   = 6;
@@ -25,8 +25,8 @@ export default function useGraphicsLibrary() {
   var ambient = null
   var lights = null
   var __zoom = null
-  var rotate_startRot = null
-  var rotate_startX = null
+  var rotate_startRot = undefined
+  var rotate_startX = undefined
   var positions = null
   var topology = {}
   var _target = null
@@ -39,6 +39,7 @@ export default function useGraphicsLibrary() {
   const showProtein = (topo, pos, root) => {
     topology = topo;
     positions = pos;
+    data_renderer.domElement.style.display = 'block';
     draw();
     update_view();
     render();
@@ -56,6 +57,11 @@ export default function useGraphicsLibrary() {
     window.removeEventListener('wheel', wheel);
     window.removeEventListener('resize', update_view);
     window.cancelAnimationFrame(animate);
+  }
+
+  const clearArea = () => {
+    if(data_renderer != 'undefined' && data_renderer.domElement != 'undefined')
+      data_renderer.domElement.style.display = 'none';
   }
 
   const setGraphics = (root) => {
@@ -232,7 +238,6 @@ export default function useGraphicsLibrary() {
     }
 
     for (var type = 0; type < 5; type++) {
-      console.log("Sh "+type+" "+atom_geometries[type].length)
       if(atom_geometries[type].length == 0) continue;
       var geo = BufferGeometryUtils.mergeBufferGeometries(atom_geometries[type]);
       var mesh = new THREE.Mesh(geo, atom_materials[type]);
@@ -403,5 +408,6 @@ export default function useGraphicsLibrary() {
 
   const key_up = (e) => {set_draw_type(parseInt(e.key))}
 
-  return { ...toRefs(graphics), showProtein, removeGL, setGraphics, set_draw_type, rotate, zoom_in, zoom_out };
+  return { ...toRefs(graphics), showProtein, removeGL, setGraphics, clearArea, set_draw_type, rotate, zoom_in,
+           zoom_out };
 }
