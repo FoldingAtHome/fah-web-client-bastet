@@ -10,7 +10,7 @@
     .col-md-10.col-sm-10
       .card.h-100
         .card-body
-          .proteinImage(ref="root")
+          .imageContainer(ref="root")
             .container.center(v-if="!unit.hasOwnProperty('frames')")
               p There are no frames available for this unit.
           .row.mt-2(v-if="unit.hasOwnProperty('frames')")
@@ -77,8 +77,8 @@ export default {
   setup() {
     const root = ref(null)
 
-    const { draw_type, pause_rotation, rotate, showProtein, setGraphics, removeGL, set_draw_type, zoom_in, zoom_out }
-            = useGraphicsLibrary()
+    const { draw_type, pause_rotation, rotate, showProtein, setGraphics, removeGL, clearArea, set_draw_type, zoom_in,
+            zoom_out } = useGraphicsLibrary()
     const { units } = useWebSocket
 
     const data = reactive({
@@ -94,6 +94,8 @@ export default {
       data.frameId = frameId
       if(units.value[unitId].hasOwnProperty('frames'))
         showProtein(units.value[unitId]["topology"], units.value[unitId]["frames"][frameId])
+      else
+        clearArea();
     }
 
     onMounted(() => {
@@ -115,7 +117,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.proteinImage
+.imageContainer
   height: 520px
   background-color: lightblue
 
