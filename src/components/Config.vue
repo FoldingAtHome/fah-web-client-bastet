@@ -9,18 +9,12 @@
           label.form-check-label(for="on_idle")
             | Use only when idle
       .row.mb-3
-        label.col-sm-3.col-md-3.col-form-label Power :
-        .col-sm-9.btn-group(role="group")
-          template(v-for="power in powerValues" :key="power")
-            input.btn-check(:id="power" v-model="config.power" type="radio" name="power" :value="power.toLowerCase()")
-            label.btn.btn-outline-dark(:for="power")
-              | {{ power }}
-      .row.mb-3
-        label.col-sm-3.col-md-3.col-form-label(for="cpus")
+        label.col-sm-3.col.md-3.col-form-label(for="cpus")
           | # of CPUs :
-        .col-sm-9
-          input#cpus.form-control(v-model="config.cpus", type="number", min="1", :max="info.cpus-1",
-                                    :disabled="config.power != 'custom'")
+        .col-sm-1.col-md-1
+          span(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
+        .col-sm-8
+          input#cpus.form-range(v-model="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
       .row.mb-3
         label.col-sm-3.col-md-3.col-form-label(for="key")
           | Project-Key :
@@ -67,7 +61,6 @@ export default {
 
     const cached = reactive({
       causes: ["Any", "Alzheimers", "Cancer", "Huntingtons", "Parkinsons"],
-      powerValues: ["Light", "Medium", "Full", "Custom"],
       releases: ["Beta", "Public"],
       config: JSON.parse(JSON.stringify(config.value))
     });
@@ -127,4 +120,32 @@ export default {
 
 button
   margin: 10px
+
+.form-range
+  margin-top 3px
+
+  &::-webkit-slider-thumb
+    background: black
+
+span
+  display: inline-block
+  position: relative
+  color: white
+  line-height: 20px
+  text-align: center
+  border-radius: 3px
+  background: black
+  padding: 5px 10px
+  margin-left: 4px
+
+span::after
+  position: absolute
+  top: 8px
+  right: -7px
+  width: 0
+  height: 0
+  border-top: 7px solid transparent
+  border-left: 7px solid black
+  border-bottom: 7px solid transparent
+  content: ''
 </style>
