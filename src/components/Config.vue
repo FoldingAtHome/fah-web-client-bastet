@@ -51,7 +51,7 @@
                 input.form-check-input(v-model="gpu.enabled" type="checkbox")
       .offset-sm-2
         button.btn.btn-warning(type="button" @click="clear")
-          | Clear
+          | Discard
         button.btn.btn-primary(type="button" @click="saveSettings")
           | Save
 </template>
@@ -73,17 +73,17 @@ export default {
     });
 
     const update = () => {
-        cached.config = JSON.parse(JSON.stringify(config.value))
+      cached.config = JSON.parse(JSON.stringify(config.value))
     }
 
     const saveSettings = () => {
-        console.log("Save Settings called");
-        send({ cmd : "config", config : changedData.value});
+      console.log("Save Settings.");
+      send({ cmd : "config", config : changedData.value});
     }
 
     const clear = () => {
-        console.log("Clear Clicked");
-        update();
+      console.log("Clear Clicked");
+      update();
     }
 
     const changedData = computed(() => {
@@ -98,11 +98,11 @@ export default {
     watchEffect(update);
 
     onBeforeUnmount(() => {
-        if(!(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
-            var answer = window.confirm('You have unsaved changes!')
-            if(answer) saveSettings();
-            else clear();
-        }
+      if(!(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
+        var answer = window.confirm('You have unsaved settings changes. What would you like to do with them?')
+        if(answer) saveSettings();
+        else clear();
+      }
     })
 
     return { ...toRefs(cached), info, saveSettings, clear };
