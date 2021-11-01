@@ -21,12 +21,11 @@
       fieldset.border.p-2.mb-2
         legend.w-auto Project Settings
         div
-          .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label Release :
-            .col-sm-9
-              select.form-select(v-model="config.release" aria-label="Select Release")
-                option(v-for="release in releases" :key="release" :value="release.toLowerCase()")
-                  | {{ release }}
+          .mb-3
+            .form-check.form-switch
+              input#release.form-check-input(v-model="config.release", type="checkbox", true-value="Beta",
+                                             false-value="Public")
+              label.form-check-label(for="release") Beta Allowed
           .row.mb-3
             label.col-sm-3.col-md-3.col-form-label(for="causes") Causes :
             .col-sm-9
@@ -76,8 +75,7 @@ export default {
 
     const cached = reactive({
       causes: ["Any", "Alzheimers", "Cancer", "Huntingtons", "Parkinsons"],
-      releases: ["Beta", "Public"],
-      config: JSON.parse(JSON.stringify(config.value))
+      config: JSON.parse(JSON.stringify(config.value)),
     });
 
     const update = () => {
