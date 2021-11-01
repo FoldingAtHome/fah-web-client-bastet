@@ -2,52 +2,67 @@
 .view
   h2 Configuration
   form
-    .col-md-8.col-lg-7
-      .mb-3
-        .form-check.form-switch
-          input#on_idle.form-check-input(v-model="config.on_idle" type="checkbox")
-          label.form-check-label(for="on_idle")
-            | Use only when idle
-      .row.mb-3
-        label.col-sm-3.col.md-3.col-form-label(for="cpus")
-          | # of CPUs :
-        .col-sm-1.col-md-1
-          span(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
-        .col-sm-8
-          input#cpus.form-range(v-model="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
-      .row.mb-3
-        label.col-sm-3.col-md-3.col-form-label(for="key")
-          | Project-Key :
-        .col-sm-9
-          input#key.form-control(v-model="config.key" type="number" min="0")
-      .row.mb-3
-        label.col-sm-3.col-md-3.col-form-label Release :
-        .col-sm-9
-          select.form-select(v-model="config.release" aria-label="Select Release")
-            option(v-for="release in releases" :key="release" :value="release.toLowerCase()")
-              | {{ release }}
-      .row.mb-3
-        label.col-sm-3.col-md-3.col-form-label(for="cpus")
-          | Causes :
-        .col-sm-9
-          select.form-select(v-model="config.cause" aria-label="Select Cause")
-            option(v-for="cause in causes" :key="cause" :value="cause.toLowerCase()")
-              | {{ cause }}
-      .row.mb-3
-        table
-          tr
-            th GPU
-            th Enable
-          tr.mb-7(v-for="(gpu, index) in config.gpus" :key="index")
-            td {{ info.gpus[index].description }}
-            td
-              .form-check.form-switch
-                input.form-check-input(v-model="gpu.enabled" type="checkbox")
+    .col-md-9.col-lg-8.form-data
+      fieldset.form-group.border.p-2.mb-2
+        legend.w-auto User Settings
+        div
+          .row.mb-3
+            label.col-sm-3.col-md-3.col-form-label(for="user") Username :
+            .col-sm-9
+              input#user.form-control(v-model="config.user" type="text")
+          .row.mb-3
+            label.col-sm-3.col-md-3.col-form-label(for="team") Team Name
+            .col-sm-9
+              input#team.form-control(v-model="config.team" type="number")
+          .row.mb-3
+            label.col-sm-3.col-md-3.col-form-label(for="passkey") Pass-key :
+            .col-sm-9
+              input#passkey.form-control(v-model="config.passkey" pattern="[0-9a-fA-F]{30,32}")
+      fieldset.border.p-2.mb-2
+        legend.w-auto Project Settings
+        div
+          .row.mb-3
+            label.col-sm-3.col-md-3.col-form-label Release :
+            .col-sm-9
+              select.form-select(v-model="config.release" aria-label="Select Release")
+                option(v-for="release in releases" :key="release" :value="release.toLowerCase()")
+                  | {{ release }}
+          .row.mb-3
+            label.col-sm-3.col-md-3.col-form-label(for="causes") Causes :
+            .col-sm-9
+              select.form-select(v-model="config.cause" aria-label="Select Cause")
+                option(v-for="cause in causes" :key="cause" :value="cause.toLowerCase()") {{ cause }}
+          .row.mb-3
+            label.col-sm-3.col-md-3.col-form-label(for="key") Project-Key :
+            .col-sm-9
+              input#key.form-control(v-model="config.key" type="number" min="0")
+      fieldset.border.p-2.mb-2
+        legend.w-auto Resource Usage
+        div
+          .mb-3
+            .form-check.form-switch
+              input#on_idle.form-check-input(v-model="config.on_idle" type="checkbox")
+              label.form-check-label(for="on_idle") Use only when idle
+          .row.mb-3
+            label.col-sm-3.col.md-3.col-form-label(for="cpus")
+              | # of CPUs :
+            .col-sm-1.col-md-1
+              span(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
+            .col-sm-8
+              input#cpus.form-range(v-model="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
+          .row.mb-3
+            table
+              tr
+                th GPU
+                th Enable
+              tr.mb-7(v-for="(gpu, index) in config.gpus" :key="index")
+                td {{ info.gpus[index].description }}
+                td
+                  .form-check.form-switch
+                    input.form-check-input(v-model="gpu.enabled" type="checkbox")
       .offset-sm-2
-        button.btn.btn-warning(type="button" @click="clear")
-          | Discard
-        button.btn.btn-primary(type="button" @click="saveSettings")
-          | Save
+        button.btn.btn-warning(type="button" @click="clear") Clear
+        button.btn.btn-primary(type="button" @click="saveSettings") Save
 </template>
 
 <script>
@@ -105,6 +120,12 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+form
+  text-align: center
+
+.form-data
+  display: inline-block
+
 .form-check
   display: inline-block
 
@@ -117,6 +138,10 @@ export default {
 .form-check-input:checked
   background-color: black
   border-color: black
+
+legend
+  font-weight: bold
+  font-size: 20px
 
 button
   margin: 10px
