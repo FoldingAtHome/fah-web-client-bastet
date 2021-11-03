@@ -15,7 +15,7 @@ div
           router-link.nav-link(:to="{ name : 'Config' }")
             | Configuration
         li.nav-item
-          router-link.nav-link(:to="{ name : 'Visualize' }")
+          router-link.nav-link(:to="{ name : 'WorkUnit' }")
             | Visualization
         li.nav-item
           router-link.nav-link(:to="{ name : 'Todo' }")
