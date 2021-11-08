@@ -11,11 +11,11 @@
             .col-sm-9
               input#user.form-control(v-model="config.user" type="text")
           .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="team") Team Name
+            label.col-sm-3.col-md-3.col-form-label(for="team") Team Name :
             .col-sm-9
-              input#team.form-control(v-model="config.team" type="number")
+              input#team.form-control(v-model.number="config.team" type="number" min="0")
           .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="passkey") Pass-key :
+            label.col-sm-3.col-md-3.col-form-label(for="passkey") Passkey :
             .col-sm-9
               input#passkey.form-control(v-model="config.passkey" pattern="[0-9a-fA-F]{30,32}")
       fieldset.border.p-2.mb-2
@@ -48,7 +48,7 @@
             .col-sm-1.col-md-1
               span(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
             .col-sm-8
-              input#cpus.form-range(v-model="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
+              input#cpus.form-range(v-model.number="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
           .row.mb-3
             table
               tr
@@ -60,8 +60,8 @@
                   .form-check.form-switch
                     input.form-check-input(v-model="gpu.enabled" type="checkbox")
       .offset-sm-2
-        button.btn.btn-warning(type="button" @click="clear") Clear
-        button.btn.btn-primary(type="button" @click="saveSettings") Save
+        button.settings.btn.btn-warning(type="button" @click="clear") Discard
+        button.settings.btn.btn-primary(type="button" @click="saveSettings") Save
 </template>
 
 <script>
@@ -72,45 +72,38 @@ export default {
   name: "Config",
   setup() {
     const { config, info, send } = useWebSocket;
-
     const cached = reactive({
       causes: ["Any", "Alzheimers", "Cancer", "Huntingtons", "Parkinsons"],
       config: JSON.parse(JSON.stringify(config.value)),
     });
-
     const update = () => {
-      cached.config = JSON.parse(JSON.stringify(config.value))
-    }
-
+      cached.config = JSON.parse(JSON.stringify(config.value));
+    };
     const saveSettings = () => {
       console.log("Save Settings.");
-      send({ cmd : "config", config : changedData.value});
-    }
+      send({ cmd: "config", config: changedData.value });
+    };
 
     const clear = () => {
       console.log("Clear Clicked");
       update();
-    }
-
+    };
     const changedData = computed(() => {
       const tmp = JSON.parse(JSON.stringify(cached.config));
-        const result = Object.entries(tmp).filter(([key]) => {
-                          return ((typeof config.value[key] == 'undefined') ||
+      const result = Object.entries(tmp).filter(([key]) => {
+                      return ((typeof config.value[key] == "undefined") ||
                           (JSON.stringify(config.value[key]) != JSON.stringify(tmp[key])));
-                        })
+        });
       return Object.fromEntries(result);
-    })
-
+    });
     watchEffect(update);
-
     onBeforeUnmount(() => {
       if(!(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
-        var answer = window.confirm('You have unsaved settings changes. What would you like to do with them?')
+        var answer = window.confirm("You have unsaved settings changes. Would you like save them?");
         if(answer) saveSettings();
         else clear();
       }
-    })
-
+    });
     return { ...toRefs(cached), info, saveSettings, clear };
   }
 }
@@ -141,7 +134,7 @@ legend
   font-weight: bold
   font-size: 20px
 
-button
+button.settings
   margin: 10px
 
 .form-range
