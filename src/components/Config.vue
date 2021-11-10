@@ -1,5 +1,16 @@
 <template lang="pug">
 .view
+  #saveSettings.modal.fade(ref="settingsModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="saveSettings" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5#saveSettingsLabel.modal-title Settings
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p You have unsaved settings. What would you like to do with them?
+        .modal-footer
+          button.settings.btn.btn-warning(type="button" @click="check('discard')") Discard
+          button.settings.btn.btn-primary(type="button" @click="check('save')") Save
   h2 Configuration
   form
     .col-md-9.col-lg-8.form-data
@@ -60,13 +71,14 @@
                   .form-check.form-switch
                     input.form-check-input(v-model="gpu.enabled" type="checkbox")
       .offset-sm-2
-        button.settings.btn.btn-warning(type="button" @click="clear") Discard
-        button.settings.btn.btn-primary(type="button" @click="saveSettings") Save
+        button.settings.btn.btn-warning(type="button" @click="reset") Discard
+        button.settings.btn.btn-primary(type="button" @click="save") Save
 </template>
 
 <script>
 import useWebSocket from '../composables/useWebSocket'
-import { reactive, toRefs, onBeforeUnmount, watchEffect, computed } from 'vue'
+import { reactive, toRefs, watchEffect, computed } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 
 export default {
   name: "Config",
@@ -75,19 +87,25 @@ export default {
     const cached = reactive({
       causes: ["Any", "Alzheimers", "Cancer", "Huntingtons", "Parkinsons"],
       config: JSON.parse(JSON.stringify(config.value)),
+      settingsModal: null,
+      nextRoute: null
     });
-    const update = () => {
+
+    const reset = () => {
       cached.config = JSON.parse(JSON.stringify(config.value));
     };
-    const saveSettings = () => {
+
+    const save = () => {
       console.log("Save Settings.");
       send({ cmd: "config", config: changedData.value });
     };
 
-    const clear = () => {
-      console.log("Clear Clicked");
-      update();
+    const check = (param) => {
+      if(param == 'discard') reset();
+      if(param == 'save') save();
+      toggleModal(false)
     };
+
     const changedData = computed(() => {
       const tmp = JSON.parse(JSON.stringify(cached.config));
       const result = Object.entries(tmp).filter(([key]) => {
@@ -96,15 +114,28 @@ export default {
         });
       return Object.fromEntries(result);
     });
-    watchEffect(update);
-    onBeforeUnmount(() => {
+
+    watchEffect(reset);
+
+    const toggleModal = (state) => {
+      var m2 = bootstrap.Modal.getOrCreateInstance(cached.settingsModal);
+      if(state) m2.show();
+      else m2.hide();
+    }
+
+    onBeforeRouteLeave((to, from, next) => {
       if(!(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
-        var answer = window.confirm("You have unsaved settings changes. Would you like save them?");
-        if(answer) saveSettings();
-        else clear();
+        cached.nextRoute = to;
+        toggleModal(true);
+
+        cached.settingsModal.addEventListener('hide.bs.modal', () => {
+          next();
+        })
       }
-    });
-    return { ...toRefs(cached), info, saveSettings, clear };
+      else next();
+    })
+
+    return { ...toRefs(cached), info, save, reset, check };
   }
 }
 
