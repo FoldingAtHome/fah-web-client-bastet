@@ -15,8 +15,8 @@
               a.nav-link(aria-current="true" @click.prevent="setActiveTab('visualize')" href="#visualize") Visualization
             li.nav-item(:class="{ active : isActive('details') }")
               a.nav-link(@click.prevent="setActiveTab('details')" href="#details") Details
-        Details(v-show="isActive('details')" :unitId="data.unitId")
-        Visualization(v-show="isActive('visualize')" :unitId="data.unitId" )
+        Details(v-if="isActive('details')" :unitId="data.unitId")
+        Visualization(v-else :unitId="data.unitId")
 </template>
 
 <script>

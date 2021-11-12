@@ -1,8 +1,9 @@
-import { reactive } from 'vue';
+import { reactive, toRefs } from 'vue';
 import axios from 'axios';
 
 const data = reactive({
-  api: null
+  api: null,
+  response: { data: null, error: false }
 })
 
 data.api = axios.create({
@@ -10,16 +11,17 @@ data.api = axios.create({
 });
 
 const getProjectData = async (projectId) => {
+  data.response = { data: null, error: false};
+
   try {
-    const projectData = await data.api.get('/project/' + projectId);
-    console.log(projectData);
-    return projectData;
+    let result = await data.api.get('/project/' + projectId);
+    data.response.data = result.data;
   } catch(error) {
-    console.log("Error: " + error);
+    data.response.error = true;
   }
 }
 
-const useAPI = { getProjectData };
+const useAPI = { ...toRefs(data), getProjectData };
 
 export default useAPI;
 

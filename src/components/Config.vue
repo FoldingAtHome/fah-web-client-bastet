@@ -76,6 +76,7 @@
 </template>
 
 <script>
+import { Modal } from  'bootstrap'
 import useWebSocket from '../composables/useWebSocket'
 import { reactive, toRefs, watchEffect, computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
@@ -118,7 +119,7 @@ export default {
     watchEffect(reset);
 
     const toggleModal = (state) => {
-      var m2 = bootstrap.Modal.getOrCreateInstance(cached.settingsModal);
+      var m2 = Modal.getOrCreateInstance(cached.settingsModal);
       if(state) m2.show();
       else m2.hide();
     }
