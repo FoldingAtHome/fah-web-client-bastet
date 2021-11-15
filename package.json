@@ -7,6 +7,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "axios": "^0.24.0",
     "bootstrap": "^5.1.1",
     "three": "^0.132.2",
     "vue": "^3.0.4",
