@@ -33,7 +33,7 @@
               | Unit is {{ unitMsg[unit.state] }}
           td
             button.btn(type="button", :class="[unit.paused ? 'btn-success' : 'btn-warning']",
-                       :disabled='unit.pauseMsg == "resources"',
+                       :disabled='unit["pause-reason"] == pauseReason["resources"]',
                        @click="pause(unit.id, unit.paused)")
               | {{ unit.paused ? "Start" : "Pause" }}
 </template>
@@ -45,7 +45,12 @@ import useWebSocket from "../composables/useWebSocket";
 export default {
   name: 'Units',
   setup() {
-    var unitMsg = {
+    let pauseReason = {
+      "resources": "Insufficient resources.",
+      "user": "Paused by user."
+    }
+
+    let unitMsg = {
       "ASSIGN": "getting assigned.",
       "DOWNLOAD": "downloading...",
       "UPLOAD": "uploading...",
@@ -56,21 +61,22 @@ export default {
 
     const { units, send } = useWebSocket;
     const pauseMsg = (unitId) => {
-      if(!units.value[unitId].hasOwnProperty("pauseMsg")) return ""
-      if(units.value[unitId]["pauseMsg"] == "user")
-        return "Paused by user.";
-      else if(units.value[unitId]["pauseMsg"] == "resources") {
+      if(!units.value[unitId].hasOwnProperty("pause-reason")) return ""
+      if(units.value[unitId]["pause-reason"] == pauseReason["resources"]) {
         let gpus = units.value[unitId]["gpus"] != "undefined" ? units.value[unitId]["gpus"].length : 0;
-        return ("Requires " + units.value[unitId]["cpus"] + " cpus and " + gpus + " gpus.");
+        return (units.value[unitId]["pause-reason"] + " Requires " + units.value[unitId]["cpus"] + " cpus and "
+                + gpus + " gpus.");
       }
-      else return ""
+      else if(units.value[unitId]["pause-reason"] == pauseReason["user"])
+        return units.value[unitId]["pause-reason"]
+      else ""
     }
 
     const areAllRunning = computed(() => {
       let running = true;
 
       for (var i = 0; i < units.value.length; i++) {
-        if (units.value[i]["paused"] == true && units.value[i]["pauseMsg"] != "resources") {
+        if (units.value[i]["paused"] == true && units.value[i]["pause-reason"] != pauseReason["resources"]) {
           running = false;
           break;
         }
@@ -85,7 +91,7 @@ export default {
 
     const pauseAll = () => {
       for (var i = 0; i < units.value.length; i++) {
-        if(units.value[i]["pauseMsg"] != "resources") {
+        if(units.value[i]["pause-reason"] != pauseReason["resources"]) {
           let msg = { cmd: areAllRunning.value ? "pause" : "unpause", unit: units.value[i]["id"] };
           send(msg);
         }
@@ -100,7 +106,7 @@ export default {
         return "Will be assigned shortly."
     }
 
-    return { units, areAllRunning, unitMsg, unitPRCG, pause, pauseAll, pauseMsg }
+    return { units, areAllRunning, unitMsg, pauseReason, unitPRCG, pause, pauseAll, pauseMsg }
   }
 }
 </script>
