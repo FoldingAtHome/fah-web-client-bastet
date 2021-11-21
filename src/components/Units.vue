@@ -61,7 +61,7 @@ export default {
 
     const { units, send } = useWebSocket;
     const pauseMsg = (unitId) => {
-      if(!units.value[unitId].hasOwnProperty("pause-reason")) return ""
+      if(!units.value[unitId] || !units.value[unitId].hasOwnProperty("pause-reason")) return ""
       if(units.value[unitId]["pause-reason"] == pauseReason["resources"]) {
         let gpus = units.value[unitId]["gpus"] != "undefined" ? units.value[unitId]["gpus"].length : 0;
         return (units.value[unitId]["pause-reason"] + " Requires " + units.value[unitId]["cpus"] + " cpus and "
@@ -76,7 +76,8 @@ export default {
       let running = true;
 
       for (var i = 0; i < units.value.length; i++) {
-        if (units.value[i]["paused"] == true && units.value[i]["pause-reason"] != pauseReason["resources"]) {
+        if (units.value[i] && units.value[i]["paused"] == true
+            && units.value[i]["pause-reason"] != pauseReason["resources"]) {
           running = false;
           break;
         }
@@ -91,7 +92,7 @@ export default {
 
     const pauseAll = () => {
       for (var i = 0; i < units.value.length; i++) {
-        if(units.value[i]["pause-reason"] != pauseReason["resources"]) {
+        if(units.value[i] && units.value[i]["pause-reason"] != pauseReason["resources"]) {
           let msg = { cmd: areAllRunning.value ? "pause" : "unpause", unit: units.value[i]["id"] };
           send(msg);
         }
@@ -100,7 +101,7 @@ export default {
 
     const unitPRCG = (index) => {
       const unitData = units.value[index];
-      if(unitData.assignment && unitData.wu)
+      if(unitData && unitData.assignment && unitData.wu)
         return `${unitData.assignment.project} (${unitData.wu.run}, ${unitData.wu.clone}, ${unitData.wu.gen})`
       else
         return "Will be assigned shortly."
