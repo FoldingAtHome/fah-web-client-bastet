@@ -46,7 +46,7 @@ export default {
   name: 'Units',
   setup() {
     let pauseReason = {
-      "resources": "Insufficient resources.",
+      "resources": "Resources not available.",
       "user": "Paused by user."
     }
 

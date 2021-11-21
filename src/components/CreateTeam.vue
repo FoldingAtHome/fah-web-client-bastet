@@ -61,19 +61,18 @@
 import { useForm, useField, Form, ErrorMessage, Field } from 'vee-validate';
 import * as yup from 'yup';
 import { useTeamAPI } from '../composables/useAPI';
-import { reactive, toRefs } from 'vue';
 
 export default {
   name: 'CreateTeam',
   components: { Field, Form, ErrorMessage },
   setup() {
     const schema = yup.object().shape({
-      name: yup.string().required().label("Team name"),
-      founder: yup.string().required().label("Founder name"),
-      email: yup.string().required().email().label("Team email id"),
-      url: yup.string().url().label("Team URL"),
+      name: yup.string().required().min(2).max(150).label("Team name"),
+      founder: yup.string().required().max(100).label("Founder name"),
+      email: yup.string().required().email().max(150).label("Team email id"),
+      url: yup.string().url().max(255).label("Team URL"),
       logo: yup.string().url().label("Logo URL"),
-      password: yup.string().min(6).required().label("Password"),
+      password: yup.string().min(6).max(64).required().label("Password"),
       confirm: yup.string().required("Re-enter the password.").oneOf([yup.ref("password")], "Passwords do not match.")
     });
 
