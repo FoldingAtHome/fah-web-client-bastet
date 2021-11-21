@@ -23,8 +23,11 @@
               input#user.form-control(v-model="config.user" type="text")
           .row.mb-3
             label.col-sm-3.col-md-3.col-form-label(for="team") Team Name :
-            .col-sm-9
+            .col-sm-6
               input#team.form-control(v-model.number="config.team" type="number" min="0")
+            .col
+              button.btn.btn-warning(type="button" data-bs-toggle="modal" data-bs-target="#createTeam") Create Team
+            CreateTeam
           .row.mb-3
             label.col-sm-3.col-md-3.col-form-label(for="passkey") Passkey :
             .col-sm-9
@@ -80,9 +83,11 @@ import { Modal } from  'bootstrap'
 import useWebSocket from '../composables/useWebSocket'
 import { reactive, toRefs, watchEffect, computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
+import CreateTeam from './CreateTeam.vue'
 
 export default {
   name: "Config",
+  components: { CreateTeam },
   setup() {
     const { config, info, send } = useWebSocket;
     const cached = reactive({

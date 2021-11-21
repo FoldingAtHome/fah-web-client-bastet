@@ -36,7 +36,7 @@
 import { reactive, computed, watch, toRefs, watchEffect } from "vue";
 
 import useWebSocket from "../composables/useWebSocket";
-import useAPI from "../composables/useAPI"
+import { useProjectAPI } from "../composables/useAPI"
 
 export default {
   name: "Details",
@@ -48,7 +48,7 @@ export default {
   },
   setup(props) {
     const { units } = useWebSocket
-    const { getProjectData, response } = useAPI
+    const { getProjectData, response } = useProjectAPI
 
     const unit = computed(() => units.value[props.unitId])
 

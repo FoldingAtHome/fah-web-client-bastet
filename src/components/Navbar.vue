@@ -17,9 +17,6 @@ div
         li.nav-item
           router-link.nav-link(:to="{ name : 'WorkUnit' }")
             | Visualization
-        li.nav-item
-          router-link.nav-link(:to="{ name : 'Todo' }")
-            | Feature3
 </template>
 
 <script>

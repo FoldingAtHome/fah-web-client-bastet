@@ -5,7 +5,7 @@
       .container.center(v-if="!unit.hasOwnProperty('frames')")
         p There are no frames available for this unit.
     .row.mt-2(v-if="unit.hasOwnProperty('frames')")
-      .col-lg-3.col-md-3
+      .col-lg-4.col-md-4
         nav
           ul.pagination.justify-content-center(v-if="unit.frames.length")
             li.page-item(:class="{ disabled : frameCounter == 0 }" @click="frameCounter--")
@@ -25,7 +25,7 @@
           | -
         button.btn.btn-dark(type="button" @click="zoom_in")
           | +
-      .col-lg-6.col-md-6
+      .col-lg-5.col-md-5
         span Rotation
         button.btn.btn-dark(type="button" @click="pause_rotation = !pause_rotation")
           | {{ pause_rotation ? "Start" : "Pause" }}
