@@ -16,8 +16,8 @@
           | Progress
     tbody
       template(v-for="(unit, index) in units" :key="index")
-        tr(tabindex="0" data-bs-container="body" data-bs-toggle="tooltip" :title="pauseMsg(index)",
-           :class='{ disabled: pauseMsg(index) != "" }')
+        tr(v-if="unit" tabindex="0" data-bs-container="body" data-bs-toggle="tooltip" :title="unit['pause-reason']",
+           :class='{ disabled: unit["pause-reason"] }')
           th(scope="row") {{ index + 1 }}
           td {{ unitPRCG(index) }}
           td {{ unit.state }}
@@ -52,17 +52,6 @@ export default {
     }
 
     const { units, config, send } = useWebSocket;
-    const pauseMsg = (unitId) => {
-      if(!units.value[unitId] || !units.value[unitId].hasOwnProperty("pause-reason")) return ""
-      if(units.value[unitId]["pause-reason"] == pauseReason["resources"]) {
-        let gpus = units.value[unitId]["gpus"] != "undefined" ? units.value[unitId]["gpus"].length : 0;
-        return (units.value[unitId]["pause-reason"] + " Requires " + units.value[unitId]["cpus"] + " cpus and "
-                + gpus + " gpus.");
-      }
-      else if(units.value[unitId]["pause-reason"] == pauseReason["user"])
-        return units.value[unitId]["pause-reason"]
-      else ""
-    }
 
 
     const pauseAll = () => {
@@ -78,7 +67,7 @@ export default {
         return "Will be assigned shortly."
     }
 
-    return { units, config, unitMsg, pauseReason, unitPRCG, pauseAll, pauseMsg }
+    return { units, config, unitMsg, pauseReason, unitPRCG, pauseAll }
   }
 }
 </script>
