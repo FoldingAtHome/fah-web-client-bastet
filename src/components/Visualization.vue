@@ -2,21 +2,21 @@
 .card.h-100.text-center
   .card-body
     .imageContainer(ref="root")
-      .container.center(v-if="!unit.hasOwnProperty('frames')")
+      .container.center(v-if="!unitHasFrames")
         p There are no frames available for this unit.
-    .row.mt-2(v-if="unit.hasOwnProperty('frames')")
+    .row.mt-2(v-if="unitHasFrames")
       .col-lg-4.col-md-4
         nav
-          ul.pagination.justify-content-center(v-if="unit.frames.length")
+          ul.pagination.justify-content-center(v-if="framesLength")
             li.page-item(:class="{ disabled : frameCounter == 0 }" @click="frameCounter--")
               a.page-link(href="#")
                 | Prev
-            li.page-item(v-for="(frame, index) in (Math.min(3, unit.frames.length))",
+            li.page-item(v-for="(frame, index) in (Math.min(3, framesLength))",
                           :class="{ active : frameId == frameCounter + index }", :key="index",
-                          @click="frameId = frameCounter + index")
+                          @click="showImage(props.unitId, frameCounter + index)")
               a.page-link(href="#")
                 | {{ frameCounter + index + 1 }}
-            li.page-item(:class="{ disabled : frameCounter >= unit.frames.length-3 }" @click="frameCounter++")
+            li.page-item(:class="{ disabled : frameCounter >= framesLength-3 }" @click="frameCounter++")
               a.page-link(href="#")
                 | Next
       .col-lg-3.col-md-3
@@ -43,7 +43,7 @@
 
 <script>
 import { reactive, computed, ref, toRefs } from '@vue/reactivity'
-import { onMounted, onUnmounted, watch, watchEffect } from '@vue/runtime-core'
+import { onMounted, onUnmounted, watch } from 'vue'
 import useGraphicsLibrary from '../composables/useGraphicsLibrary'
 import useWebSocket from '../composables/useWebSocket'
 export default {
@@ -64,9 +64,9 @@ export default {
     const data = reactive({
       frameId: 0,
       frameCounter: 0,
+      unitHasFrames: computed(() => units.value[props.unitId].hasOwnProperty('frames')),
+      framesLength: computed(() => units.value[props.unitId].frames.length)
     })
-
-    const unit = computed(() => units.value[props.unitId])
 
     const showImage = (unitId, frameId) => {
       data.frameId = frameId
@@ -76,7 +76,9 @@ export default {
         clearArea();
     };
 
-    watch([() => props.unitId, () => data.frameId], () => {
+    watch([() => props.unitId], () => {
+      data.frameId = 0;
+      data.frameCounter = 0;
       showImage(props.unitId, data.frameId);
     });
 
@@ -92,7 +94,7 @@ export default {
       showImage(props.unitId, 0);
     }, 1000)
 
-    return { ...toRefs(data), root, units, unit, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
+    return { ...toRefs(data), props, root, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
              zoom_out }
   }
 }

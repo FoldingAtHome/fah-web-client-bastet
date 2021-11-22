@@ -1,8 +1,8 @@
 <template lang="pug">
 .view
   h2 Work Units
-    button.btn.pauseBtn(type="button" :class="[!areAllRunning ? 'btn-success' : 'btn-warning']" @click="pauseAll")
-      | {{ !areAllRunning ? "Start All" : "Pause All" }}
+    button.btn.pauseBtn(type="button" :class="[config.paused ? 'btn-success' : 'btn-warning']" @click="pauseAll")
+      | {{ config.paused ? "Start All" : "Pause All" }}
   table.table
     thead
       tr
@@ -14,12 +14,10 @@
           | State
         th(scope="col")
           | Progress
-        th(scope="col")
-          | Action
     tbody
       template(v-for="(unit, index) in units" :key="index")
-        tr(tabindex="0" data-bs-container="body" data-bs-toggle="tooltip" :title="pauseMsg(index)",
-           :class='{ disabled: pauseMsg(index) != "" }')
+        tr(v-if="unit" tabindex="0" data-bs-container="body" data-bs-toggle="tooltip" :title="unit['pause-reason']",
+           :class='{ disabled: unit["pause-reason"] }')
           th(scope="row") {{ index + 1 }}
           td {{ unitPRCG(index) }}
           td {{ unit.state }}
@@ -31,15 +29,9 @@
                 | {{ (unit.progress * 100).toFixed() }}%
             div(v-else)
               | Unit is {{ unitMsg[unit.state] }}
-          td
-            button.btn(type="button", :class="[unit.paused ? 'btn-success' : 'btn-warning']",
-                       :disabled='unit["pause-reason"] == pauseReason["resources"]',
-                       @click="pause(unit.id, unit.paused)")
-              | {{ unit.paused ? "Start" : "Pause" }}
 </template>
 
 <script>
-import { computed } from "@vue/reactivity";
 import useWebSocket from "../composables/useWebSocket";
 
 export default {
@@ -59,44 +51,12 @@ export default {
       "DONE": "finished",
     }
 
-    const { units, send } = useWebSocket;
-    const pauseMsg = (unitId) => {
-      if(!units.value[unitId] || !units.value[unitId].hasOwnProperty("pause-reason")) return ""
-      if(units.value[unitId]["pause-reason"] == pauseReason["resources"]) {
-        let gpus = units.value[unitId]["gpus"] != "undefined" ? units.value[unitId]["gpus"].length : 0;
-        return (units.value[unitId]["pause-reason"] + " Requires " + units.value[unitId]["cpus"] + " cpus and "
-                + gpus + " gpus.");
-      }
-      else if(units.value[unitId]["pause-reason"] == pauseReason["user"])
-        return units.value[unitId]["pause-reason"]
-      else ""
-    }
+    const { units, config, send } = useWebSocket;
 
-    const areAllRunning = computed(() => {
-      let running = true;
-
-      for (var i = 0; i < units.value.length; i++) {
-        if (units.value[i] && units.value[i]["paused"] == true
-            && units.value[i]["pause-reason"] != pauseReason["resources"]) {
-          running = false;
-          break;
-        }
-      }
-      return running;
-    })
-
-    const pause = (id, isPaused) => {
-      let msg = { cmd: isPaused ? "unpause" : "pause", unit: id };
-      send(msg);
-    }
 
     const pauseAll = () => {
-      for (var i = 0; i < units.value.length; i++) {
-        if(units.value[i] && units.value[i]["pause-reason"] != pauseReason["resources"]) {
-          let msg = { cmd: areAllRunning.value ? "pause" : "unpause", unit: units.value[i]["id"] };
-          send(msg);
-        }
-      }
+      let msg = { cmd: config.value.paused ? "unpause" : "pause" };
+      send(msg);
     }
 
     const unitPRCG = (index) => {
@@ -107,7 +67,7 @@ export default {
         return "Will be assigned shortly."
     }
 
-    return { units, areAllRunning, unitMsg, pauseReason, unitPRCG, pause, pauseAll, pauseMsg }
+    return { units, config, unitMsg, pauseReason, unitPRCG, pauseAll }
   }
 }
 </script>
