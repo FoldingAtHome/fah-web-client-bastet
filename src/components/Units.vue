@@ -6,29 +6,26 @@
   table.table
     thead
       tr
-        th(scope="col")
-          | #
-        th(scope="col")
+        th(width="20%")
           | Project (Run, Clone, Gen)
-        th(scope="col")
-          | State
-        th(scope="col")
+        th(width="25%")
+          | Resources
+        th(width="25%")
+          | Status
+        th(width="30%")
           | Progress
     tbody
       template(v-for="(unit, index) in units" :key="index")
-        tr(v-if="unit" tabindex="0" data-bs-container="body" data-bs-toggle="tooltip" :title="unit['pause-reason']",
-           :class='{ disabled: unit["pause-reason"] }')
-          th(scope="row") {{ index + 1 }}
+        tr(v-if="unit" :class='{ disabled: unit["pause-reason"] }')
           td {{ unitPRCG(index) }}
-          td {{ unit.state }}
+          td {{ getResources(unit.cpus, unit.gpus) }}
+          td {{ getStatus(unit["pause-reason"], unit.state) }}
           td
-            .progress(v-if="unit.state == 'RUN'")
+            .progress
               .progress-bar.progress-bar-striped(role="progressbar",
                 :class="[unit.paused ? 'bg-secondary' : 'progress-bar-animated bg-success']",
                 :style="{ width: unit.progress * 100 + '%' }" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100")
                 | {{ (unit.progress * 100).toFixed() }}%
-            div(v-else)
-              | Unit is {{ unitMsg[unit.state] }}
 </template>
 
 <script>
@@ -37,27 +34,26 @@ import useWebSocket from "../composables/useWebSocket";
 export default {
   name: 'Units',
   setup() {
-    let pauseReason = {
-      "resources": "Resources not available.",
-      "user": "Paused by user."
-    }
-
-    let unitMsg = {
-      "ASSIGN": "getting assigned.",
-      "DOWNLOAD": "downloading...",
-      "UPLOAD": "uploading...",
-      "CORE": "in core state.",
-      "CLEAN": "about to be removed.",
-      "DONE": "finished",
-    }
-
     const { units, config, send } = useWebSocket;
 
-
-    const setPause = (state) => {
-      let msg = { cmd: state ? "pause" : "unpause" };
-      send(msg);
+    const getResources = (cpus, gpus) => {
+      let msg = "";
+      if(cpus > 1) msg += ("cpu:" + cpus + " ");
+      if(gpus.length) {
+        msg += "gpu:"
+        let gpuList = gpus.map(gpu => gpu.split(' ')[0])
+        msg += gpuList.join(', ');
+      }
+      return msg;
     }
+
+    const getStatus = (pauseReason, state) => {
+      if(pauseReason && pauseReason != "") return pauseReason
+      else if(state == "DOWNLOAD") return "Downloading core."
+      else return "Running."
+    }
+
+    const setPause = (state) => { send({ cmd: state ? "pause" : "unpause" }) };
 
     const unitPRCG = (index) => {
       const unitData = units.value[index];
@@ -67,7 +63,7 @@ export default {
         return "Will be assigned shortly."
     }
 
-    return { units, config, unitMsg, pauseReason, unitPRCG, setPause }
+    return { units, config, unitPRCG, getStatus, getResources, setPause }
   }
 }
 </script>
