@@ -1,8 +1,8 @@
 <template lang="pug">
 .view
   h2 Work Units
-    button.btn.pauseBtn(type="button" :class="[config.paused ? 'btn-success' : 'btn-warning']" @click="pauseAll")
-      | {{ config.paused ? "Start All" : "Pause All" }}
+    button.btn.pauseBtn(type="button" :class="[config.paused ? 'btn-success' : 'btn-warning']" @click="setPause(!config.paused)")
+      | {{ config.paused ? "Start" : "Pause" }}
   table.table
     thead
       tr
@@ -54,8 +54,8 @@ export default {
     const { units, config, send } = useWebSocket;
 
 
-    const pauseAll = () => {
-      let msg = { cmd: config.value.paused ? "unpause" : "pause" };
+    const setPause = (state) => {
+      let msg = { cmd: state ? "pause" : "unpause" };
       send(msg);
     }
 
@@ -67,7 +67,7 @@ export default {
         return "Will be assigned shortly."
     }
 
-    return { units, config, unitMsg, pauseReason, unitPRCG, pauseAll }
+    return { units, config, unitMsg, pauseReason, unitPRCG, setPause }
   }
 }
 </script>
