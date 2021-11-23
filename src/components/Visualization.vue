@@ -19,13 +19,13 @@
             li.page-item(:class="{ disabled : frameCounter >= framesLength-3 }" @click="frameCounter++")
               a.page-link(href="#")
                 | Next
-      .col-lg-3.col-md-3.col-sm-6
+      .col-lg-2.col-md-3.col-sm-6
         span Zoom
         button.btn.btn-dark(type="button" @click="zoom_out")
           | -
         button.btn.btn-dark(type="button" @click="zoom_in")
           | +
-      .col-lg-5.col-md-5.col-sm-12
+      .col-lg-3.col-md-5.col-sm-12
         span Rotation
         button.btn.btn-dark(type="button" @click="pause_rotation = !pause_rotation")
           | {{ pause_rotation ? "Start" : "Pause" }}
@@ -33,12 +33,13 @@
           | Left
         button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(10)")
           | Right
-      .col-lg-1.col-md-2.col-sm-6.btn-group
-          button.btn.btn-dark.dropdown-toggle(data-bs-toggle="dropdown" aria-expanded="false")
-            | View: {{ view[draw_type] }}
-          ul.dropdown-menu
-            li(v-for="index in Object.keys(view)" :key="index")
-              button.dropdown-item(@click="set_draw_type(index)" :value="index") {{ view[index] }}
+      .col-lg-3.col-md-2.col-sm-6
+        span View
+        button.btn.btn-dark.dropdown-toggle(data-bs-toggle="dropdown" aria-expanded="false")
+          | {{ view[draw_type] }}
+        ul.dropdown-menu
+          li(v-for="index in Object.keys(view)" :key="index")
+            button.dropdown-item(@click="set_draw_type(index)" :value="index") {{ view[index] }}
 </template>
 
 <script>
@@ -108,12 +109,14 @@ export default {
 
 <style lang="stylus" scoped>
 .imageContainer
-  height: 550px
+  height: 580px
   background-color: lightblue
 
   @media screen and (max-width: 768px)
     height: 300px
 
+.card-body
+  padding: 0.5rem
 .center
   height: 100%
   display: table
@@ -141,4 +144,7 @@ button.btn-dark
 
 .page-link
   color: black
+
+.dropdown-toggle
+  padding: 0.2rem 0.75rem
 </style>
