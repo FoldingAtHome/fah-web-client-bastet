@@ -184,7 +184,7 @@ export default function useGraphicsLibrary() {
 
 
   const radius_from_type = (type) => {
-    return 0.1 * [1.09, 1.7, 1.55, 1.52, 1.8, 1][type];
+    return 0.1 * [1.2, 1.7, 1.55, 1.52, 1.8, 1][type];
   }
 
 
@@ -207,7 +207,7 @@ export default function useGraphicsLibrary() {
   const get_atom = (atom) => {
     var number = atom[4] ? atom[4] : number_from_name(atom[0]);
     var type = atom_type_from_number(number);
-    var radius = 0 < atom[2] ? atom[2] : radius_from_type(type);
+    var radius = radius_from_type(type);
 
     if (graphics.draw_type == 1) radius /= 3;
     if (graphics.draw_type == 2) radius = 0.025;

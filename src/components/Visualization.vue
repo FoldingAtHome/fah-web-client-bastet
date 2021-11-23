@@ -5,7 +5,7 @@
       .container.center(v-if="!unitHasFrames")
         p There are no frames available for this unit.
     .row.mt-2(v-if="unitHasFrames")
-      .col-lg-4.col-md-4
+      .col-lg-4.col-md-4.col-sm-6
         nav
           ul.pagination.justify-content-center(v-if="framesLength")
             li.page-item(:class="{ disabled : frameCounter == 0 }" @click="frameCounter--")
@@ -19,13 +19,13 @@
             li.page-item(:class="{ disabled : frameCounter >= framesLength-3 }" @click="frameCounter++")
               a.page-link(href="#")
                 | Next
-      .col-lg-3.col-md-3
+      .col-lg-3.col-md-3.col-sm-6
         span Zoom
         button.btn.btn-dark(type="button" @click="zoom_out")
           | -
         button.btn.btn-dark(type="button" @click="zoom_in")
           | +
-      .col-lg-5.col-md-5
+      .col-lg-5.col-md-5.col-sm-12
         span Rotation
         button.btn.btn-dark(type="button" @click="pause_rotation = !pause_rotation")
           | {{ pause_rotation ? "Start" : "Pause" }}
@@ -33,12 +33,12 @@
           | Left
         button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(10)")
           | Right
-      .col-lg-4.col-md-6.btn-group(role="group")
-        template(v-for="view in 3" :key="view")
-          input.btn-check(:id="view", v-model="draw_type", type="radio", name="view", :value="view",
-                         @click="set_draw_type(view)")
-          label.btn.btn-outline-dark(:for="view")
-            | View {{ view }}
+      .col-lg-1.col-md-2.col-sm-6.btn-group
+          button.btn.btn-dark.dropdown-toggle(data-bs-toggle="dropdown" aria-expanded="false")
+            | View: {{ view[draw_type] }}
+          ul.dropdown-menu
+            li(v-for="index in Object.keys(view)" :key="index")
+              button.dropdown-item(@click="set_draw_type(index)" :value="index") {{ view[index] }}
 </template>
 
 <script>
@@ -60,6 +60,12 @@ export default {
     const { draw_type, pause_rotation, rotate, showProtein, setGraphics, removeGL, clearArea, set_draw_type, zoom_in,
             zoom_out } = useGraphicsLibrary()
     const { units } = useWebSocket
+
+    const view = {
+      1: "Ball and Stick",
+      2: "Stick",
+      3: "Space Filled"
+    }
 
     const data = reactive({
       frameId: 0,
@@ -94,7 +100,7 @@ export default {
       showImage(props.unitId, 0);
     }, 1000)
 
-    return { ...toRefs(data), props, root, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
+    return { ...toRefs(data), view, props, root, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
              zoom_out }
   }
 }
@@ -102,7 +108,7 @@ export default {
 
 <style lang="stylus" scoped>
 .imageContainer
-  height: 520px
+  height: 550px
   background-color: lightblue
 
   @media screen and (max-width: 768px)
