@@ -25,7 +25,7 @@
               .progress-bar.progress-bar-striped(role="progressbar",
                 :class="[unit.paused ? 'bg-secondary' : 'progress-bar-animated bg-success']",
                 :style="{ width: unit.progress * 100 + '%' }" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100")
-                | {{ (unit.progress * 100).toFixed() }}%
+                | {{ (unit.progress * 100).toFixed() | 0 }}%
 </template>
 
 <script>
@@ -35,6 +35,14 @@ export default {
   name: 'Units',
   setup() {
     const { units, config, send } = useWebSocket;
+
+    const status = {
+      "DOWNLOAD": "Downloading workunit.",
+      "CORE": "Downloading core.",
+      "RUN": "Running.",
+      "UPLOAD": "Uploading",
+      "CLEAN": "Finished. Cleaning workunit."
+    }
 
     const getResources = (cpus, gpus) => {
       let msg = "";
@@ -49,8 +57,7 @@ export default {
 
     const getStatus = (pauseReason, state) => {
       if(pauseReason && pauseReason != "") return pauseReason
-      else if(state == "DOWNLOAD") return "Downloading core."
-      else return "Running."
+      else return status[state]
     }
 
     const setPause = (state) => { send({ cmd: state ? "pause" : "unpause" }) };

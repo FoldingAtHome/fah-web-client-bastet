@@ -124,7 +124,7 @@ export default {
     watchEffect(reset);
 
     const toggleModal = (state) => {
-      var m2 = Modal.getOrCreateInstance(cached.settingsModal);
+      let m2 = Modal.getOrCreateInstance(cached.settingsModal);
       if(state) m2.show();
       else m2.hide();
     }

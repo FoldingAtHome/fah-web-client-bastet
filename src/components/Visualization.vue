@@ -71,8 +71,13 @@ export default {
     const data = reactive({
       frameId: 0,
       frameCounter: 0,
-      unitHasFrames: computed(() => units.value[props.unitId].hasOwnProperty('frames')),
-      framesLength: computed(() => units.value[props.unitId].frames.length)
+    })
+
+    const unitHasFrames = computed(() => units.value[props.unitId].hasOwnProperty('frames'))
+    const framesLength = computed(() => {
+      let unit = units.value[props.unitId]
+      if(unit && unit.hasOwnProperty('frames')) return unit.frames.length;
+      else return 0;
     })
 
     const showImage = (unitId, frameId) => {
@@ -101,8 +106,8 @@ export default {
       showImage(props.unitId, 0);
     }, 1000)
 
-    return { ...toRefs(data), view, props, root, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
-             zoom_out }
+    return { ...toRefs(data), view, props, root, draw_type, pause_rotation, unitHasFrames, framesLength, showImage,
+             rotate, set_draw_type, zoom_in, zoom_out }
   }
 }
 </script>
