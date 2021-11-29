@@ -4,7 +4,8 @@ import axios from 'axios';
 const data = reactive({
   api: null,
   project: { data: {}, error: false},
-  team: { data: {}, error: false}
+  team: { data: {}, error: false},
+  user: { data: {}, error: false}
 })
 
 data.api = axios.create({
@@ -39,8 +40,22 @@ const createTeam = async (object) => {
   }
 };
 
+const getUserContribution = async (user, teamId) => {
+  data.user = basicResponse();
+  try {
+    let result = await data.api.get('/user/'+user+'/stats', {
+      params: { team: teamId }
+    });
+    data.user.data = result.data;
+  } catch(error) {
+    data.user.error = true;
+    data.team.data = error.response.data;
+  }
+}
+
 const useProjectAPI = { response: toRef(data, 'project'), getProjectData };
 const useTeamAPI = { response: toRef(data, 'team'), createTeam};
+const useContributionAPI = { response: toRef(data, 'user'), getUserContribution};
 
-export  { useProjectAPI, useTeamAPI };
+export  { useProjectAPI, useTeamAPI, useContributionAPI };
 
