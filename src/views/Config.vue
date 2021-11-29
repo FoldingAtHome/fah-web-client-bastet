@@ -83,7 +83,7 @@ import { Modal } from  'bootstrap'
 import useWebSocket from '../composables/useWebSocket'
 import { reactive, toRefs, watchEffect, computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import CreateTeam from './CreateTeam.vue'
+import CreateTeam from '../components/CreateTeam.vue'
 
 export default {
   name: "Config",

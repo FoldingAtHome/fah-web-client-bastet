@@ -22,8 +22,8 @@
 <script>
 import { reactive } from "@vue/reactivity";
 import useWebSocket from "../composables/useWebSocket";
-import Details from "./Details.vue";
-import Visualization from "./Visualization.vue";
+import Details from "../components/Details.vue";
+import Visualization from "../components/Visualization.vue";
 export default {
     name: "WorkUnit",
     components: { Details, Visualization },

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Units from '../components/Units.vue'
+import Units from '../views/Units.vue'
 
 const routes = [
 	{
@@ -10,12 +10,12 @@ const routes = [
 	{
 		path: '/config',
 		name: 'Config',
-		component: () => import(/* webpackChunkName: "config" */ '../components/Config.vue')
+		component: () => import(/* webpackChunkName: "config" */ '../views/Config.vue')
 	},
 	{
 		path: '/workunit',
 		name: 'WorkUnit',
-		component: () => import(/* webpackChunkName: "workunit" */ '../components/WorkUnit.vue')
+		component: () => import(/* webpackChunkName: "workunit" */ '../views/WorkUnit.vue')
 	}
 ]
 
