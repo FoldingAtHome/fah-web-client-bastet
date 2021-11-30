@@ -14,68 +14,76 @@
   h2 Configuration
   form
     .col-md-9.col-lg-8.form-data
-      fieldset.form-group.border.p-2.mb-2
-        legend.w-auto User Settings
-        div
-          .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="user") Username :
-            .col-sm-9
-              input#user.form-control(v-model="config.user" type="text")
-          .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="team") Team Name :
-            .col-sm-6
-              input#team.form-control(v-model.number="config.team" type="number" min="0")
-            .col
-              button.btn.btn-warning(type="button" data-bs-toggle="modal" data-bs-target="#createTeam") Create Team
-            CreateTeam
-          .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="passkey") Passkey :
-            .col-sm-9
-              input#passkey.form-control(v-model="config.passkey" pattern="[0-9a-fA-F]{30,32}")
-      fieldset.border.p-2.mb-2
-        legend.w-auto Project Settings
-        div
-          .mb-3
-            .form-check.form-switch
-              input#release.form-check-input(v-model="config.release", type="checkbox", true-value="Beta",
-                                             false-value="Public")
-              label.form-check-label(for="release") Beta Allowed
-          .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="causes") Causes :
-            .col-sm-9
-              select.form-select(v-model="config.cause" aria-label="Select Cause")
-                option(v-for="cause in causes" :key="cause" :value="cause.toLowerCase()") {{ cause }}
-          .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="key") Project-Key :
-            .col-sm-9
-              input#key.form-control(v-model="config.key" type="number" min="0")
-      fieldset.border.p-2.mb-2
-        legend.w-auto Resource Usage
-        div
-          .mb-3
-            .form-check.form-switch
-              input#on_idle.form-check-input(v-model="config.on_idle" type="checkbox")
-              label.form-check-label(for="on_idle") Use only when idle
-          .row.mb-3
-            label.col-sm-3.col.md-3.col-form-label(for="cpus")
-              | # of CPUs :
-            .col-sm-1.col-md-1
-              span(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
-            .col-sm-8
-              input#cpus.form-range(v-model.number="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
-          .row.mb-3
-            table
-              tr
-                th GPU
-                th Enable
-              tr.mb-7(v-for="(gpu, index) in config.gpus" :key="index")
-                td {{ info.gpus[index].description }}
-                td
-                  .form-check.form-switch
-                    input.form-check-input(v-model="gpu.enabled" type="checkbox")
-      .offset-sm-2
-        button.settings.btn.btn-warning(type="button" @click="reset") Discard
-        button.settings.btn.btn-primary(type="button" @click="save") Save
+      .accordion-item
+        #userHeading.accordion-header
+          button.legend.accordion-button(type="button" data-bs-toggle="collapse" data-bs-target="#userSettings"
+          aria-expanded="true" aria-controls="userSettings") User Settings
+        #userSettings.accordion-collapse.collapse.show(aria-labelledby='userHeading')
+          .accordion-body
+            .row.mb-3
+              label.col-sm-3.col-md-3.col-form-label(for="user") Username :
+              .col-sm-9
+                input#user.form-control(v-model="config.user" type="text")
+            .row.mb-3
+              label.col-sm-3.col-md-3.col-form-label(for="team") Team Id :
+              .col-sm-6
+                input#team.form-control(v-model.number="config.team" type="number" min="0")
+              .col
+                button.btn.btn-warning(type="button" data-bs-toggle="modal" data-bs-target="#createTeam") Create Team
+              CreateTeam
+            .row.mb-3
+              label.col-sm-3.col-md-3.col-form-label(for="passkey") Passkey :
+              .col-sm-9
+                input#passkey.form-control(v-model="config.passkey" pattern="[0-9a-fA-F]{30,32}")
+      .accordion-item
+        #projectHeading.accordion-header
+          button.legend.accordion-button(type="button" data-bs-toggle="collapse" data-bs-target="#projectSettings"
+          aria-expanded="true" aria-controls="projectSettings") Project Settings
+        #projectSettings.accordion-collapse.collapse.show(aria-labelledby='projectHeading')
+          .accordion-body
+            .mb-3
+              .form-check.form-switch
+                input#release.form-check-input(v-model="config.release", type="checkbox", true-value="Beta",
+                                               false-value="Public")
+                label.form-check-label(for="release") Beta Allowed
+            .row.mb-3
+              label.col-sm-3.col-md-3.col-form-label(for="causes") Causes :
+              .col-sm-9
+                select.form-select(v-model="config.cause" aria-label="Select Cause")
+                  option(v-for="cause in causes" :key="cause" :value="cause.toLowerCase()") {{ cause }}
+            .row.mb-3
+              label.col-sm-3.col-md-3.col-form-label(for="key") Project-Key :
+              .col-sm-9
+                input#key.form-control(v-model="config.key" type="number" min="0")
+      .accordion-item
+        #resourceHeading.accordion-header
+          button.legend.accordion-button(type="button" data-bs-toggle="collapse" data-bs-target="#resourceSettings"
+          aria-expanded="true" aria-controls="resourceSettings") Resource Usage
+        #resourceSettings.accordion-collapse.collapse.show(aria-labelledby='resourceHeading')
+          .accordion-body
+            .mb-3
+              .form-check.form-switch
+                input#on_idle.form-check-input(v-model="config.on_idle" type="checkbox")
+                label.form-check-label(for="on_idle") Use only when idle
+            .row.mb-3
+              label.col-sm-3.col.md-3.col-form-label(for="cpus")
+                | # of CPUs :
+              .col-sm-1.col-md-1
+                span(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
+              .col-sm-8
+                input#cpus.form-range(v-model.number="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
+            .row.mb-3
+              table
+                tr
+                  th GPU
+                  th Enable
+                tr.mb-7(v-for="(gpu, index) in config.gpus" :key="index")
+                  td {{ info.gpus[index].description }}
+                  td
+                    .form-check.form-switch
+                      input.form-check-input(v-model="gpu.enabled" type="checkbox")
+      button.settings.btn.btn-warning(type="button" @click="reset") Discard
+      button.settings.btn.btn-primary(type="button" @click="save") Save
 </template>
 
 <script>
@@ -167,9 +175,11 @@ form
   background-color: black
   border-color: black
 
-legend
+.accordion-button
+  color: black
   font-weight: bold
   font-size: 20px
+  padding: 0.5rem 1.25rem
 
 button.settings
   margin: 10px
