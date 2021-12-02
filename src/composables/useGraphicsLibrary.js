@@ -49,12 +49,14 @@ export default function useGraphicsLibrary() {
     window.addEventListener('mousedown', mouse_down, false);
     window.addEventListener('keyup', key_up, false);
     window.addEventListener('wheel', wheel, false);
+    window.addEventListener('dblclick', togglePauseRotation);
   }
 
   const removeGL = () => {
     window.removeEventListener('mousedown', mouse_down);
     window.removeEventListener('keyup', key_up);
     window.removeEventListener('wheel', wheel);
+    window.removeEventListener('dblclick', togglePauseRotation);
     window.removeEventListener('resize', update_view);
     window.cancelAnimationFrame(animate);
   }
@@ -364,6 +366,7 @@ export default function useGraphicsLibrary() {
       rotate_startRot + 2 * Math.PI * delta / width;
   }
 
+  const togglePauseRotation = () => { graphics.pause_rotation = !graphics.pause_rotation; }
 
   const mouse_move = (e) => {
     e.preventDefault();
@@ -406,7 +409,12 @@ export default function useGraphicsLibrary() {
     }
   }
 
-  const key_up = (e) => {set_draw_type(parseInt(e.key))}
+  const key_up = (e) => {
+    if(e.code === 'Space') togglePauseRotation();
+    if(e.key === '-') zoom_out();
+    if(e.key === '+') zoom_in();
+    set_draw_type(parseInt(e.key))
+  }
 
   return { ...toRefs(graphics), showProtein, removeGL, setGraphics, clearArea, set_draw_type, rotate, zoom_in,
            zoom_out };

@@ -9,7 +9,6 @@ div(v-else)
 </template>
 
 <script>
-import 'bootstrap/dist/css/bootstrap.min.css'
 import Navbar from './components/Navbar.vue'
 import useWebSocket from './composables/useWebSocket'
 import { onBeforeUnmount } from "vue";

@@ -19,20 +19,6 @@
             li.page-item(:class="{ disabled : frameCounter >= framesLength-3 }" @click="frameCounter++")
               a.page-link(href="#")
                 | Next
-      .col-lg-2.col-md-3.col-sm-6
-        span Zoom
-        button.btn.btn-dark(type="button" @click="zoom_out")
-          | -
-        button.btn.btn-dark(type="button" @click="zoom_in")
-          | +
-      .col-lg-3.col-md-5.col-sm-12
-        span Rotation
-        button.btn.btn-dark(type="button" @click="pause_rotation = !pause_rotation")
-          | {{ pause_rotation ? "Start" : "Pause" }}
-        button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(-10)")
-          | Left
-        button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(10)")
-          | Right
       .col-lg-3.col-md-2.col-sm-6
         span View
         button.btn.btn-dark.dropdown-toggle(data-bs-toggle="dropdown" aria-expanded="false")
@@ -58,8 +44,7 @@ export default {
   setup(props) {
     const root = ref(null)
 
-    const { draw_type, pause_rotation, rotate, showProtein, setGraphics, removeGL, clearArea, set_draw_type, zoom_in,
-            zoom_out } = useGraphicsLibrary()
+    const { draw_type, showProtein, setGraphics, removeGL, clearArea, set_draw_type } = useGraphicsLibrary()
     const { units } = useWebSocket
 
     const view = {
@@ -106,15 +91,14 @@ export default {
       showImage(props.unitId, 0);
     }, 1000)
 
-    return { ...toRefs(data), view, props, root, draw_type, pause_rotation, unitHasFrames, framesLength, showImage,
-             rotate, set_draw_type, zoom_in, zoom_out }
+    return { ...toRefs(data), view, props, root, draw_type, unitHasFrames, framesLength, showImage, set_draw_type }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 .imageContainer
-  height: 580px
+  height: 590px
   background-color: lightblue
 
   @media screen and (max-width: 768px)
