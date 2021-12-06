@@ -34,7 +34,13 @@
             .row.mb-3
               label.col-sm-3.col-md-3.col-form-label(for="passkey") Passkey :
               .col-sm-9
-                input#passkey.form-control(v-model="config.passkey" pattern="[0-9a-fA-F]{30,32}")
+                .input-group
+                  input#passkey.form-control(v-model="config.passkey" :type="[ showPasskey ? 'text':'password']")
+                  button.btn.btn-outline-dark(type="button" @click="showPasskey = !showPasskey")
+                    span(v-if="showPasskey")
+                      i.fas.fa-eye-slash(aria-hidden="true")
+                    span(v-else)
+                      i.fas.fa-eye(aria-hidden="true")
       .accordion-item
         #projectHeading.accordion-header
           button.legend.accordion-button(type="button" data-bs-toggle="collapse" data-bs-target="#projectSettings"
@@ -69,7 +75,7 @@
               label.col-sm-3.col.md-3.col-form-label(for="cpus")
                 | # of CPUs :
               .col-sm-1.col-md-1
-                span(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
+                span.cpus(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
               .col-sm-8
                 input#cpus.form-range(v-model.number="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
             .row.mb-3
@@ -102,7 +108,8 @@ export default {
       causes: ["Any", "Alzheimers", "Cancer", "Huntingtons", "Parkinsons"],
       config: JSON.parse(JSON.stringify(config.value)),
       settingsModal: null,
-      nextRoute: null
+      nextRoute: null,
+      showPasskey: false
     });
 
     const reset = () => {
@@ -190,7 +197,7 @@ button.settings
   &::-webkit-slider-thumb
     background: black
 
-span
+span.cpus
   display: inline-block
   position: relative
   color: white
@@ -201,7 +208,7 @@ span
   padding: 5px 10px
   margin-left: 4px
 
-span::after
+span.cpus::after
   position: absolute
   top: 8px
   right: -7px
