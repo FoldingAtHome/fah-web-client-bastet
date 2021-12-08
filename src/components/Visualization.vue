@@ -5,7 +5,7 @@
       .container.center(v-if="!unitHasFrames")
         p There are no frames available for this unit.
     .row.mt-2(v-if="unitHasFrames")
-      .col-lg-4.col-md-4
+      .col-lg-4.col-md-4.col-sm-6
         nav
           ul.pagination.justify-content-center(v-if="framesLength")
             li.page-item(:class="{ disabled : frameCounter == 0 }" @click="frameCounter--")
@@ -19,26 +19,13 @@
             li.page-item(:class="{ disabled : frameCounter >= framesLength-3 }" @click="frameCounter++")
               a.page-link(href="#")
                 | Next
-      .col-lg-3.col-md-3
-        span Zoom
-        button.btn.btn-dark(type="button" @click="zoom_out")
-          | -
-        button.btn.btn-dark(type="button" @click="zoom_in")
-          | +
-      .col-lg-5.col-md-5
-        span Rotation
-        button.btn.btn-dark(type="button" @click="pause_rotation = !pause_rotation")
-          | {{ pause_rotation ? "Start" : "Pause" }}
-        button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(-10)")
-          | Left
-        button.btn.btn-dark(type="button" :disabled="!pause_rotation" @click="rotate(10)")
-          | Right
-      .col-lg-4.col-md-6.btn-group(role="group")
-        template(v-for="view in 3" :key="view")
-          input.btn-check(:id="view", v-model="draw_type", type="radio", name="view", :value="view",
-                         @click="set_draw_type(view)")
-          label.btn.btn-outline-dark(:for="view")
-            | View {{ view }}
+      .col-lg-3.col-md-2.col-sm-6
+        span View
+        button.btn.btn-dark.dropdown-toggle(data-bs-toggle="dropdown" aria-expanded="false")
+          | {{ view[draw_type] }}
+        ul.dropdown-menu
+          li(v-for="index in Object.keys(view)" :key="index")
+            button.dropdown-item(@click="set_draw_type(index)" :value="index") {{ view[index] }}
 </template>
 
 <script>
@@ -57,15 +44,25 @@ export default {
   setup(props) {
     const root = ref(null)
 
-    const { draw_type, pause_rotation, rotate, showProtein, setGraphics, removeGL, clearArea, set_draw_type, zoom_in,
-            zoom_out } = useGraphicsLibrary()
+    const { draw_type, showProtein, setGraphics, removeGL, clearArea, set_draw_type } = useGraphicsLibrary()
     const { units } = useWebSocket
+
+    const view = {
+      1: "Ball and Stick",
+      2: "Stick",
+      3: "Space Filled"
+    }
 
     const data = reactive({
       frameId: 0,
       frameCounter: 0,
-      unitHasFrames: computed(() => units.value[props.unitId].hasOwnProperty('frames')),
-      framesLength: computed(() => units.value[props.unitId].frames.length)
+    })
+
+    const unitHasFrames = computed(() => units.value[props.unitId].hasOwnProperty('frames'))
+    const framesLength = computed(() => {
+      let unit = units.value[props.unitId]
+      if(unit && unit.hasOwnProperty('frames')) return unit.frames.length;
+      else return 0;
     })
 
     const showImage = (unitId, frameId) => {
@@ -94,20 +91,21 @@ export default {
       showImage(props.unitId, 0);
     }, 1000)
 
-    return { ...toRefs(data), props, root, draw_type, pause_rotation, showImage, rotate, set_draw_type, zoom_in,
-             zoom_out }
+    return { ...toRefs(data), view, props, root, draw_type, unitHasFrames, framesLength, showImage, set_draw_type }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 .imageContainer
-  height: 520px
+  height: 590px
   background-color: lightblue
 
   @media screen and (max-width: 768px)
     height: 300px
 
+.card-body
+  padding: 0.5rem
 .center
   height: 100%
   display: table
@@ -135,4 +133,7 @@ button.btn-dark
 
 .page-link
   color: black
+
+.dropdown-toggle
+  padding: 0.2rem 0.75rem
 </style>

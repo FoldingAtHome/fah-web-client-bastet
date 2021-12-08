@@ -26,7 +26,7 @@ const openWebSocket = (url) => {
 }
 
 const send = (msg) => {
-  var message = JSON.stringify(msg);
+  let message = JSON.stringify(msg);
   console.log("Sending message to server" + message);
   ws_data.socket.send(message);
 }
@@ -45,11 +45,14 @@ const onMessage = (event) => {
   else {
     let updates = JSON.parse(event.data);
     console.log("Message update received." + updates);
-    var temp = ws_data.data;
+    let temp = ws_data.data;
 
-    for (var i = 0; i < updates.length - 1; i++) {
+    for (let i = 0; i < updates.length - 1; i++) {
       if (i == updates.length - 2) {
-        if (updates[i + 1] == null) delete temp[updates[i]];
+        if (updates[i + 1] == null) {
+          if (Array.isArray(temp)) temp.splice(updates[i], 1);
+          else delete temp[updates[i]];
+        }
         else {
           temp[updates[i]] = updates[i + 1];
           console.log("Updated " + JSON.stringify(temp[updates[i]]) + " -- " + JSON.stringify(updates[i + 1]));

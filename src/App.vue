@@ -9,9 +9,9 @@ div(v-else)
 </template>
 
 <script>
-import 'bootstrap/dist/css/bootstrap.min.css'
 import Navbar from './components/Navbar.vue'
 import useWebSocket from './composables/useWebSocket'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import { onBeforeUnmount } from "vue";
 
 const ws_url = "ws://127.0.0.1:7396/api/websocket";
