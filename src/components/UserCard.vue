@@ -8,11 +8,17 @@
       h4.card-title {{ config.user }}
       h5.card-title Team {{ config.team }}
     .col-md-8
-      .card-text Points earned:
-      h2.card-title {{ getEarnedPoints(response.data.earned) }}
-      .card-text.
-        Contributed {{ humanFormat(response.data.contributed) }} points to {{ response.data.team_name }}'s total of
-         {{ humanFormat(response.data.team_total) }} points.
+      .row
+        .col-md-6
+          .card-text Points earned:
+          h2.card-title {{ getEarnedPoints(response.data.earned) }}
+        .col-md-6
+          .card-text Points per day:
+          h2.card-title {{ (props.ppd).toLocaleString('en') }}
+      .row
+        .card-text.
+          Contributed {{ humanFormat(response.data.contributed) }} points to {{ response.data.team_name }}'s total of
+          {{ humanFormat(response.data.team_total) }} points.
 </template>
 
 <script>
@@ -21,7 +27,13 @@ import useWebSocket from '../composables/useWebSocket';
 
 export default {
   name: 'UserCard',
-  setup() {
+  props: {
+    ppd : {
+      default: 0,
+      type: Number
+    }
+  },
+  setup(props) {
     const { response, getUserContribution } = useContributionAPI
     const { config } = useWebSocket
 
@@ -41,7 +53,7 @@ export default {
 
     getUserContribution(config.value.user, config.value.team);
 
-    return { response, config, humanFormat, getEarnedPoints }
+    return { props, response, config, humanFormat, getEarnedPoints }
   }
 }
 </script>
