@@ -16,6 +16,11 @@ const routes = [
 		path: '/workunit',
 		name: 'WorkUnit',
 		component: () => import(/* webpackChunkName: "workunit" */ '../views/WorkUnit.vue')
+	},
+	{
+		path: '/peers',
+		name: 'Peers',
+		component: () => import(/* webpackChunkName: "peers" */ '../views/Peers.vue')
 	}
 ]
 

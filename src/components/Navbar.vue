@@ -17,6 +17,9 @@ div
         li.nav-item
           router-link.nav-link(:to="{ name : 'WorkUnit' }")
             | Visualization
+        li.nav-item
+          router-link.nav-link(:to="{ name: 'Peers' }")
+            | Peers
 </template>
 
 <script>
