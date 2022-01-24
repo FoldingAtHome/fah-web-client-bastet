@@ -4,53 +4,51 @@
   form
     .col-md-9.col-lg-8.form-data
       textarea#peers.form-control(rows="3" cols="25" v-model="cachedPeers"
-        placeholder=`Enter comma separated urls with port numbers. Eg.
-                    https://192.168.0.2:3000,https://192.168.0.3:3001`)
+        placeholder=`Enter comma separated IP addresses with/without port numbers. Eg.
+                    192.168.0.2:3000,192.168.0.3`)
     .col-md-2.col-lg-2.form-data
       button.settings.btn.btn-warning(type="button" @click="reset") Discard
       button.settings.btn.btn-primary(type="button" @click="save") Save
-  table.table
+  table.table(v-if="connectedUrls.length != 0")
     thead
       tr
-        th(width="10%")
+        th(width="5%")
           | Status
-        th(width="50%")
+        th(width="95%")
           | Url
-        th(width="20%")
-          | CPUs
-        th(width="20%")
-          | GPUs
     tbody
-      template(v-for="(peer, index) in getPeers" :key="index")
+      template(v-for="(peer, index) in connectedUrls" :key="index")
         tr
-          td Hello
-          td {{ peer }}
-          td Hello
-          td Hello
+          td(:class="[ isWSOpen(peer) ? 'bgColor-green' : 'bgColor-red']")
+          td {{ getPeerIp(peer) }}
 </template>
 
 <script>
 import { ref } from 'vue';
+import useWebSocket from '../composables/useWebSocket';
 
 export default {
   name: "Peers",
   setup() {
-    console.log("peers" + JSON.parse(JSON.stringify(window.localStorage.getItem("peers"))));
+    const { connectedUrls, localhost, isWSOpen, updatePeerConnections } = useWebSocket
     const cachedPeers = ref(window.localStorage.getItem("peers"));
+
     const reset = () => {
-      cachedPeers = window.localStorage.getItem("peers");
+      cachedPeers.value = window.localStorage.getItem("peers");
     };
 
     const save = () => {
       console.log("Save Peers.");
-      window.localStorage.setItem("peers", cachedPeers);
+      if(cachedPeers.value != window.localStorage.getItem("peers")) {
+        window.localStorage.setItem("peers", cachedPeers.value);
+        updatePeerConnections();
+      }
     };
 
-    const getPeers = () => {
-      return window.localStorage.getItem("peers").split(",");
+    const getPeerIp = (peer) => {
+      return peer == localhost ? "Localhost" : peer.replace("ws://", '').split("/")[0];
     }
-
-    return { cachedPeers, reset, save, getPeers };
+    return { localhost, connectedUrls, isWSOpen, cachedPeers, reset, save, getPeerIp };
   }
 }
 
@@ -59,6 +57,15 @@ export default {
 <style lang="stylus" scoped>
 form
   text-align: center
+
+.form-data
+  display: inline-block
+
+.bgColor-green
+  background-color: green
+
+.bgColor-red
+  background-color: red
 
 button.settings
   margin: 10px

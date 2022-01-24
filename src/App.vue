@@ -22,9 +22,10 @@ export default {
     Navbar
   },
   setup() {
-    const { isWSOpen, isInitialized, openWebSocket, close} = useWebSocket;
+    const { isWSOpen, isInitialized, updatePeerConnections, openWebSocket, close} = useWebSocket;
 
     openWebSocket(ws_url);
+    updatePeerConnections();
 
     onBeforeUnmount(() => {
       close();

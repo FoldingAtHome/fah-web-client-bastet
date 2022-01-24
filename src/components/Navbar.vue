@@ -20,10 +20,20 @@ div
         li.nav-item
           router-link.nav-link(:to="{ name: 'Peers' }")
             | Peers
+      .col-sm-4(v-show="connectedUrls.length > 1")
+        select.form-select(v-model="current_url" aria-label="Select URL")
+          option(v-for="conn in connectedUrls" :key="conn" :value="conn") {{ conn }}
 </template>
 
 <script>
+import useWebSocket from '../composables/useWebSocket'
+
 export default {
-  name: 'Navbar'
+  name: 'Navbar',
+  setup() {
+    const { current_url, connectedUrls } = useWebSocket
+
+    return { current_url, connectedUrls }
+  }
 }
 </script>
