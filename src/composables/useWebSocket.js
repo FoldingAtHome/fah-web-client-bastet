@@ -16,6 +16,13 @@ const units = computed(() => readonly(ws_data[current_url.value].data.units));
 const info = computed(() => readonly(ws_data[current_url.value].data.info));
 const viz = computed(() => readonly(ws_data[current_url.value].data.viz));
 const isInitialized = (url = localhost) => { return ws_data[url].isInitialized;}
+const getIP = (url) => { return url.replace("ws://",'').split("/")[0]; }
+
+const getURL = (ip) => {
+  if(ip.indexOf(':') == -1) ip += ":7396"; // Add default port
+  ip = "ws://" + ip + "/api/websocket";
+  return ip;
+}
 
 const getBasicObject = () => {
   let obj = {
@@ -60,7 +67,7 @@ const getPeers = () => {
   let peers = window.localStorage.getItem("peers");
   if(!peers) return [];
   peers =  peers.split(",").map((peerUrl) => {
-    peerUrl = "ws://" + peerUrl + "/api/websocket";
+    peerUrl = getURL(peerUrl);
     return peerUrl;
   });
 
@@ -139,7 +146,7 @@ const onClose = (event) => {
   setTimeout(openWebSocket(event.target.url), 2000);
 }
 
-const useWebSocket = { current_url, localhost, units, config, info, viz, connectedUrls, isInitialized,  getPeers,
+const useWebSocket = { current_url, localhost, units, config, info, viz, isInitialized, getIP, connectedUrls, getPeers,
   isWSOpen, openWebSocket, send, close, updatePeerConnections };
 
 export default useWebSocket;

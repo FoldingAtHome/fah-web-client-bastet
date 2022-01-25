@@ -20,7 +20,7 @@
       template(v-for="(peer, index) in connectedUrls" :key="index")
         tr
           td(:class="[ isWSOpen(peer) ? 'bgColor-green' : 'bgColor-red']")
-          td {{ getPeerIp(peer) }}
+          td {{ peer == localhost ? "Localhost" : getIP(peer) }}
 </template>
 
 <script>
@@ -30,7 +30,7 @@ import useWebSocket from '../composables/useWebSocket';
 export default {
   name: "Peers",
   setup() {
-    const { connectedUrls, localhost, isWSOpen, updatePeerConnections } = useWebSocket
+    const { getIP, connectedUrls, localhost, isWSOpen, updatePeerConnections } = useWebSocket
     const cachedPeers = ref(window.localStorage.getItem("peers"));
 
     const reset = () => {
@@ -45,10 +45,7 @@ export default {
       }
     };
 
-    const getPeerIp = (peer) => {
-      return peer == localhost ? "Localhost" : peer.replace("ws://", '').split("/")[0];
-    }
-    return { localhost, connectedUrls, isWSOpen, cachedPeers, reset, save, getPeerIp };
+    return { localhost, connectedUrls, isWSOpen, cachedPeers, reset, save, getIP };
   }
 }
 

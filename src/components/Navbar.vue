@@ -22,7 +22,7 @@ div
             | Peers
       .col-sm-4(v-show="connectedUrls.length > 1")
         select.form-select(v-model="current_url" aria-label="Select URL")
-          option(v-for="conn in connectedUrls" :key="conn" :value="conn") {{ conn }}
+          option(v-for="url in connectedUrls" :key="url" :value="url") {{ getIP(url) }}
 </template>
 
 <script>
@@ -31,9 +31,9 @@ import useWebSocket from '../composables/useWebSocket'
 export default {
   name: 'Navbar',
   setup() {
-    const { current_url, connectedUrls } = useWebSocket
+    const { getIP, current_url, connectedUrls } = useWebSocket
 
-    return { current_url, connectedUrls }
+    return { getIP, current_url, connectedUrls }
   }
 }
 </script>
