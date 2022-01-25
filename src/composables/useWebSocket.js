@@ -1,11 +1,11 @@
-import { computed, reactive, toRefs, ref, readonly } from 'vue';
+import { computed, reactive, ref, readonly } from 'vue';
 
 const localhost = "ws://127.0.0.1:7396/api/websocket";
 const current_url = ref(localhost);
 
 const ws_data = reactive({
   [localhost] : {
-  data: { units: [], config: {}, info: {}},
+  data: { units: [], config: {}, info: {}, viz: {}},
   socket: null,
   isInitialized: false,
   },
@@ -14,11 +14,12 @@ const ws_data = reactive({
 const config = computed(() => readonly(ws_data[current_url.value].data.config));
 const units = computed(() => readonly(ws_data[current_url.value].data.units));
 const info = computed(() => readonly(ws_data[current_url.value].data.info));
+const viz = computed(() => readonly(ws_data[current_url.value].data.viz));
 const isInitialized = (url = localhost) => { return ws_data[url].isInitialized;}
 
 const getBasicObject = () => {
   let obj = {
-    data: { units: [], config: {}, info: {}},
+    data: { units: [], config: {}, info: {}, viz: {}},
     socket: null,
     isInitialized: false,
   }
@@ -68,7 +69,8 @@ const getPeers = () => {
 
 
 const isWSOpen = (url = localhost) => {
-  return ws_data[url].socket != null && ws_data[url].socket != undefined && ws_data[url].socket.readyState == WebSocket.OPEN;
+  return ws_data[url].socket != null && ws_data[url].socket != undefined
+    && ws_data[url].socket.readyState == WebSocket.OPEN;
 }
 
 const openWebSocket = (url) => {
@@ -100,18 +102,18 @@ const onMessage = (event) => {
     console.log("Message received from websocket server: " + event.data);
     ws_data[event.target.url].data = JSON.parse(event.data);
     ws_data[event.target.url].isInitialized = true;
-
-    for(let j = 0; j < ws_data[event.target.url].data.units.length; j++)
-      if(ws_data[event.target.url].data.units[j].frames)
-        ws_data[event.target.url].data.units[j].frames = [];
+    ws_data[event.target.url].data.viz = {}
   }
   else {
     let updates = JSON.parse(event.data);
     console.log("Message update received." + updates);
     let temp = ws_data[event.target.url].data;
 
+    if (updates[0] == "viz")
+      if(!temp["viz"].hasOwnProperty(updates[1]))
+        temp.viz[updates[1]] = { topology: {}, frames: []};
+
     for (let i = 0; i < updates.length - 1; i++) {
-      if(updates[i] == "frames") break;
       if (i == updates.length - 2) {
         if (updates[i + 1] == null) {
           if (Array.isArray(temp)) temp.splice(updates[i], 1);
@@ -137,7 +139,7 @@ const onClose = (event) => {
   setTimeout(openWebSocket(event.target.url), 2000);
 }
 
-const useWebSocket = { current_url, localhost, units, config, info, isInitialized, connectedUrls, getPeers,
+const useWebSocket = { current_url, localhost, units, config, info, viz, connectedUrls, isInitialized,  getPeers,
   isWSOpen, openWebSocket, send, close, updatePeerConnections };
 
 export default useWebSocket;

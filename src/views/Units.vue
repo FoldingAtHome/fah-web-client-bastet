@@ -72,7 +72,7 @@ export default {
       ppd.value = 0;
       for(let unit of units.value)
         if(unit && !unit.hasOwnProperty("pause-reason") && !isNaN(unit['ppd']))
-          ppd.value += parseInt(unit['ppd']);
+          ppd.value += unit['ppd'];
     }, { deep: true });
 
     const getStatus = (pauseReason, state) => {
