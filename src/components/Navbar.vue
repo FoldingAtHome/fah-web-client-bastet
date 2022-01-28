@@ -20,20 +20,26 @@ div
         li.nav-item
           router-link.nav-link(:to="{ name: 'Peers' }")
             | Peers
-      .col-sm-4(v-show="connectedUrls.length > 1")
+      .col-sm-4(v-show="showUrlSelection")
         select.form-select(v-model="current_url" aria-label="Select URL")
           option(v-for="url in connectedUrls" :key="url" :value="url") {{ getIP(url) }}
 </template>
 
 <script>
 import useWebSocket from '../composables/useWebSocket'
+import { computed } from 'vue';
 
 export default {
   name: 'Navbar',
   setup() {
-    const { getIP, current_url, connectedUrls } = useWebSocket
+    const { getIP, localhost, current_url, connectedUrls } = useWebSocket
 
-    return { getIP, current_url, connectedUrls }
+    const showUrlSelection = computed(() => {
+      return connectedUrls.value.length >= 1
+        && connectedUrls.value.indexOf(getIP(localhost)) === -1
+    })
+
+    return { getIP, current_url, connectedUrls, showUrlSelection }
   }
 }
 </script>

@@ -376,7 +376,6 @@ export default function useGraphicsLibrary() {
 
 
   const mouse_down = (e) => {
-    e.preventDefault();
     if (e.button == THREE.MOUSE.LEFT) {
       rotate_startX = e.clientX;
       rotate_startRot = protein.rotation.y;

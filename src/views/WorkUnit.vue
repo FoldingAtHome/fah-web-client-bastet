@@ -23,7 +23,7 @@
                 data-bs-trigger="hover" data-bs-html="true")
                 i.fas.fa-info-circle.fa-2x
         Details(v-if="isActive('details')" :unitId="data.unitId")
-        Visualization(v-else :unitId="data.unitId")
+        Visualization(v-else :unitId="data.unitId" :key="current_url")
 </template>
 
 <script>
@@ -42,7 +42,7 @@ export default {
       activeTab: "visualize",
       popover: null
     });
-    const { units } = useWebSocket
+    const { units, current_url } = useWebSocket
     const isActive = (tab) => { return data.activeTab === tab };
     const setIndex = (index) => data.unitId = index;
     const setActiveTab = (tab) => data.activeTab = tab;
@@ -61,7 +61,7 @@ export default {
 
     onUnmounted(() => { data.popover.hide(); })
 
-    return { popper, data, units, setIndex, setActiveTab, isActive };
+    return { popper, data, units, current_url, setIndex, setActiveTab, isActive };
   }
 }
 </script>
