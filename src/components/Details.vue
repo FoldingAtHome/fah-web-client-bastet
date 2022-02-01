@@ -9,8 +9,10 @@
           .card-title Manager: {{ response.data.manager }}
           p.card-text(v-if="response.data.institution") {{ response.data.institution }}
           .align-left(v-html="response.data.mdescription")
-          u.card-title
+          u.card-title(v-if="response.data.cause != 'unspecified'")
             | Project {{unit.assignment.project}}: (Fighting {{ toCamelCase(response.data.cause) }})
+          u.card-title(v-else)
+            | Project {{unit.assignment.project}}
           .align-left(v-html="response.data.description")
     .row(v-else)
       .card-body

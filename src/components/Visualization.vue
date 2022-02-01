@@ -45,7 +45,7 @@ export default {
     const root = ref(null)
 
     const { draw_type, showProtein, setGraphics, removeGL, clearArea, set_draw_type } = useGraphicsLibrary()
-    const { units } = useWebSocket
+    const { units, viz, send } = useWebSocket
 
     const view = {
       1: "Ball and Stick",
@@ -54,30 +54,44 @@ export default {
     }
 
     const data = reactive({
+      id: computed(() => units.value[props.unitId]["id"]),
       frameId: 0,
       frameCounter: 0,
     })
 
-    const unitHasFrames = computed(() => units.value[props.unitId].hasOwnProperty('frames'))
+    const unitHasFrames = computed(() => {
+      return viz.value[data.id] && viz.value[data.id].frames.length > 0;
+    })
+
     const framesLength = computed(() => {
-      let unit = units.value[props.unitId]
-      if(unit && unit.hasOwnProperty('frames')) return unit.frames.length;
+      if(unitHasFrames.value) return viz.value[data.id].frames.length;
       else return 0;
     })
 
     const showImage = (unitId, frameId) => {
       data.frameId = frameId
-      if(units.value[unitId].hasOwnProperty('frames'))
-        showProtein(units.value[unitId]["topology"], units.value[unitId]["frames"][frameId])
+      if(unitHasFrames.value && Object.keys(viz.value[data.id]["topology"]).length > 0)
+        showProtein(viz.value[data.id]["topology"], viz.value[data.id]["frames"][frameId])
       else
         clearArea();
     };
 
+    const getFrames = () => {
+      let msg = { cmd: "viz", unit: data.id };
+      msg["frame"] = viz.value && viz.value.hasOwnProperty(data.id) ? viz.value[data.id].frames.length : 0;
+      send(msg);
+    }
+
     watch([() => props.unitId], () => {
       data.frameId = 0;
       data.frameCounter = 0;
+      getFrames();
       showImage(props.unitId, data.frameId);
     });
+
+    watch([() => framesLength.value], (len, oldLen) => {
+      if(oldLen == 0 && len > oldLen) showImage(props.unitId, 0);
+    })
 
     onMounted(() => {
       setGraphics(root);
@@ -88,10 +102,11 @@ export default {
     })
 
     setTimeout(() => {
+      getFrames();
       showImage(props.unitId, 0);
     }, 1000)
 
-    return { ...toRefs(data), view, props, root, draw_type, unitHasFrames, framesLength, showImage, set_draw_type }
+    return { ...toRefs(data), view, props, root, draw_type, unitHasFrames, framesLength, viz, showImage, set_draw_type }
   }
 }
 </script>
