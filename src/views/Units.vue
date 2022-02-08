@@ -15,8 +15,10 @@
           | Status
         th(width="15%")
           | ETA
-        th(width="20%")
+        th(width="15%")
           | Progress
+        th(width="5%")
+          | Delete
     tbody
       template(v-for="(unit, index) in units" :key="index")
         tr(v-if="unit" :class='{ disabled: unit["pause-reason"] }')
@@ -30,6 +32,9 @@
                 :class="[unit['pause-reason'] ? 'bg-secondary' : 'progress-bar-animated bg-success']",
                 :style="{ width: getProgress(unit['progress']) + '%'}" aria-valuemin="0" aria-valuemax="100")
               span {{ getProgress(unit['progress'], 2) }}%
+          td
+            a(@click="dumpWU(unit['id'])")
+              i.fas.fa-trash-alt(style="color: red;")
 
 </template>
 
@@ -81,6 +86,11 @@ export default {
     };
 
     const setPause = (state) => { send({ cmd: state ? "pause" : "unpause" }); };
+    const dumpWU = (unitId) => {
+      console.log("Dumping WU : " + unitId);
+      send({ cmd: "dump", unit: unitId});
+    };
+
     const unitPRCG = (index) => {
       const unitData = units.value[index];
       if(unitData && unitData.assignment && unitData.wu)
@@ -88,7 +98,7 @@ export default {
       return "Will be assigned shortly.";
     };
 
-    return { units, config, ppd, getResources, getProgress, getStatus, setPause, unitPRCG };
+    return { units, config, ppd, getResources, getProgress, getStatus, setPause, dumpWU, unitPRCG };
   }
 }
 </script>
@@ -111,4 +121,7 @@ tr.disabled
   text-align center
   z-index 2
   color white
+
+.fa-trash-alt
+  pointer-events all
 </style>
