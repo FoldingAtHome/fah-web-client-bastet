@@ -1,9 +1,21 @@
 <template lang="pug">
 .view
+  #pauseSettings.modal.fade(ref="pauseSettings" tabindex="-1" data-bs-backdrop="static",
+      aria-labelledby="pauseSettingsLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5#pauseSettingsLabel.modal-title Pause Action
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p Would you like to pause folding now or finish all the active work units then pause?
+        .modal-footer
+          button.settings.btn.btn-primary(type="button" data-bs-dismiss="modal" @click="setPause()") Pause now
+          button.settings.btn.btn-primary(type="button" data-bs-dismiss="modal" @click="finishWork()") Finish up, then pause
   UserCard(:key="config.team" :ppd="ppd")
   h2 Work Units
-    button.btn.pauseBtn(type="button" :class="[config.paused ? 'btn-success' : 'btn-warning']"
-    @click="setPause(!config.paused)") {{ config.paused ? "Start" : "Pause" }}
+    button.btn.btn-success.pauseBtn(type="button" v-if="areAllUnitsPaused" @click="setPause()") Start
+    button.btn.btn-warning.pauseBtn(type="button" v-else data-bs-toggle="modal" data-bs-target="#pauseSettings") Pause
   table.table
     thead
       tr
@@ -15,8 +27,10 @@
           | Status
         th(width="15%")
           | ETA
-        th(width="20%")
+        th(width="15%")
           | Progress
+        th(width="5%")
+          | Delete
     tbody
       template(v-for="(unit, index) in units" :key="index")
         tr(v-if="unit" :class='{ disabled: unit["pause-reason"] }')
@@ -30,13 +44,16 @@
                 :class="[unit['pause-reason'] ? 'bg-secondary' : 'progress-bar-animated bg-success']",
                 :style="{ width: getProgress(unit['progress']) + '%'}" aria-valuemin="0" aria-valuemax="100")
               span {{ getProgress(unit['progress'], 2) }}%
+          td
+            a(@click="dumpWU(unit['id'])")
+              i.fas.fa-trash-alt(style="color: red;")
 
 </template>
 
 <script>
 import useWebSocket from "../composables/useWebSocket";
 import UserCard from "../components/UserCard.vue";
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export default {
   name: "Units",
@@ -44,6 +61,15 @@ export default {
   setup() {
     const { units, config, send } = useWebSocket;
     const ppd = ref(0);
+    const pauseSettings = ref(null);
+
+    const areAllUnitsPaused = computed(() => {
+      let pausedUnits = 0;
+      for(let unit of units.value)
+        if(unit["paused"]) pausedUnits++;
+      return config.value["paused"] || pausedUnits == units.value.length;
+    })
+
     const status = {
       "DOWNLOAD": "Downloading workunit.",
       "CORE": "Downloading core.",
@@ -68,6 +94,11 @@ export default {
       return (progress * 100.0).toFixed(precision);
     }
 
+    const showModal = () => {
+      let m2 = Modal.getOrCreateInstance(pauseSettings.value);
+      m2.show();
+    }
+
     watch([() => units], () => {
       ppd.value = 0;
       for(let unit of units.value)
@@ -80,7 +111,14 @@ export default {
       return status[state];
     };
 
-    const setPause = (state) => { send({ cmd: state ? "pause" : "unpause" }); };
+    const setPause = () => { send({ cmd: areAllUnitsPaused.value ? "unpause" : "pause" }); };
+    const finishWork = () => { send({ cmd : "finish" })};
+
+    const dumpWU = (unitId) => {
+      console.log("Dumping WU : " + unitId);
+      send({ cmd: "dump", unit: unitId});
+    };
+
     const unitPRCG = (index) => {
       const unitData = units.value[index];
       if(unitData && unitData.assignment && unitData.wu)
@@ -88,7 +126,8 @@ export default {
       return "Will be assigned shortly.";
     };
 
-    return { units, config, ppd, getResources, getProgress, getStatus, setPause, unitPRCG };
+    return { units, config, ppd, pauseSettings, areAllUnitsPaused, getResources, getProgress, showModal, getStatus,
+      setPause, finishWork, dumpWU, unitPRCG };
   }
 }
 </script>
@@ -111,4 +150,7 @@ tr.disabled
   text-align center
   z-index 2
   color white
+
+.fa-trash-alt
+  pointer-events all
 </style>

@@ -36,7 +36,7 @@ export default {
 
     const showUrlSelection = computed(() => {
       return connectedUrls.value.length >= 1
-        && connectedUrls.value.indexOf(getIP(localhost)) === -1
+        && connectedUrls.value.indexOf(localhost) === -1
     })
 
     return { getIP, current_url, connectedUrls, showUrlSelection }
