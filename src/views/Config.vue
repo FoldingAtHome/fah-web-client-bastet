@@ -1,6 +1,7 @@
 <template lang="pug">
 .view
-  #saveSettings.modal.fade(ref="settingsModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="saveSettings" aria-hidden="true")
+  #saveSettings.modal.fade(ref="settingsModal" tabindex="-1" data-bs-backdrop="static"
+    aria-labelledby="saveSettingsLabel" aria-hidden="true")
     .modal-dialog
       .modal-content
         .modal-header
