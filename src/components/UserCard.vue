@@ -9,14 +9,18 @@
       h5.card-title Team {{ config.team }}
     .col-md-8
       .row
-        .col-md-6
+        .col-md-6(v-if="config.team != 0 && config.user.toLowerCase() != 'anonymous'")
           .card-text Points earned:
           h2.card-title {{ getEarnedPoints(response.data.earned) }}
+        .col-md-6(v-else)
+          br
+          .card-text Choose a name to earn points.
+          .card-text Create or join a team.
         .col-md-6
           .card-text Points per day:
           h2.card-title {{ (props.ppd).toLocaleString('en') }}
       .row
-        .card-text.
+        .card-text(v-if="config.team != 0 && config.user.toLowerCase() != 'anonymous'").
           Contributed {{ humanFormat(response.data.contributed) }} points to {{ response.data.team_name }}'s total of
           {{ humanFormat(response.data.team_total) }} points.
 </template>
