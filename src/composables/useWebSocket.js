@@ -1,13 +1,14 @@
-import { computed, reactive, ref, readonly } from 'vue';
+import { computed, reactive, ref, readonly, watch } from 'vue';
 
 const localhost = "ws://127.0.0.1:7396/api/websocket";
 const current_url = ref(localhost);
+const showLoading = ref(false);
 
 const ws_data = reactive({
   [localhost] : {
   data: { units: [], config: {}, info: {}, viz: {}},
   socket: null,
-  isInitialized: false,
+  initialized: false
   },
 })
 
@@ -15,7 +16,12 @@ const config = computed(() => readonly(ws_data[current_url.value].data.config));
 const units = computed(() => readonly(ws_data[current_url.value].data.units));
 const info = computed(() => readonly(ws_data[current_url.value].data.info));
 const viz = computed(() => readonly(ws_data[current_url.value].data.viz));
-const isInitialized = (url = localhost) => { return ws_data[url].isInitialized;}
+const isInitialized = (url = localhost) => { return ws_data[url].initialized;}
+
+watch([() => ws_data[localhost].socket, () => ws_data[localhost].initialized],() => {
+  showLoading.value = !isWSOpen(localhost) || !isInitialized(localhost);
+}, {deep:true});
+
 const getIP = (url) => { return url.replace("ws://",'').split("/")[0]; }
 
 const getURL = (ip) => {
@@ -28,7 +34,7 @@ const getBasicObject = () => {
   let obj = {
     data: { units: [], config: {}, info: {}, viz: {}},
     socket: null,
-    isInitialized: false,
+    initialized: false,
   }
   return obj;
 }
@@ -48,7 +54,7 @@ const updatePeerConnections = () => {
   for(let i = 0; i < peersArr.length; i++) {
     console.log(peersArr[i]);
     if(ws_data.hasOwnProperty(peersArr[i])) {
-      if(!ws_data[peer].isInitialized) openWebSocket(peersArr[i]);
+      if(!ws_data[peer].initialized) openWebSocket(peersArr[i]);
     }
     else {
       openWebSocket(peersArr[i]);
@@ -59,7 +65,7 @@ const updatePeerConnections = () => {
 const connectedUrls = computed(() => {
   let conns = [];
   for(const url in JSON.parse(JSON.stringify(ws_data)))
-    if(isWSOpen(url)) conns.push(url);
+    if(isWSOpen(url).value) conns.push(url);
   return conns;
 });
 
@@ -101,20 +107,21 @@ const send = (msg) => {
 
 const close = (url) => {
   console.log("Closing Websocket connection." + url);
-  ws_data[url].socket.close();
+  if(ws_data[url]) ws_data[url].socket.close();
 }
 
 const onMessage = (event) => {
-  if (!ws_data[event.target.url].isInitialized) {
+  let url = event.target.url;
+  if (!ws_data[url].initialized) {
     console.log("Message received from websocket server: " + event.data);
-    ws_data[event.target.url].data = JSON.parse(event.data);
-    ws_data[event.target.url].isInitialized = true;
-    ws_data[event.target.url].data.viz = {}
+    ws_data[url].data = JSON.parse(event.data);
+    ws_data[url].initialized = true;
+    ws_data[url].data.viz = {}
   }
   else {
     let updates = JSON.parse(event.data);
     console.log("Message update received." + updates);
-    let temp = ws_data[event.target.url].data;
+    let temp = ws_data[url].data;
 
     if (updates[0] == "viz")
       if(!temp["viz"].hasOwnProperty(updates[1]))
@@ -138,15 +145,15 @@ const onMessage = (event) => {
 
 const onOpen = (event) => {
   console.log("Successfully connected to the Server.");
-  ws_data[event.target.url].isInitialized = false;
+  ws_data[event.target.url].initialized = false;
 }
 
 const onClose = (event) => {
-  ws_data[event.target.url].isInitialized = false;
-  setTimeout(openWebSocket(event.target.url), 2000);
+  ws_data[event.target.url].initialized = false;
+  setTimeout(openWebSocket(event.target.url), 200);
 }
 
 const useWebSocket = { current_url, localhost, units, config, info, viz, isInitialized, getIP, connectedUrls, getPeers,
-  isWSOpen, openWebSocket, send, close, updatePeerConnections };
+  isWSOpen, openWebSocket, send, close, updatePeerConnections, showLoading };
 
 export default useWebSocket;

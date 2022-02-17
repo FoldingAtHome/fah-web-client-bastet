@@ -5,11 +5,11 @@
       i.fas.fa-user-circle.fa-5x.center
     .col-md-2
       .card-text I am folding as:
-      h4.card-title {{ config.user }}
+      h4.card-title {{ config.user ? config.user : "Anonymous" }}
       h5.card-title Team {{ config.team }}
     .col-md-8
       .row
-        .col-md-6(v-if="config.team != 0 && config.user.toLowerCase() != 'anonymous'")
+        .col-md-6(v-if="config.team != 0 && config.user && config.user.toLowerCase() != 'anonymous'")
           .card-text Points earned:
           h2.card-title {{ getEarnedPoints(response.data.earned) }}
         .col-md-6(v-else)
@@ -20,7 +20,7 @@
           .card-text Points per day:
           h2.card-title {{ (props.ppd).toLocaleString('en') }}
       .row
-        .card-text(v-if="config.team != 0 && config.user.toLowerCase() != 'anonymous'").
+        .card-text(v-if="config.team != 0 && config.user && config.user.toLowerCase() != 'anonymous'").
           Contributed {{ humanFormat(response.data.contributed) }} points to {{ response.data.team_name }}'s total of
           {{ humanFormat(response.data.team_total) }} points.
 </template>
@@ -51,6 +51,7 @@ export default {
     }
 
     const getEarnedPoints = (points) => {
+      if(!points) return 0;
       if(points <= 1e9) return points.toLocaleString('en');
       return humanFormat(points);
     }
