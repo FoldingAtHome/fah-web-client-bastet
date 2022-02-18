@@ -30,7 +30,7 @@
           | ETA
         th(width="15%")
           | Progress
-        th(width="5%")
+        th(v-show="showDumpCol" width="5%")
           | Dump
     tbody
       template(v-for="(unit, index) in units" :key="index")
@@ -45,7 +45,7 @@
                 :class="[unit['pause-reason'] ? 'bg-secondary' : 'progress-bar-animated bg-success']",
                 :style="{ width: getProgress(unit['progress']) + '%'}" aria-valuemin="0" aria-valuemax="100")
               span {{ getProgress(unit['progress'], 2) }}%
-          td
+          td(v-show="unit['pause-reason'] && unit['pause-reason']")
             a(@click="dumpWU(unit['id'])")
               i.fas.fa-trash-alt(style="color: red;")
 
@@ -71,6 +71,15 @@ export default {
       "UPLOAD": "Uploading",
       "CLEAN": "Finished. Cleaning workunit."
     };
+
+    const showDumpCol = computed(() => {
+      if(config.value.paused) return config.value.paused;
+      for(let unit of units.value) {
+        if(unit["pause-reason"] && unit["pause-reason"] != "")
+          return true;
+      return false;
+      }
+    })
 
     const getResources = (cpus, gpus) => {
       let msg = "";
@@ -116,8 +125,8 @@ export default {
       return "Will be assigned shortly.";
     };
 
-    return { units, config, ppd, pauseSettings, getResources, getProgress, getStatus, setPause, finishWork, dumpWU,
-      unitPRCG };
+    return { units, config, ppd, pauseSettings, showDumpCol, getResources, getProgress, getStatus, setPause, finishWork,
+      dumpWU, unitPRCG };
   }
 }
 </script>
