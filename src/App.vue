@@ -12,7 +12,7 @@ div(v-show="showLoading")
 import Navbar from './components/Navbar.vue'
 import useWebSocket from './composables/useWebSocket'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import { computed, onBeforeUnmount } from "vue";
+import { onBeforeUnmount } from "vue"
 
 const ws_url = "ws://127.0.0.1:7396/api/websocket";
 
@@ -22,7 +22,7 @@ export default {
     Navbar
   },
   setup() {
-    const { isWSOpen, isInitialized, showLoading, localhost, updatePeerConnections, openWebSocket, close} = useWebSocket;
+    const { showLoading, updatePeerConnections, openWebSocket, close} = useWebSocket;
 
     openWebSocket(ws_url);
     updatePeerConnections();

@@ -6,9 +6,9 @@ const showLoading = ref(false);
 
 const ws_data = reactive({
   [localhost] : {
-  data: { units: [], config: {}, info: {}, viz: {}},
-  socket: null,
-  initialized: false
+    data: { units: [], config: {}, info: {}, viz: {}},
+    socket: null,
+    initialized: false
   },
 })
 
@@ -53,8 +53,8 @@ const updatePeerConnections = () => {
   // Add new peers
   for(let i = 0; i < peersArr.length; i++) {
     console.log(peersArr[i]);
-    if(ws_data.hasOwnProperty(peersArr[i])) {
-      if(!ws_data[peer].initialized) openWebSocket(peersArr[i]);
+    if(ws_data.hasOwnProperty(peersArr[i]) && peersArr[i] != localhost) {
+      if(!ws_data[peersArr[i]].initialized) openWebSocket(peersArr[i]);
     }
     else {
       openWebSocket(peersArr[i]);
@@ -65,7 +65,8 @@ const updatePeerConnections = () => {
 const connectedUrls = computed(() => {
   let conns = [];
   for(const url in JSON.parse(JSON.stringify(ws_data)))
-    if(isWSOpen(url).value) conns.push(url);
+    if(isWSOpen(url)) conns.push(url);
+  console.log("Sh:" + conns.length);
   return conns;
 });
 
@@ -81,8 +82,8 @@ const getPeers = () => {
 }
 
 
-const isWSOpen = (url = localhost) => {
-  return ws_data[url].socket != null && ws_data[url].socket != undefined
+const isWSOpen = (url) => {
+  return ws_data[url] && ws_data[url].socket != null && ws_data[url].socket != undefined
     && ws_data[url].socket.readyState == WebSocket.OPEN;
 }
 
@@ -96,6 +97,11 @@ const openWebSocket = (url) => {
   ws_data[url].socket.addEventListener('message', onMessage);
   ws_data[url].socket.addEventListener('open', onOpen);
   ws_data[url].socket.addEventListener('close', onClose);
+
+  // setTimeout(() => {
+  //   if(isWSOpen(url)) return;
+  //   close(url);
+  // }, 5000)
 }
 
 const send = (msg) => {
@@ -150,7 +156,7 @@ const onOpen = (event) => {
 
 const onClose = (event) => {
   ws_data[event.target.url].initialized = false;
-  setTimeout(openWebSocket(event.target.url), 200);
+  setTimeout(openWebSocket(event.target.url), 2000);
 }
 
 const useWebSocket = { current_url, localhost, units, config, info, viz, isInitialized, getIP, connectedUrls, getPeers,
