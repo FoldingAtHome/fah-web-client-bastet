@@ -118,7 +118,6 @@ export default {
     };
 
     const save = () => {
-      console.log("Save Settings.");
       send({ cmd: "config", config: changedData.value });
     };
 

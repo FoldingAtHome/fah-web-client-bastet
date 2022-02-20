@@ -74,11 +74,10 @@ export default {
 
     const showDumpCol = computed(() => {
       if(config.value.paused) return config.value.paused;
-      for(let unit of units.value) {
+      for(let unit of units.value)
         if(unit["pause-reason"] && unit["pause-reason"] != "")
           return true;
       return false;
-      }
     })
 
     const getResources = (cpus, gpus) => {
@@ -114,7 +113,6 @@ export default {
     const finishWork = () => { send({ cmd : "finish" })};
 
     const dumpWU = (unitId) => {
-      console.log("Dumping WU : " + unitId);
       send({ cmd: "dump", unit: unitId});
     };
 

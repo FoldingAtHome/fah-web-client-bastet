@@ -66,7 +66,6 @@ const connectedUrls = computed(() => {
   let conns = [];
   for(const url in JSON.parse(JSON.stringify(ws_data)))
     if(isWSOpen(url)) conns.push(url);
-  console.log("Sh:" + conns.length);
   return conns;
 });
 
@@ -98,10 +97,11 @@ const openWebSocket = (url) => {
   ws_data[url].socket.addEventListener('open', onOpen);
   ws_data[url].socket.addEventListener('close', onClose);
 
-  // setTimeout(() => {
-  //   if(isWSOpen(url)) return;
-  //   close(url);
-  // }, 5000)
+  setTimeout(() => {
+    let socketState = ws_data[url].socket.readyState;
+    if(socketState == WebSocket.OPEN || socketState == WebSocket.CONNECTING) return;
+    close(url);
+  }, 5000)
 }
 
 const send = (msg) => {
