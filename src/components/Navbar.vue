@@ -31,7 +31,7 @@ import useWebSocket from '../composables/useWebSocket'
 export default {
   name: 'Navbar',
   setup() {
-    const { getIP, current_url, connectedUrls } = useWebSocket
+    const { getIP, current_url, connectedUrls } = useWebSocket()
 
     return { getIP, current_url, connectedUrls }
   }

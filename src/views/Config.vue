@@ -13,7 +13,7 @@
           button.settings.btn.btn-warning(type="button" @click="check('discard')") Discard
           button.settings.btn.btn-primary(type="button" @click="check('save')") Save
   h2 Configuration
-  form
+  Form(:validation-schema="schema")
     .col-md-9.col-lg-8.form-data
       .accordion-item
         #userHeading.accordion-header
@@ -24,11 +24,13 @@
             .row.mb-3
               label.col-sm-3.col-md-3.col-form-label(for="user") Username :
               .col-sm-9
-                input#user.form-control(v-model="config.user" type="text")
+                Field#user.form-control(v-model="config.user" name="user" type="text")
+                ErrorMessage.error(name="user")
             .row.mb-3
               label.col-sm-3.col-md-3.col-form-label(for="team") Team Id :
               .col-sm-6
-                input#team.form-control(v-model.number="config.team" type="number" min="0")
+                Field#team.form-control(v-model.number="config.team" name="teamId" type="number" min="0")
+                ErrorMessage.error(name="teamId")
               .col
                 button.btn.btn-warning(type="button" data-bs-toggle="modal" data-bs-target="#createTeam") Create Team
               CreateTeam
@@ -36,12 +38,13 @@
               label.col-sm-3.col-md-3.col-form-label(for="passkey") Passkey :
               .col-sm-9
                 .input-group
-                  input#passkey.form-control(v-model="config.passkey" :type="[ showPasskey ? 'text':'password']")
+                  Field#passkey.form-control(v-model="config.passkey" name="passkey" :type="[ showPasskey ? 'text':'password']")
                   button.btn.btn-outline-dark(type="button" @click="showPasskey = !showPasskey")
                     span(v-if="showPasskey")
                       i.fas.fa-eye-slash(aria-hidden="true")
                     span(v-else)
                       i.fas.fa-eye(aria-hidden="true")
+                ErrorMessage.error(name="passkey")
       .accordion-item
         #projectHeading.accordion-header
           button.legend.accordion-button(type="button" data-bs-toggle="collapse" data-bs-target="#projectSettings"
@@ -99,12 +102,24 @@ import useWebSocket from '../composables/useWebSocket'
 import { reactive, toRefs, watchEffect, computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import CreateTeam from '../components/CreateTeam.vue'
+import { useForm, Form, ErrorMessage, Field } from 'vee-validate';
+import * as yup from 'yup';
 
 export default {
   name: "Config",
-  components: { CreateTeam },
+  components: { CreateTeam, Field, Form, ErrorMessage },
   setup() {
-    const { config, info, send } = useWebSocket;
+    const schema = yup.object().shape({
+      user: yup.string().required().min(1).max(100).label("Username").matches('^(?![_0-9])[A-Za-z0-9_]+$',
+        "Username can contain alphabets, digits and underscores.\n Username cannot start with a digit or an underscore."),
+      teamId: yup.number().integer().min(0).label("Team ID"),
+      passkey: yup.string().max(64).label("Passkey").matches('^$|(^[0-9A-Fa-f]{32}$)',
+        "Passkey should be hexadecimal and 32 characters long")
+    })
+
+    const { errors } = useForm()
+    const { config, info, send } = useWebSocket()
+
     const cached = reactive({
       causes: ["Any", "Alzheimers", "Cancer", "Huntingtons", "Parkinsons"],
       config: JSON.parse(JSON.stringify(config.value)),
@@ -145,7 +160,7 @@ export default {
     }
 
     onBeforeRouteLeave((to, from, next) => {
-      if(!(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
+      if(errors.value == "" && !(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
         cached.nextRoute = to;
         toggleModal(true);
 
@@ -156,7 +171,7 @@ export default {
       else next();
     })
 
-    return { ...toRefs(cached), info, save, reset, check };
+    return { schema, ...toRefs(cached), info, save, reset, check };
   }
 }
 
@@ -164,58 +179,62 @@ export default {
 
 <style lang="stylus" scoped>
 form
-  text-align: center
+  text-align center
 
 .form-data
-  display: inline-block
+  display inline-block
 
 .form-check
-  display: inline-block
+  display inline-block
 
 .col-form-label
-  text-align: left
+  text-align left
 
-  @media (min-width: 768px)
-    text-align: right
+  @media (min-width 768px)
+    text-align right
 
 .form-check-input:checked
-  background-color: black
-  border-color: black
+  background-color black
+  border-color black
 
 .accordion-button
-  color: black
-  font-weight: bold
-  font-size: 20px
-  padding: 0.5rem 1.25rem
+  color black
+  font-weight bold
+  font-size 20px
+  padding 0.5rem 1.25rem
 
 button.settings
-  margin: 10px
+  margin 10px
 
 .form-range
   margin-top 3px
 
   &::-webkit-slider-thumb
-    background: black
+    background black
 
 span.cpus
-  display: inline-block
-  position: relative
-  color: white
-  line-height: 20px
-  text-align: center
-  border-radius: 3px
-  background: black
-  padding: 5px 10px
-  margin-left: 4px
+  display inline-block
+  position relative
+  color white
+  line-height 20px
+  text-align center
+  border-radius 3px
+  background black
+  padding 5px 10px
+  margin-left 4px
 
 span.cpus::after
-  position: absolute
-  top: 8px
-  right: -7px
-  width: 0
-  height: 0
-  border-top: 7px solid transparent
-  border-left: 7px solid black
-  border-bottom: 7px solid transparent
-  content: ''
+  position absolute
+  top 8px
+  right -7px
+  width 0
+  height 0
+  border-top 7px solid transparent
+  border-left 7px solid black
+  border-bottom 7px solid transparent
+  content ''
+
+.error
+  color red
+  font-size small
 </style>

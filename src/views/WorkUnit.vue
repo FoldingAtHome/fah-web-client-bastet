@@ -42,7 +42,7 @@ export default {
       activeTab: "visualize",
       popover: null
     });
-    const { units, current_url } = useWebSocket
+    const { units, current_url } = useWebSocket()
     const isActive = (tab) => { return data.activeTab === tab };
     const setIndex = (index) => data.unitId = index;
     const setActiveTab = (tab) => data.activeTab = tab;

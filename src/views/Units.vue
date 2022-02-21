@@ -52,79 +52,80 @@
 </template>
 
 <script>
-import useWebSocket from "../composables/useWebSocket";
-import UserCard from "../components/UserCard.vue";
-import { computed, ref, watch } from 'vue';
+import useWebSocket from "../composables/useWebSocket"
+import UserCard from "../components/UserCard.vue"
+import { computed, ref, watch } from 'vue'
 
 export default {
   name: "Units",
   components: { UserCard },
   setup() {
-    const { units, config, send } = useWebSocket;
-    const ppd = ref(0);
-    const pauseSettings = ref(null);
+    const { units, config, send } = useWebSocket()
+    const ppd = ref(0)
+    const pauseSettings = ref(null)
 
     const status = {
       "DOWNLOAD": "Downloading workunit.",
       "CORE": "Downloading core.",
       "RUN": "Running.",
+      "FINISH": "Finishing",
       "UPLOAD": "Uploading",
-      "CLEAN": "Finished. Cleaning workunit."
-    };
+      "CLEAN": "Finished, Cleaning workunit."
+    }
 
     const showDumpCol = computed(() => {
-      if(config.value.paused) return config.value.paused;
+      if(config.value.paused) return config.value.paused
       for(let unit of units.value)
         if(unit["pause-reason"] && unit["pause-reason"] != "")
-          return true;
-      return false;
+          return true
+      return false
     })
 
     const getResources = (cpus, gpus) => {
-      let msg = "";
-      if(cpus > 1) msg += ("cpu:" + cpus + " ");
+      let msg = ""
+      if(cpus > 1) msg += ("cpu:" + cpus + " ")
       if(gpus.length) {
-        msg += "gpu:";
-        let gpuList = gpus.map(gpu => gpu.split(" ")[0]);
-        msg += gpuList.join(", ");
+        msg += "gpu:"
+        let gpuList = gpus.map(gpu => gpu.split(" ")[0])
+        msg += gpuList.join(", ")
       }
-      return msg;
-    };
+      return msg
+    }
 
     const getProgress = (progress, precision = 0) => {
-      if(isNaN(progress)) return 0;
-      return (progress * 100.0).toFixed(precision);
+      if(isNaN(progress)) return 0
+      return (progress * 100.0).toFixed(precision)
     }
 
     watch([() => units], () => {
-      ppd.value = 0;
+      ppd.value = 0
       for(let unit of units.value)
         if(unit && !unit.hasOwnProperty("pause-reason") && !isNaN(unit['ppd']))
-          ppd.value += unit['ppd'];
-    }, { deep: true });
+          ppd.value += unit['ppd']
+    }, { deep: true })
 
     const getStatus = (paused, pauseReason, state) => {
-      if(config.value.finish && !paused) return "Finishing.";
-      if(pauseReason && pauseReason != "") return pauseReason;
-      return status[state];
-    };
+      if(pauseReason && pauseReason != "") return pauseReason
+      if(config.value.finish) return state["FINISH"]
+      return status[state]
+    }
 
-    const setPause = () => { send({ cmd: config.value.paused ? "unpause" : "pause" }); };
-    const finishWork = () => { send({ cmd : "finish" })};
+    const setPause = () => { send({ cmd: config.value.paused ? "unpause" : "pause" }) }
+    const finishWork = () => { send({ cmd : "finish" })}
 
     const dumpWU = (unitId) => {
-      send({ cmd: "dump", unit: unitId});
-    };
+      send({ cmd: "dump", unit: unitId})
+    }
 
     const unitPRCG = (index) => {
-      const unitData = units.value[index];
+      const unitData = units.value[index]
       if(unitData && unitData.assignment && unitData.wu)
-        return `${unitData.assignment.project} (${unitData.wu.run}, ${unitData.wu.clone}, ${unitData.wu.gen})`;
-      return "Will be assigned shortly.";
-    };
+        return `${unitData.assignment.project} (${unitData.wu.run}, ${unitData.wu.clone}, ${unitData.wu.gen})`
+      return "Will be assigned shortly"
+    }
 
     return { units, config, ppd, pauseSettings, showDumpCol, getResources, getProgress, getStatus, setPause, finishWork,
-      dumpWU, unitPRCG };
+      dumpWU, unitPRCG }
   }
 }
 </script>

@@ -30,8 +30,8 @@
 </template>
 
 <script>
-import { useContributionAPI } from '../composables/useAPI';
-import useWebSocket from '../composables/useWebSocket';
+import useAPI from '../composables/useAPI'
+import useWebSocket from '../composables/useWebSocket'
 
 export default {
   name: 'UserCard',
@@ -42,25 +42,26 @@ export default {
     }
   },
   setup(props) {
-    const { response, getUserContribution } = useContributionAPI
-    const { config } = useWebSocket
+    const { user: response, getUserContribution } = useAPI()
+    const { config } = useWebSocket()
 
     const humanFormat = (num, precision = 2) => {
-      if(!num) return 0;
-      if(num >= 1e12) return (num / 1e12).toFixed(precision) + 'T';
-      if(num >= 1e9)  return (num / 1e9 ).toFixed(precision) + 'B';
-      if(num >= 1e6)  return (num / 1e6 ).toFixed(precision) + 'M';
-      if(num >= 1e3)  return (num / 1e3 ).toFixed(precision) + 'K';
-      return num;
+      if(!num) return 0
+      if(num >= 1e12) return (num / 1e12).toFixed(precision) + 'T'
+      if(num >= 1e9)  return (num / 1e9 ).toFixed(precision) + 'B'
+      if(num >= 1e6)  return (num / 1e6 ).toFixed(precision) + 'M'
+      if(num >= 1e3)  return (num / 1e3 ).toFixed(precision) + 'K'
+      return num
     }
 
     const getEarnedPoints = (points) => {
-      if(!points) return 0;
-      if(points <= 1e9) return points.toLocaleString('en');
-      return humanFormat(points);
+      if(!points) return 0
+      if(points <= 1e9) return points.toLocaleString('en')
+      return humanFormat(points)
     }
 
-    getUserContribution(config.value.user, config.value.team);
+    // if(config.value.user && config.value.team)
+      getUserContribution(config.value.user, config.value.team)
 
     return { props, response, config, humanFormat, getEarnedPoints }
   }

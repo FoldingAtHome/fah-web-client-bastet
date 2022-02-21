@@ -45,7 +45,7 @@ export default {
     const root = ref(null)
 
     const { draw_type, showProtein, setGraphics, removeGL, clearArea, set_draw_type } = useGraphicsLibrary()
-    const { units, viz, send } = useWebSocket
+    const { units, viz, send } = useWebSocket()
 
     const view = {
       1: "Ball and Stick",
@@ -60,12 +60,12 @@ export default {
     })
 
     const unitHasFrames = computed(() => {
-      return viz.value[data.id] && viz.value[data.id].frames.length > 0;
+      return viz.value[data.id] && viz.value[data.id].frames.length > 0
     })
 
     const framesLength = computed(() => {
-      if(unitHasFrames.value) return viz.value[data.id].frames.length;
-      else return 0;
+      if(unitHasFrames.value) return viz.value[data.id].frames.length
+      else return 0
     })
 
     const showImage = (unitId, frameId) => {
@@ -73,37 +73,37 @@ export default {
       if(unitHasFrames.value && Object.keys(viz.value[data.id]["topology"]).length > 0)
         showProtein(viz.value[data.id]["topology"], viz.value[data.id]["frames"][frameId])
       else
-        clearArea();
-    };
+        clearArea()
+    }
 
     const getFrames = () => {
-      let msg = { cmd: "viz", unit: data.id };
-      msg["frame"] = viz.value && viz.value.hasOwnProperty(data.id) ? viz.value[data.id].frames.length : 0;
-      send(msg);
+      let msg = { cmd: "viz", unit: data.id }
+      msg["frame"] = viz.value && viz.value.hasOwnProperty(data.id) ? viz.value[data.id].frames.length : 0
+      send(msg)
     }
 
     watch([() => props.unitId], () => {
-      data.frameId = 0;
-      data.frameCounter = 0;
-      getFrames();
-      showImage(props.unitId, data.frameId);
-    });
+      data.frameId = 0
+      data.frameCounter = 0
+      getFrames()
+      showImage(props.unitId, data.frameId)
+    })
 
     watch([() => framesLength.value], (len, oldLen) => {
-      if(oldLen == 0 && len > oldLen) showImage(props.unitId, 0);
+      if(oldLen == 0 && len > oldLen) showImage(props.unitId, 0)
     })
 
     onMounted(() => {
-      setGraphics(root);
+      setGraphics(root)
     })
 
     onUnmounted(() => {
-      removeGL();
+      removeGL()
     })
 
     setTimeout(() => {
-      getFrames();
-      showImage(props.unitId, 0);
+      getFrames()
+      showImage(props.unitId, 0)
     }, 1000)
 
     return { ...toRefs(data), view, props, root, draw_type, unitHasFrames, framesLength, viz, showImage, set_draw_type }
@@ -113,42 +113,42 @@ export default {
 
 <style lang="stylus" scoped>
 .imageContainer
-  height: 590px
-  background-color: lightblue
+  height 590px
+  background-color lightblue
 
-  @media screen and (max-width: 768px)
-    height: 300px
+  @media screen and (max-width 768px)
+    height 300px
 
 .card-body
-  padding: 0.5rem
+  padding 0.5rem
 .center
-  height: 100%
-  display: table
-  text-align: center
+  height 100%
+  display table
+  text-align center
 
 .center p
-  display: table-cell
-  vertical-align: middle
+  display table-cell
+  vertical-align middle
 
 .row [class*="col-md-"]
-  margin-top: 5px
+  margin-top 5px
 
 li.disabled
-  pointer-events: none
+  pointer-events none
 
 button.btn-dark
-  margin-left: 5px
+  margin-left 5px
 
 .list-group-item.active
-  background-color: black
+  background-color black
 
 .page-item.active .page-link
-  background-color: black
-  border-color: black
+  background-color black
+  border-color black
 
 .page-link
-  color: black
+  color black
 
 .dropdown-toggle
-  padding: 0.2rem 0.75rem
+  padding 0.2rem 0.75rem
 </style>

@@ -3,12 +3,12 @@ import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { reactive, toRefs } from 'vue';
 /* globals PerfectScrollbar, Chart, THREE */
-var HYDROGEN = 1;
-var CARBON   = 6;
-var NITROGEN = 7;
-var OXYGEN   = 8;
-var SULFUR   = 16;
-var HEAVY    = 999;
+let HYDROGEN = 1;
+let CARBON   = 6;
+let NITROGEN = 7;
+let OXYGEN   = 8;
+let SULFUR   = 16;
+let HEAVY    = 999;
 
 const graphics = reactive({
   draw_type: 1,
@@ -18,22 +18,22 @@ const graphics = reactive({
 
 export default function useGraphicsLibrary() {
 
-  var scene;
-  var data_renderer;
-  var clock = new THREE.Clock()
-  var camera = null
-  var ambient = null
-  var lights = null
-  var __zoom = null
-  var rotate_startRot = undefined
-  var rotate_startX = undefined
-  var positions = null
-  var topology = {}
-  var _target = null
-  var animate = null
-  var protein = null
-  var atom_materials = []
-  var bond_material = null
+  let scene;
+  let data_renderer;
+  let clock = new THREE.Clock()
+  let camera = null
+  let ambient = null
+  let lights = null
+  let __zoom = null
+  let rotate_startRot = undefined
+  let rotate_startX = undefined
+  let positions = null
+  let topology = {}
+  let _target = null
+  let animate = null
+  let protein = null
+  let atom_materials = []
+  let bond_material = null
 
 
   const showProtein = (topo, pos, root) => {
@@ -88,15 +88,15 @@ export default function useGraphicsLibrary() {
     // Lighting
     ambient = new THREE.AmbientLight(0xffffff, 0.5);
 
-    var keyLight = new THREE.DirectionalLight
+    let keyLight = new THREE.DirectionalLight
     (new THREE.Color('hsl(30, 100%, 75%)'), 0.75);
     keyLight.position.set(-100, 0, 100);
 
-    var fillLight = new THREE.DirectionalLight
+    let fillLight = new THREE.DirectionalLight
     (new THREE.Color('hsl(240, 100%, 75%)'), 0.25);
     fillLight.position.set(100, 0, 100);
 
-    var backLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    let backLight = new THREE.DirectionalLight(0xffffff, 0.5);
     backLight.position.set(100, 0, -100).normalize();
 
     lights = new THREE.Group();
@@ -119,15 +119,15 @@ export default function useGraphicsLibrary() {
 
 
   const get_dims = () => {
-    var t = _target.value.getBoundingClientRect();
-    var width = t.width;
-    var height = t.height;
+    let t = _target.value.getBoundingClientRect();
+    let width = t.width;
+    let height = t.height;
     return {width: width, height: height};
   }
 
 
   const update_view = () => {
-    var dims = get_dims();
+    let dims = get_dims();
     camera.aspect = dims.width / dims.height;
     camera.updateProjectionMatrix();
     data_renderer.setSize(dims.width, dims.height);
@@ -135,9 +135,9 @@ export default function useGraphicsLibrary() {
 
 
   const make_materials = () => {
-    var shine = [60, 20, 25, 30, 30, 100];
+    let shine = [60, 20, 25, 30, 30, 100];
 
-    var specular = [
+    let specular = [
       new THREE.Color(0.45, 0.45, 0.50), // Carbon
       new THREE.Color(0.20, 0.20, 0.20), // Hydrogen
       new THREE.Color(0.20, 0.20, 0.20), // Nitrogen
@@ -146,7 +146,7 @@ export default function useGraphicsLibrary() {
       new THREE.Color(0.25, 0.50, 0.25), // Heavy atoms
     ];
 
-    var color = [
+    let color = [
       new THREE.Color(0.20, 0.20, 0.20), // dark grey
       new THREE.Color(0.60, 0.60, 0.60), // grey
       new THREE.Color(0.10, 0.10, 0.80), // blue
@@ -155,10 +155,10 @@ export default function useGraphicsLibrary() {
       new THREE.Color(0.50, 0.00, 0.60), // purple
     ];
 
-    var material = graphics.draw_type == 3 ? THREE.MeshPhysicalMaterial :
+    let material = graphics.draw_type == 3 ? THREE.MeshPhysicalMaterial :
         THREE.MeshPhongMaterial;
 
-    for (var i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i++) {
       if(graphics.draw_type == 3) atom_materials.push(new material({ color: color[i] }))
       else atom_materials.push(new material({ shininess: shine[i], specular: specular[i], color: color[i] }))
     }
@@ -207,14 +207,14 @@ export default function useGraphicsLibrary() {
 
 
   const get_atom = (atom) => {
-    var number = atom[4] ? atom[4] : number_from_name(atom[0]);
-    var type = atom_type_from_number(number);
-    var radius = radius_from_type(type);
+    let number = atom[4] ? atom[4] : number_from_name(atom[0]);
+    let type = atom_type_from_number(number);
+    let radius = radius_from_type(type);
 
     if (graphics.draw_type == 1) radius /= 3;
     if (graphics.draw_type == 2) radius = 0.025;
 
-    var segs = graphics.draw_type == 3 ? 20 : 8;
+    let segs = graphics.draw_type == 3 ? 20 : 8;
 
     return {
       number: number, type: type, radius: radius,
@@ -224,25 +224,25 @@ export default function useGraphicsLibrary() {
 
 
   const draw_atoms = () => {
-    var group = new THREE.Group();
-    var pos = positions;
+    let group = new THREE.Group();
+    let pos = positions;
 
     // Atoms
-    var atom_geometries = [];
-    for (var i = 0; i < 5; i++) atom_geometries.push([]);
+    let atom_geometries = [];
+    for (let i = 0; i < 5; i++) atom_geometries.push([]);
 
-    var atoms = topology.atoms;
+    let atoms = topology.atoms;
     for (i = 0; i < atoms.length; i++) {
-      var atom = get_atom(atoms[i]);
-      var position = pos[i];
+      let atom = get_atom(atoms[i]);
+      let position = pos[i];
       atom.geometry.translate(position[0], position[1], position[2]);
       atom_geometries[atom.type].push(atom.geometry);
     }
 
-    for (var type = 0; type < 5; type++) {
+    for (let type = 0; type < 5; type++) {
       if(atom_geometries[type].length == 0) continue;
-      var geo = BufferGeometryUtils.mergeBufferGeometries(atom_geometries[type]);
-      var mesh = new THREE.Mesh(geo, atom_materials[type]);
+      let geo = BufferGeometryUtils.mergeBufferGeometries(atom_geometries[type]);
+      let mesh = new THREE.Mesh(geo, atom_materials[type]);
       group.add(mesh);
     }
 
@@ -251,23 +251,23 @@ export default function useGraphicsLibrary() {
 
 
   const get_bond_geometry = (a, b) => {
-    var vA = new THREE.Vector3(a[0], a[1], a[2]);
-    var vB = new THREE.Vector3(b[0], b[1], b[2]);
-    var length = vA.distanceTo(vB);
-    var r = 0.02;
+    let vA = new THREE.Vector3(a[0], a[1], a[2]);
+    let vB = new THREE.Vector3(b[0], b[1], b[2]);
+    let length = vA.distanceTo(vB);
+    let r = 0.02;
 
-    var geometry = new THREE.CylinderGeometry(r, r, length, 8, 1, true);
+    let geometry = new THREE.CylinderGeometry(r, r, length, 8, 1, true);
     geometry.translate(0, length / 2, 0);
 
     // Rotate
-    var vec = vB.clone().sub(vA);
-    var h = vec.length();
+    let vec = vB.clone().sub(vA);
+    let h = vec.length();
     vec.normalize();
 
-    var q = new THREE.Quaternion();
+    let q = new THREE.Quaternion();
     q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), vec);
 
-    var m = new THREE.Matrix4();
+    let m = new THREE.Matrix4();
     m.makeRotationFromQuaternion(q);
     geometry.applyMatrix4(m);
 
@@ -279,25 +279,25 @@ export default function useGraphicsLibrary() {
 
 
   const draw_bonds = () => {
-    var group = new THREE.Group();
-    var pos = positions;
-    var bonds = topology.bonds;
-    var bond_geometries = [];
+    let group = new THREE.Group();
+    let pos = positions;
+    let bonds = topology.bonds;
+    let bond_geometries = [];
 
-    for (var i = 0; i < bonds.length; i++) {
-      var a = pos[bonds[i][0]];
-      var b = pos[bonds[i][1]];
+    for (let i = 0; i < bonds.length; i++) {
+      let a = pos[bonds[i][0]];
+      let b = pos[bonds[i][1]];
       bond_geometries.push(get_bond_geometry(a, b));
     }
 
-    var geometry = BufferGeometryUtils.mergeBufferGeometries(bond_geometries);
+    let geometry = BufferGeometryUtils.mergeBufferGeometries(bond_geometries);
 
     return new THREE.Mesh(geometry, bond_material);
   }
 
 
   const draw_protein = () => {
-    var group = new THREE.Group();
+    let group = new THREE.Group();
 
     group.add(draw_atoms());
 
@@ -322,14 +322,14 @@ export default function useGraphicsLibrary() {
     protein.rotation.y = Math.PI * 45 / 180;
     scene.add(protein);
 
-    var bbox = new THREE.Box3().setFromObject(protein);
-    var center = bbox.getCenter(new THREE.Vector3());
-    var dims = bbox.getSize(new THREE.Vector3());
-    var maxDim = Math.max(dims.x, dims.y, dims.z);
+    let bbox = new THREE.Box3().setFromObject(protein);
+    let center = bbox.getCenter(new THREE.Vector3());
+    let dims = bbox.getSize(new THREE.Vector3());
+    let maxDim = Math.max(dims.x, dims.y, dims.z);
 
     center.x -= dims.x * 0.1; // Shift right
 
-    var initialZ = center.z +
+    let initialZ = center.z +
         maxDim / 2 / Math.tan(Math.PI * camera.fov / 360);
 
     __zoom = {
@@ -347,8 +347,8 @@ export default function useGraphicsLibrary() {
 
 
   const zoom = (delta) => {
-    var totalZ = __zoom.max - __zoom.min;
-    var z = camera.position.z + delta / totalZ * 10;
+    let totalZ = __zoom.max - __zoom.min;
+    let z = camera.position.z + delta / totalZ * 10;
     if (z < __zoom.min) z = __zoom.min;
     if (__zoom.max < z) z = __zoom.max;
     camera.position.z = z;
@@ -361,7 +361,7 @@ export default function useGraphicsLibrary() {
 
 
   const rotate = (delta) => {
-    var width = get_dims().width;
+    let width = get_dims().width;
     protein.rotation.y =
       rotate_startRot + 2 * Math.PI * delta / width;
   }
@@ -399,8 +399,8 @@ export default function useGraphicsLibrary() {
   const set_draw_type = (type) => {
     if (0 < type && type < 4 && graphics.draw_type != type) {
       graphics.draw_type = type;
-      var rotation = protein.rotation.y;
-      var zoom = camera.position.z;
+      let rotation = protein.rotation.y;
+      let zoom = camera.position.z;
       draw();
       protein.rotation.y = rotation;
       camera.position.z = zoom;

@@ -34,10 +34,10 @@
 </template>
 
 <script>
-import { computed, watch } from "vue";
+import { computed, watch } from "vue"
 
-import useWebSocket from "../composables/useWebSocket";
-import { useProjectAPI } from "../composables/useAPI"
+import useWebSocket from "../composables/useWebSocket"
+import useAPI from "../composables/useAPI"
 
 export default {
   name: "Details",
@@ -48,47 +48,47 @@ export default {
     }
   },
   setup(props) {
-    const { units } = useWebSocket
-    const { getProjectData, response } = useProjectAPI
+    const { units } = useWebSocket()
+    const { getProjectData, project: response } = useAPI()
 
     const unit = computed(() => units.value[props.unitId])
 
     watch([() => props.unitId],() => {
       if(unit.value.hasOwnProperty('assignment'))
-        getProjectData(unit.value.assignment.project);
-    });
+        getProjectData(unit.value.assignment.project)
+    })
 
     if(unit.value.hasOwnProperty('assignment'))
-      getProjectData(unit.value.assignment.project);
+      getProjectData(unit.value.assignment.project)
 
     const hasProperty = (key1, key2) => {
-      return (unit.value && unit.value.hasOwnProperty(key1) && unit.value[key1].hasOwnProperty(key2));
+      return (unit.value && unit.value.hasOwnProperty(key1) && unit.value[key1].hasOwnProperty(key2))
     }
 
     const toCamelCase = (str) => {
-      if(str) return str[0].toUpperCase() + str.slice(1);
-      else return "";
+      if(str) return str[0].toUpperCase() + str.slice(1)
+      else return ""
     }
 
-    return { unit, response, hasProperty, toCamelCase };
+    return { unit, response, hasProperty, toCamelCase }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 .card-title
-  font-weight: bold
+  font-weight bold
 
 .align-left
-  text-align: left
+  text-align left
 
 .list-group-item.active
-  background-color: black
+  background-color black
 
 .page-item.active .page-link
-  background-color: black
-  border-color: black
+  background-color black
+  border-color black
 
 .page-link
-  color: black
+  color black
 </style>
