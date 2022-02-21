@@ -14,8 +14,12 @@
           h2.card-title {{ getEarnedPoints(response.data.earned) }}
         .col-md-6(v-else)
           br
-          .card-text Choose a name to earn points.
-          .card-text Create or join a team.
+          .card-text.span
+            router-link.link(:to="{ name : 'Config' }") Choose a name
+            |  to earn points.
+          .card-text.span
+            router-link.link(:to="{ name : 'Config' }") Create or join
+            |  a team.
         .col-md-6
           .card-text Points per day:
           h2.card-title {{ (props.ppd).toLocaleString('en') }}
@@ -68,6 +72,10 @@ export default {
   font-weight bold
 
 .center
-  display: block
-  margin: auto
+  display block
+  margin auto
+
+.link
+  color black
+  font-weight bold
 </style>
