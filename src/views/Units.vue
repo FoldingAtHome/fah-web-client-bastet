@@ -36,7 +36,7 @@
         tr(v-if="unit" :class='{ disabled: unit["pause-reason"] }')
           td {{ unitPRCG(index) }}
           td {{ getResources(unit.cpus, unit.gpus) }}
-          td {{ getStatus(unit["pause-reason"], unit.state) }}
+          td {{ getStatus(unit["pause-reason"], unit.state, config["finish"]) }}
           td {{ unit.eta }}
           td
             .progress
@@ -71,11 +71,12 @@ export default {
     })
 
     const status = {
-      "DOWNLOAD": "Downloading workunit.",
-      "CORE": "Downloading core.",
-      "RUN": "Running.",
+      "DOWNLOAD": "Downloading workunit",
+      "CORE": "Downloading core",
+      "RUN": "Running",
+      "FINISH": "Finishing",
       "UPLOAD": "Uploading",
-      "CLEAN": "Finished. Cleaning workunit."
+      "CLEAN": "Finished, Cleaning workunit"
     };
 
     const getResources = (cpus, gpus) => {
@@ -106,8 +107,9 @@ export default {
           ppd.value += unit['ppd'];
     }, { deep: true });
 
-    const getStatus = (pauseReason, state) => {
+    const getStatus = (pauseReason, state, finish) => {
       if(pauseReason && pauseReason != "") return pauseReason;
+      if(finish && state == "RUN") return status["FINISH"];
       return status[state];
     };
 
@@ -123,7 +125,7 @@ export default {
       const unitData = units.value[index];
       if(unitData && unitData.assignment && unitData.wu)
         return `${unitData.assignment.project} (${unitData.wu.run}, ${unitData.wu.clone}, ${unitData.wu.gen})`;
-      return "Will be assigned shortly.";
+      return "Will be assigned shortly";
     };
 
     return { units, config, ppd, pauseSettings, areAllUnitsPaused, getResources, getProgress, showModal, getStatus,
