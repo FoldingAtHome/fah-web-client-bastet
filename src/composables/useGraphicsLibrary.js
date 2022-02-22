@@ -13,7 +13,7 @@ let HEAVY    = 999;
 const graphics = reactive({
   draw_type: 1,
   pause_rotation: false,
-  message: 'Loading...'
+  message: 'Loading'
 })
 
 export default function useGraphicsLibrary() {
@@ -40,9 +40,14 @@ export default function useGraphicsLibrary() {
     topology = topo;
     positions = pos;
     data_renderer.domElement.style.display = 'block';
-    draw();
-    update_view();
-    render();
+    try {
+      draw();
+      update_view();
+      render();
+    } catch(e) {
+      graphics.message = 'Empty Protein'
+      return
+    }
 
     graphics.message = '';
 
@@ -232,7 +237,7 @@ export default function useGraphicsLibrary() {
     for (let i = 0; i < 5; i++) atom_geometries.push([]);
 
     let atoms = topology.atoms;
-    for (i = 0; i < atoms.length; i++) {
+    for (let i = 0; i < atoms.length; i++) {
       let atom = get_atom(atoms[i]);
       let position = pos[i];
       atom.geometry.translate(position[0], position[1], position[2]);

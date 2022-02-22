@@ -13,7 +13,7 @@
           button.settings.btn.btn-warning(type="button" @click="check('discard')") Discard
           button.settings.btn.btn-primary(type="button" @click="check('save')") Save
   h2 Configuration
-  Form(:validation-schema="schema")
+  form
     .col-md-9.col-lg-8.form-data
       .accordion-item
         #userHeading.accordion-header
@@ -110,14 +110,14 @@ export default {
   components: { CreateTeam, Field, Form, ErrorMessage },
   setup() {
     const schema = yup.object().shape({
-      user: yup.string().required().min(1).max(100).label("Username").matches('^(?![_0-9])[A-Za-z0-9_]+$',
-        "Username can contain alphabets, digits and underscores.\n Username cannot start with a digit or an underscore."),
+      user: yup.string().min(1).max(100).label("Username").matches('^(?![_0-9])[A-Za-z0-9_]+$',
+        "Username can contain alphabets, digits and underscores. Username cannot start with a digit or an underscore."),
       teamId: yup.number().integer().min(0).label("Team ID"),
       passkey: yup.string().max(64).label("Passkey").matches('^$|(^[0-9A-Fa-f]{32}$)',
         "Passkey should be hexadecimal and 32 characters long")
     })
 
-    const { errors } = useForm()
+    const { errors } = useForm({validationSchema: schema})
     const { config, info, send } = useWebSocket()
 
     const cached = reactive({
@@ -160,10 +160,9 @@ export default {
     }
 
     onBeforeRouteLeave((to, from, next) => {
-      if(errors.value == "" && !(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
+      if(Object.keys(errors.value).length === 0 && !(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
         cached.nextRoute = to;
         toggleModal(true);
-
         cached.settingsModal.addEventListener('hide.bs.modal', () => {
           next();
         })

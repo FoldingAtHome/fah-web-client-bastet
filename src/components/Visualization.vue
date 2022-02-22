@@ -4,6 +4,8 @@
     .imageContainer(ref="root")
       .container.center(v-if="!unitHasFrames")
         p There are no frames available for this unit.
+      .container.center(v-show="message == 'Empty Protein'")
+        p {{ message }}
     .row.mt-2(v-if="unitHasFrames")
       .col-lg-4.col-md-4.col-sm-6
         nav
@@ -44,7 +46,7 @@ export default {
   setup(props) {
     const root = ref(null)
 
-    const { draw_type, showProtein, setGraphics, removeGL, clearArea, set_draw_type } = useGraphicsLibrary()
+    const { draw_type, message, showProtein, setGraphics, removeGL, clearArea, set_draw_type } = useGraphicsLibrary()
     const { units, viz, send } = useWebSocket()
 
     const view = {
@@ -106,7 +108,8 @@ export default {
       showImage(props.unitId, 0)
     }, 1000)
 
-    return { ...toRefs(data), view, props, root, draw_type, unitHasFrames, framesLength, viz, showImage, set_draw_type }
+    return { ...toRefs(data), view, props, root, draw_type, message, unitHasFrames, framesLength, viz, showImage,
+      set_draw_type }
   }
 }
 </script>
@@ -115,18 +118,20 @@ export default {
 .imageContainer
   height 590px
   background-color lightblue
+  position relative
 
   @media screen and (max-width 768px)
     height 300px
 
 .card-body
   padding 0.5rem
+
 .center
   height 100%
   display table
   text-align center
 
-.center p
+.center > p
   display table-cell
   vertical-align middle
 
