@@ -58,9 +58,9 @@
 </template>
 
 <script>
-import { useForm, useField, Form, ErrorMessage, Field } from 'vee-validate';
-import * as yup from 'yup';
-import { useTeamAPI } from '../composables/useAPI';
+import { useForm, useField, Form, ErrorMessage, Field } from 'vee-validate'
+import * as yup from 'yup'
+import useAPI from '../composables/useAPI'
 
 export default {
   name: 'CreateTeam',
@@ -76,32 +76,32 @@ export default {
       confirm: yup.string().required("Re-enter the password.").oneOf([yup.ref("password")], "Passwords do not match.")
     });
 
-    const { resetForm, isSubmitting } = useForm();
+    const { resetForm, isSubmitting } = useForm()
     const { value: logoURL } = useField('logo')
-    const { response, createTeam } = useTeamAPI;
+    const { team: response, createTeam } = useAPI()
 
     const isEmpty = (obj) => {
       return Object.entries(obj).length === 0 && obj.constructor === Object
     }
 
     const create = async (values) => {
-      await createTeam(values);
-      resetForm();
+      await createTeam(values)
+      resetForm()
     }
 
-    return { logoURL, schema, isSubmitting, response, create, isEmpty };
+    return { logoURL, schema, isSubmitting, response, create, isEmpty }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 .col-form-label
-  text-align: left
+  text-align left
 
-  @media (min-width: 768px)
-    text-align: right
+  @media (min-width 768px)
+    text-align right
 
 .error
-  color: red
-  font-size: small
+  color red
+  font-size small
 </style>

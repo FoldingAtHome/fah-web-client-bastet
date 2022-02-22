@@ -30,7 +30,7 @@ import useWebSocket from '../composables/useWebSocket';
 export default {
   name: "Peers",
   setup() {
-    const { getIP, connectedUrls, localhost, isWSOpen, updatePeerConnections } = useWebSocket
+    const { getIP, connectedUrls, localhost, isWSOpen, updatePeerConnections } = useWebSocket()
     const cachedPeers = ref(window.localStorage.getItem("peers"));
 
     const reset = () => {
