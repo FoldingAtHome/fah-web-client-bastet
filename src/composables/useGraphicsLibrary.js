@@ -36,7 +36,12 @@ export default function useGraphicsLibrary() {
   let bond_material = null
 
 
-  const showProtein = (topo, pos, root) => {
+  const showProtein = (topo, pos) => {
+    if(topo["atoms"].length == 0 || topo["bonds"].length == 0 || pos.length == 0) {
+      graphics.message = 'Empty Protein'
+      return
+    }
+
     topology = topo;
     positions = pos;
     data_renderer.domElement.style.display = 'block';
@@ -45,7 +50,7 @@ export default function useGraphicsLibrary() {
       update_view();
       render();
     } catch(e) {
-      graphics.message = 'Empty Protein'
+      graphics.message = 'There was some error loading the protein. Try again later.'
       return
     }
 

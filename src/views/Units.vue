@@ -1,7 +1,19 @@
 <template lang="pug">
 .view
-  #pauseSettings.modal.fade(ref="pauseSettings" tabindex="-1" data-bs-backdrop="static",
-    aria-labelledby="pauseSettingsLabel" aria-hidden="true")
+  #dumpModal.modal.fade(tabindex="-1" data-bs-backdrop="static"
+    aria-labelledby="dumpModalLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5#dumpModalLabel.modal-title Dump Work Unit
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p Are you sure you want to dump the work unit?
+        .modal-footer
+          button.settings.btn.btn-primary(type="button" data-bs-dismiss="modal") No
+          button.settings.btn.btn-warning(type="button" @click="dumpWU()" data-bs-dismiss="modal") Yes
+  #pauseSettings.modal.fade(tabindex="-1" data-bs-backdrop="static" aria-labelledby="pauseSettingsLabel",
+    aria-hidden="true")
     .modal-dialog
       .modal-content
         .modal-header
@@ -37,7 +49,7 @@
         tr(v-if="unit" :class='{ disabled: unit["pause-reason"] }')
           td {{ unitPRCG(index) }}
           td {{ getResources(unit.cpus, unit.gpus) }}
-          td {{ getStatus(unit.paused, unit["pause-reason"], unit.state) }}
+          td {{ getStatus(unit["pause-reason"], unit["state"]) }}
           td {{ unit.eta }}
           td
             .progress
@@ -46,7 +58,7 @@
                 :style="{ width: getProgress(unit['progress']) + '%'}" aria-valuemin="0" aria-valuemax="100")
               span {{ getProgress(unit['progress'], 2) }}%
           td(v-show="unit['pause-reason'] && unit['pause-reason']")
-            a(@click="dumpWU(unit['id'])")
+            a(@click="dumpUnitId = unit['id']" data-bs-toggle="modal" data-bs-target="#dumpModal")
               i.fas.fa-trash-alt(style="color: red;")
 
 </template>
@@ -62,7 +74,7 @@ export default {
   setup() {
     const { units, config, send } = useWebSocket()
     const ppd = ref(0)
-    const pauseSettings = ref(null)
+    const dumpUnitId = ref(null)
 
     const status = {
       "DOWNLOAD": "Downloading workunit.",
@@ -104,17 +116,18 @@ export default {
           ppd.value += unit['ppd']
     }, { deep: true })
 
-    const getStatus = (paused, pauseReason, state) => {
+    const getStatus = (pauseReason, state) => {
       if(pauseReason && pauseReason != "") return pauseReason
-      if(config.value.finish) return state["FINISH"]
+      if(config.value.finish) return status["FINISH"]
       return status[state]
     }
 
     const setPause = () => { send({ cmd: config.value.paused ? "unpause" : "pause" }) }
     const finishWork = () => { send({ cmd : "finish" })}
 
-    const dumpWU = (unitId) => {
-      send({ cmd: "dump", unit: unitId})
+    const dumpWU = () => {
+      if(dumpUnitId.value)
+        send({ cmd: "dump", unit: dumpUnitId.value})
     }
 
     const unitPRCG = (index) => {
@@ -124,7 +137,7 @@ export default {
       return "Will be assigned shortly"
     }
 
-    return { units, config, ppd, pauseSettings, showDumpCol, getResources, getProgress, getStatus, setPause, finishWork,
+    return { units, config, ppd, dumpUnitId, showDumpCol, getResources, getProgress, getStatus, setPause, finishWork,
       dumpWU, unitPRCG }
   }
 }

@@ -113,7 +113,7 @@ export default {
       user: yup.string().min(1).max(100).label("Username").matches('^(?![_0-9])[A-Za-z0-9_]+$',
         "Username can contain alphabets, digits and underscores. Username cannot start with a digit or an underscore."),
       teamId: yup.number().integer().min(0).label("Team ID"),
-      passkey: yup.string().max(64).label("Passkey").matches('^$|(^[0-9A-Fa-f]{32}$)',
+      passkey: yup.string().max(32).label("Passkey").matches('^$|(^[0-9A-Fa-f]{32}$)',
         "Passkey should be hexadecimal and 32 characters long")
     })
 
