@@ -1,8 +1,8 @@
 <template lang="pug">
-div(v-show="!showLoading")
+div(v-if="!showLoading")
   Navbar
   router-view
-div(v-show="showLoading")
+div(v-else)
   .spinner-border.text-success(role="status")
     span.visually-hidden Loading...
   h3 Connecting to Folding@Home Client
