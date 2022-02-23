@@ -82,7 +82,7 @@
                 span.cpus(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
               .col-sm-8
                 input#cpus.form-range(v-model.number="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
-            .row.mb-3
+            .row.mb-3(v-if="Object.keys(config.gpus).length")
               table
                 tr
                   th GPU
