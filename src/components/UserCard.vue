@@ -1,6 +1,6 @@
 <template lang="pug">
 .card.alert-info
-  .row.no-gutters.mt-2(v-if="Object.keys(response.data).length")
+  .row.no-gutters.mt-2
     .col-md-2
       i.fas.fa-user-circle.fa-5x.center
     .col-md-2
@@ -9,10 +9,10 @@
       h5.card-title Team {{ config.team }}
     .col-md-8
       .row
-        .col-md-6(v-if="config.team != 0 && config.user && config.user.toLowerCase() != 'anonymous'")
+        .col-md-6(v-if="!response.error" v-show="showPointsInfo")
           .card-text Points earned:
           h2.card-title {{ getEarnedPoints(response.data.earned) }}
-        .col-md-6(v-else)
+        .col-md-6(v-show="!showPointsInfo")
           br
           .card-text.span
             router-link.link(:to="{ name : 'Config' }") Choose a name
@@ -23,13 +23,14 @@
         .col-md-6
           .card-text Points per day:
           h2.card-title {{ (props.ppd).toLocaleString('en') }}
-      .row
-        .card-text(v-if="config.team != 0 && config.user && config.user.toLowerCase() != 'anonymous'").
+      .row(v-if="!response.error" v-show="showPointsInfo")
+        .card-text.
           Contributed {{ humanFormat(response.data.contributed) }} points to {{ response.data.team_name }}'s total of
           {{ humanFormat(response.data.team_total) }} points.
 </template>
 
 <script>
+import { computed } from 'vue'
 import useAPI from '../composables/useAPI'
 import useWebSocket from '../composables/useWebSocket'
 
@@ -60,10 +61,14 @@ export default {
       return humanFormat(points)
     }
 
-    // if(config.value.user && config.value.team)
+    const showPointsInfo = computed(() => {
+      return config.value.team != 0 && config.value.user && config.value.user.toLowerCase() != 'anonymous'
+    })
+
+    if(showPointsInfo.value)
       getUserContribution(config.value.user, config.value.team)
 
-    return { props, response, config, humanFormat, getEarnedPoints }
+    return { props, response, config, humanFormat, getEarnedPoints, showPointsInfo }
   }
 }
 </script>

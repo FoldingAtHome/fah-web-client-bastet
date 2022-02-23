@@ -38,7 +38,7 @@ export default function useAPI() {
       data.team.data = result.data
     } catch(error) {
       data.team.error = true
-      data.team.data = error.response.data
+      if(error.response) data.team.data = error.response.data
     }
   }
 
@@ -51,7 +51,7 @@ export default function useAPI() {
       data.user.data = result.data
     } catch(error) {
       data.user.error = true
-      data.team.data = error.response.data
+      if(error.response) data.user.data = error.response.data
     }
   }
 
