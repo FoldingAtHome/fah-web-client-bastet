@@ -93,7 +93,7 @@
                     .form-check.form-switch
                       input.form-check-input(v-model="gpu.enabled" type="checkbox")
       button.settings.btn.btn-warning(type="button" @click="reset") Discard
-      button.settings.btn.btn-primary(type="button" @click="save") Save
+      button.settings.btn.btn-primary(type="button" :disabled="!hasCorrectValues" @click="save") Save
 </template>
 
 <script>
@@ -128,20 +128,6 @@ export default {
       showPasskey: false
     });
 
-    const reset = () => {
-      cached.config = JSON.parse(JSON.stringify(config.value));
-    };
-
-    const save = () => {
-      send({ cmd: "config", config: changedData.value });
-    };
-
-    const check = (param) => {
-      if(param == 'discard') reset();
-      if(param == 'save') save();
-      toggleModal(false)
-    };
-
     const changedData = computed(() => {
       const tmp = JSON.parse(JSON.stringify(cached.config));
       const result = Object.entries(tmp).filter(([key]) => {
@@ -149,9 +135,23 @@ export default {
                           (JSON.stringify(config.value[key]) != JSON.stringify(tmp[key])));
         });
       return Object.fromEntries(result);
-    });
+    })
 
-    watchEffect(reset);
+    const hasCorrectValues = computed(() => !Object.keys(errors.value).length && Object.keys(changedData.value).length)
+
+    const reset = () => {
+      cached.config = JSON.parse(JSON.stringify(config.value));
+    }
+
+    const save = () => {
+      send({ cmd: "config", config: changedData.value });
+    }
+
+    const check = (param) => {
+      if(param == 'discard') reset();
+      if(param == 'save') save();
+      toggleModal(false)
+    };
 
     const toggleModal = (state) => {
       let m2 = Modal.getOrCreateInstance(cached.settingsModal);
@@ -159,8 +159,10 @@ export default {
       else m2.hide();
     }
 
+    watchEffect(reset);
+
     onBeforeRouteLeave((to, from, next) => {
-      if(Object.keys(errors.value).length === 0 && !(JSON.stringify(config.value) === JSON.stringify(cached.config))) {
+      if(hasCorrectValues.value) {
         cached.nextRoute = to;
         toggleModal(true);
         cached.settingsModal.addEventListener('hide.bs.modal', () => {
@@ -170,7 +172,7 @@ export default {
       else next();
     })
 
-    return { schema, ...toRefs(cached), info, save, reset, check };
+    return { schema, ...toRefs(cached), info, hasCorrectValues, save, reset, check };
   }
 }
 
