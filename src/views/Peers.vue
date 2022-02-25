@@ -8,7 +8,7 @@
                     192.168.0.2:3000,192.168.0.3`)
     .col-md-2.col-lg-2.form-data
       button.settings.btn.btn-warning(type="button" @click="reset") Discard
-      button.settings.btn.btn-primary(type="button" @click="save") Save
+      button.settings.btn.btn-primary(type="button" :disabled="!isValueChanged" @click="save") Save
   table.table(v-if="connectedUrls.length != 0")
     thead
       tr
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import useWebSocket from '../composables/useWebSocket';
 
 export default {
@@ -45,7 +45,11 @@ export default {
       }
     };
 
-    return { localhost, connectedUrls, isWSOpen, cachedPeers, reset, save, getIP };
+    const isValueChanged = computed(() => {
+      return cachedPeers.value != window.localStorage.getItem("peers")
+    })
+
+    return { localhost, connectedUrls, isWSOpen, cachedPeers, reset, save, getIP, isValueChanged };
   }
 }
 

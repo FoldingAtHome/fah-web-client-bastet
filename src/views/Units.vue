@@ -118,7 +118,7 @@ export default {
 
     const getStatus = (pauseReason, state) => {
       if(pauseReason && pauseReason != "") return pauseReason
-      if(config.value.finish) return status["FINISH"]
+      if(config.value.finish && state == "RUN") return status["FINISH"]
       return status[state]
     }
 
