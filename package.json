@@ -1,30 +1,23 @@
 {
-  "name": "fah-frontend",
-  "version": "0.0.0",
+  "name": "fah-web-client-bastet",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.36",
-    "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@fortawesome/vue-fontawesome": "^3.0.0-5",
-    "axios": "^0.24.0",
-    "bootstrap": "^5.1.1",
-    "three": "^0.132.2",
+    "three": "^0.143.0",
     "vee-validate": "^4.5.6",
-    "vue": "^3.0.4",
-    "vue-router": "^4.0.11",
-    "yup": "^0.32.11"
+    "vue": "^3.2.37",
+    "vue-router": "^4.0.16"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.9.2",
     "@vue/compiler-sfc": "^3.0.4",
     "pug": "^3.0.2",
-    "pug-plain-loader": "^1.1.0",
-    "stylus": "^0.55.0",
-    "stylus-loader": "^6.1.0",
-    "vite": "^2.6.1"
+    "stylus": "^0.58.1",
+    "vite": "^2.9.12",
+    "vite-plugin-raw": "^1.0.3"
   }
 }

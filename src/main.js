@@ -1,18 +1,14 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import './index.styl'
-import 'bootstrap'
-import '@popperjs/core/dist/umd/popper.min.js'
-import router from './router'
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { fas } from '@fortawesome/free-solid-svg-icons'
-import { dom } from "@fortawesome/fontawesome-svg-core";
+import {createApp} from 'vue'
+import App     from './App.vue'
+import router  from './router'
+import Button  from './Button.vue'
+import Dialog  from './Dialog.vue'
+import FAHLogo from './FAHLogo.vue'
 
-library.add(fas);
-dom.watch();
 
 const app = createApp(App);
-
-app.component("font-awesome-icon", FontAwesomeIcon);
-app.use(router).mount('#app');
+app.use(router)
+app.component('Button',  Button)
+app.component('Dialog',  Dialog)
+app.component('FAHLogo', FAHLogo)
+app.mount('#app');

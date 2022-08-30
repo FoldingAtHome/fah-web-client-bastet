@@ -1,24 +1,20 @@
-Folding@Home Frontend application
-===========================
+Folding@home Bastet Web Client
+==============================
 
-The frontend app is used to check the status, visualize the proteins and
-configure the settings for the Folding@Home backend client.
-Find more details about the backend client [here.](
-https://github.com/FoldingAtHome/fah-client-bastet#readme)
+This is the frontend Web app for the Folding@home v8 client, codenamed Bastet.
+See Also: https://github.com/FoldingAtHome/fah-client-bastet
 
-# Quick Start for Debian Linux
+# Debian Linux Quick Start
 
 ## Get the code
-```
-git clone https://github.com/foldingathome/fah-web-client-bastet
-```
+
+    git clone https://github.com/foldingathome/fah-web-client-bastet
 
 ## Start the development web server
-```
-cd fah-web-client-bastet
-npm i
-npm run dev
-```
+
+    cd fah-web-client-bastet
+    npm i
+    npm run dev
 
 ## Open the Browser
 

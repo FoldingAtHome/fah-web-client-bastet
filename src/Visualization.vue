@@ -1,0 +1,573 @@
+<script>
+import * as THREE from 'three'
+import InfiniteGridHelper from './viewer/InfiniteGridHelper.js'
+import Sky from './viewer/Sky.js'
+import DetailsView from './DetailsView.vue'
+
+let HYDROGEN = 1
+let CARBON   = 6
+let NITROGEN = 7
+let OXYGEN   = 8
+let SULFUR   = 16
+let HEAVY    = 999
+
+
+function toRadians(angle) {return angle * (Math.PI / 180)}
+
+
+export default {
+  props: ['id', 'peers'],
+
+
+  data() {
+    return {
+      message: 'Loading...',
+      pause: false,
+      dragging: false,
+      draw_type: 1,
+      frame: 0,
+    }
+  },
+
+
+  components: {DetailsView},
+
+
+  computed: {
+    peer() {return this.peers[0]},
+    data() {return this.peer.state.data},
+    target() {return this.$refs.canvas},
+
+
+    viz() {
+      return (this.data.viz && this.data.viz[this.id]) ?
+        this.data.viz[this.id] : undefined
+    },
+
+    topology() {if (this.viz) return this.viz.topology},
+    positions() {if (this.viz) return this.viz.frames},
+    frames() {return this.positions ? this.positions.length : 0}
+  },
+
+
+  watch: {
+    positions() {
+      if (this.positions != undefined && !this.protein.length)
+        this.load()
+    }
+  },
+
+
+  mounted() {
+    this.graphics()
+    this.peer.visualize_unit(this.id)
+    this.load()
+  },
+
+
+  unmounted() {
+    this.peer.visualize_unit()
+    window.removeEventListener('resize', this.update_view)
+    window.removeEventListener('keyup',  this.on_key_up)
+    window.cancelAnimationFrame(this.animate)
+    this.renderer.dispose()
+  },
+
+
+  methods: {
+    load() {
+      if (this.positions == undefined) return
+
+      this.draw()
+      this.update_view()
+      this.render()
+
+      this.message = ''
+      this.move_sun()
+    },
+
+
+    move_sun() {
+      if (this.sky == undefined) return
+
+      const r = 600
+      const t = Date.now() / 200000
+      let x = r * Math.cos(t)
+      let y = 32 * Math.cos(t + 1.5) + 20
+      let z = r * Math.sin(t)
+
+      let u = this.sky.material.uniforms['sunPosition']
+      u.value = new THREE.Vector3(x, y, z)
+
+      setTimeout(this.move_sun, 100)
+    },
+
+
+    change_frame(frame) {
+      if (this.positions == undefined || !this.positions.length) return
+      if (this.positions.length <= frame) frame = 0
+      if (frame < 0) frame = this.positions.length - 1
+
+      let proteins = this.protein.children
+
+      for (let i = proteins.length; i < this.positions.length; i++)
+        this.protein.add(new THREE.Group)
+
+      if (!proteins[frame].children.length)
+        proteins[frame].add(this.draw_protein(frame, this.draw_type))
+
+      proteins[this.frame].visible = false
+      this.frame = frame
+      proteins[this.frame].visible = true
+    },
+
+
+    next_frame() {this.change_frame(this.frame + 1)},
+    prev_frame() {this.change_frame(this.frame - 1)},
+
+
+    graphics() {
+      try {
+        // Renderer
+        this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
+        this.renderer.setPixelRatio(window.devicePixelRatio)
+        this.target.appendChild(this.renderer.domElement)
+
+      } catch (e) {
+        console.log(e)
+        alert('WebGL not supported')
+        return
+      }
+
+      // Scene
+      this.scene = new THREE.Scene
+      this.scene.add(new InfiniteGridHelper)
+      this.protein = new THREE.Group
+      this.scene.add(this.protein)
+
+      // Sky
+      this.sky = new Sky
+      this.scene.add(this.sky)
+
+      // Camera
+      this.camera = new THREE.PerspectiveCamera(45, 4 / 3, 0.1, 10000)
+
+      // Lighting
+      let ambient = new THREE.AmbientLight(0xffffff, 0.5)
+      this.scene.add(ambient)
+
+      let keyLight = new THREE.DirectionalLight(0xffeda5, 0.75)
+      keyLight.position.set(-1, 0, 1)
+      this.scene.add(keyLight)
+
+      let fillLight = new THREE.DirectionalLight(0x8080ff, 0.25)
+      fillLight.position.set(1, 0, 1)
+      this.scene.add(fillLight)
+
+      let backLight = new THREE.DirectionalLight(0xffffff, 0.5)
+      backLight.position.set(1, 0, -1).normalize()
+      this.scene.add(backLight)
+
+      // Materials
+      const shine = [10, 5, 6, 7, 7, 25]
+
+      const specular = [
+        0x727280, // Carbon
+        0x333333, // Hydrogen
+        0x333333, // Nitrogen
+        0x333333, // Oxygen
+        0x333333, // Sulfur
+        0x3f803f, // Heavy atoms
+      ]
+
+      const color = [
+        0x333333, // dark grey
+        0x999999, // grey
+        0x2020cc, // blue
+        0xcc2626, // red
+        0x999926, // yellow
+        0x800099, // purple
+      ]
+
+      this.atom_materials = []
+      for (let i = 0; i < 6; i++)
+        this.atom_materials.push(
+          new THREE.MeshPhongMaterial({
+            shininess: shine[i], specular: specular[i], color: color[i]}))
+
+      this.bond_material =
+        new THREE.MeshPhongMaterial({
+          shininess: 25,
+          specular: 0x727280,
+          color: 0xffffff,
+          opacity: 0.6, transparent: true
+        })
+
+      // Events
+      this.clock = new THREE.Clock()
+      this.clock.start()
+
+      window.addEventListener('resize', this.update_view, false)
+      window.addEventListener('keyup',  this.on_key_up,   false)
+      let e = this.renderer.domElement
+      e.addEventListener('mousedown', this.on_mouse_down,  false)
+      e.addEventListener('mouseup',   this.on_mouse_up,    false)
+      e.addEventListener('mousemove', this.on_mouse_move,  false)
+      e.addEventListener('wheel',     this.on_mouse_wheel, false)
+    },
+
+
+    render() {
+      this.animate = window.requestAnimationFrame(this.render)
+      if (this.scene == undefined) return
+
+      if (!this.dragging && !this.pause)
+        this.rotate(-this.clock.getDelta() / 5, 0)
+
+      this.renderer.render(this.scene, this.camera)
+    },
+
+
+    get_dims() {
+      const width = this.target.clientWidth
+      const height = this.target.clientHeight
+      return {width, height}
+    },
+
+
+    update_view() {
+      let dims = this.get_dims()
+      this.camera.aspect = dims.width / dims.height
+      this.camera.updateProjectionMatrix()
+      this.renderer.setSize(dims.width, dims.height)
+    },
+
+
+    atom_type_from_number(number) {
+      switch (number) {
+      case HYDROGEN: return 0
+      case CARBON:   return 1
+      case NITROGEN: return 2
+      case OXYGEN:   return 3
+      case SULFUR:   return 4
+      default:       return 5
+      }
+    },
+
+
+    radius_from_type(type) {return 0.1 * [1.09, 1.7, 1.55, 1.52, 1.8, 1][type]},
+
+
+    number_from_name(name) {
+      if (!name.length) return HEAVY
+
+      switch (name[0].toUpperCase()) {
+      case 'H': return HYDROGEN
+      case 'C': return CARBON
+      case 'N': return NITROGEN
+      case 'O': return OXYGEN
+      case 'S': return SULFUR
+      default:
+        if (1 < name.length) return this.number_from_name(name.substr(1))
+        return HEAVY
+      }
+    },
+
+
+    get_atom_type(atom) {
+      let number = atom[4] ? atom[4] : this.number_from_name(atom[0])
+      return this.atom_type_from_number(number)
+    },
+
+
+    get_atom_geometry(atom_type, draw_type) {
+      let radius = this.radius_from_type(atom_type)
+
+      if (draw_type == 2) radius /= 3
+      if (draw_type == 3) radius = 0.025
+
+      let segs = draw_type == 1 ? 2 : 1
+
+      return new THREE.SphereBufferGeometry(radius, 16 * segs, 8 * segs)
+    },
+
+
+    draw_atoms(index, draw_type) {
+      let group = new THREE.Group()
+      let pos = this.positions[index]
+
+      // Count types
+      let atom_types = [0, 0, 0, 0, 0]
+      let atoms = this.topology.atoms
+      for (let i = 0; i < atoms.length; i++)
+        atom_types[this.get_atom_type(atoms[i])]++
+
+      // Create meshes
+      let meshes = []
+      for (let type = 0; type < 5; type++)
+        if (atom_types[type]) {
+          let mesh = new THREE.InstancedMesh(
+            this.get_atom_geometry(type, draw_type), this.atom_materials[type],
+            atom_types[type])
+
+          meshes[type] = mesh
+          group.add(mesh)
+        }
+
+      // Position atoms
+      const m = new THREE.Matrix4()
+      atom_types = [0, 0, 0, 0, 0]
+      for (let i = 0; i < atoms.length; i++) {
+        let type = this.get_atom_type(atoms[i])
+
+        m.makeTranslation(pos[i][0], pos[i][1], pos[i][2])
+        meshes[type].setMatrixAt(atom_types[type]++, m)
+      }
+
+      return group
+    },
+
+
+    get_bond_transform(a, b) {
+      let vA = new THREE.Vector3(a[0], a[1], a[2])
+      let vB = new THREE.Vector3(b[0], b[1], b[2])
+      let length = vA.distanceTo(vB)
+
+      let m = new THREE.Matrix4()
+      m.makeTranslation(0, 0.5, 0)
+      m.premultiply(new THREE.Matrix4().makeScale(1, length, 1))
+
+      // Rotate
+      let vec = vB.clone().sub(vA)
+      let h = vec.length()
+      vec.normalize()
+
+      let q = new THREE.Quaternion()
+      q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), vec)
+
+      m.premultiply(new THREE.Matrix4().makeRotationFromQuaternion(q))
+
+      // Translate
+      m.premultiply(new THREE.Matrix4().makeTranslation(vA.x, vA.y, vA.z))
+
+      return m
+    },
+
+
+    draw_bonds(index) {
+      let pos = this.positions[index]
+      let bonds = this.topology.bonds
+      let geometry = new THREE.CylinderBufferGeometry(0.02, 0.02, 1, 8, 1, true)
+      let mesh =
+          new THREE.InstancedMesh(geometry, this.bond_material, bonds.length)
+
+      // Set bond positions
+      for (let i = 0; i < bonds.length; i++) {
+        let a = pos[bonds[i][0]]
+        let b = pos[bonds[i][1]]
+        mesh.setMatrixAt(i, this.get_bond_transform(a, b))
+      }
+
+      return mesh
+    },
+
+
+    draw_protein(index, draw_type) {
+      let group = new THREE.Group()
+
+      group.add(this.draw_atoms(index, draw_type))
+
+      if (draw_type == 2 || draw_type == 3)
+        group.add(this.draw_bonds(index))
+
+      return group
+    },
+
+
+    compute_bounds(index) {
+      let bbox = new THREE.Box3(new THREE.Vector3, new THREE.Vector3)
+
+      for (let i = 0; i < this.topology.atoms.length; i++) {
+        let p = this.positions[index][i]
+        let v = new THREE.Vector3(p[0], p[1], p[2])
+
+        bbox.expandByPoint(v)
+      }
+
+      return bbox
+    },
+
+
+    draw() {
+      if (this.positions == undefined) return
+
+      this.frame = 0
+      this.protein.clear()
+
+      if (this.positions.length)
+        this.protein.add(this.draw_protein(0, this.draw_type))
+
+      if (!this.camera.position.z) {
+        let bbox     = this.compute_bounds(0)
+        let dims     = bbox.getSize(new THREE.Vector3())
+        let maxDim   = Math.max(dims.x, dims.y, dims.z)
+        let initialZ = maxDim / 2.5 / Math.tan(Math.PI * this.camera.fov / 360)
+
+        this.zoom_min = maxDim / 4
+        this.zoom_max = initialZ * 2
+
+        this.camera.position.z = initialZ
+      }
+    },
+
+
+    set_draw_type(type) {
+      if (0 < type && type < 4 && this.draw_type != type) {
+        let zoom = this.camera.position.z
+        this.draw_type = type
+        this.draw()
+        this.camera.position.z = zoom
+      }
+    },
+
+
+    on_key_up(e) {
+      switch (e.key) {
+      case ' ':
+        this.pause = !this.pause
+        this.clock.start()
+        break
+
+      case 'ArrowLeft':  this.prev_frame(); break
+      case 'ArrowRight': this.next_frame(); break
+      case 'ArrowUp':    this.zoom_in();    break
+      case 'ArrowDown':  this.zoom_out();   break
+
+      case '1': case '2': case '3':
+        this.set_draw_type(parseInt(e.key))
+        break
+      }
+    },
+
+
+    zoom(scale) {
+      let z = this.camera.position.z * scale
+      this.camera.position.z =
+        Math.min(Math.max(z, this.zoom_min), this.zoom_max)
+    },
+
+
+    zoom_in() {this.zoom(0.95)},
+    zoom_out() {this.zoom(1 / 0.95)},
+
+
+    rotate(x, y) {
+      let q = new THREE.Quaternion()
+      q.setFromEuler(new THREE.Euler(y, x, 0, 'XYZ'))
+
+      this.protein.quaternion.multiplyQuaternions(q, this.protein.quaternion)
+    },
+
+
+    on_mouse_down() {this.dragging = true},
+
+
+    on_mouse_up() {
+      this.dragging = false
+      this.clock.start()
+    },
+
+
+    on_mouse_move(e) {
+      if (this.dragging && this.previous)
+        this.rotate(toRadians(e.offsetX - this.previous.x),
+                    toRadians(e.offsetY - this.previous.y))
+
+      this.previous = {x: e.offsetX, y: e.offsetY}
+    },
+
+
+    on_mouse_wheel(e) {
+      if (e.deltaY < 0) this.zoom_in()
+      else this.zoom_out()
+    }
+  }
+}
+</script>
+
+<template lang="pug">
+.visualization
+  .canvas(ref="canvas")
+    .message
+
+  .controls
+    .control
+      label View:
+      each type in [1, 2, 3]
+        Button(text=type, @click=`set_draw_type(${type})`,
+          :disabled=`draw_type == ${type}`)
+
+    .control
+      label Frame:
+      Button(@click="prev_frame", icon="chevron-left")
+      span {{frame + 1}} of {{frames}}
+      Button(@click="next_frame", icon="chevron-right")
+
+    .control
+      Button(text="Close", icon="times", :route="{path: '/', replace: true}")
+
+  DetailsView(:id="id", :data="data")
+</template>
+
+<style lang="stylus">
+.visualization
+  position fixed
+  top 0
+  left 0
+  width 100vw
+  height 100vh
+  z-height 10
+  display flex
+  flex-direction column
+  height 100%
+  background #000
+
+  .canvas
+    flex 1
+    position relative
+
+  .message
+    position absolute
+    width 100%
+    line-height 200px
+    text-align center
+    font-size 200%
+
+  .controls, .details-view
+    position absolute
+    background rgba(0, 0, 0, 0.5)
+    padding 1em
+    border-radius 1em
+
+  .controls
+    top 1em
+    right 1em
+    color #fff
+    display flex
+    gap 2em
+
+    .control
+      font-size 150%
+      display flex
+      gap 0.25em
+      white-space nowrap
+      align-items center
+
+      button
+        margin 0
+
+   .details-view
+     left 1em
+     top 1em
+     color #ccc
+</style>
