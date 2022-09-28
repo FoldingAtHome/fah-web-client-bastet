@@ -19,7 +19,9 @@ export default {
 
 
   watch: {
-    'data.log.length'() {if (this.follow) this.scroll_to_end()}
+    'data.log.length'() {
+      if (this.follow) this.$nextTick(this.scroll_to_end)
+    }
   },
 
 
@@ -67,7 +69,9 @@ export default {
     },
 
 
-    scroll_to_end() {this.$refs.log.scrollTop = this.$refs.log.scrollHeight}
+    scroll_to_end() {
+      this.$refs.log.scrollTop = this.$refs.log.scrollHeight
+    }
   }
 }
 </script>

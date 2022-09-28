@@ -18,6 +18,7 @@ export default {
 
   watch: {
     'data.config.peers'() {
+      // Add new peers
       for (let address of this.data.config.peers) {
         let exists = false
 
@@ -25,6 +26,15 @@ export default {
           if (peer.state.address == address) exists = true
 
         if (!exists) this.add_peer(address)
+      }
+
+      // Remove deleted peers
+      for (let i = 1; i < this.peers.length;) {
+        let peer = this.peers[i]
+
+        if (this.data.config.peers.indexOf(peer.state.address) == -1)
+          this.peers.splice(i, 1)
+        else i++
       }
     }
   },
@@ -114,7 +124,6 @@ body
     .view-header
       padding 1em 0
       display flex
-      flex-diretion column
       flex-wrap wrap
       gap 4em
       align-items flex-start

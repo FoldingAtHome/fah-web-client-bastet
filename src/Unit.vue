@@ -9,6 +9,18 @@ const status = {
   'CLEAN':    'Cleaning up'
 }
 
+const icons = {
+  'ASSIGN':   'download',
+  'DOWNLOAD': 'download',
+  'CORE':     'download',
+  'RUN':      'refresh',
+  'FINISH':   'refresh',
+  'UPLOAD':   'upload',
+  'CLEAN':    'eraser',
+  'WAIT':     'clock-o',
+  'PAUSE':    'pause'
+}
+
 
 export default {
   props: ['unit', 'peer'],
@@ -63,9 +75,21 @@ export default {
     paused() {return !!this.unit['pause-reason']},
 
 
+    config() {return this.peer.state.data.config || {}},
+
+    state() {
+      if (this.waiting) return 'WAIT'
+      else if (this.unit['pause-reason']) return 'PAUSE'
+      else if (this.unit.state == 'RUN' && this.config.finish) return 'FINISH'
+      return this.unit.state
+    },
+
+
+    icon() {return icons[this.state]},
+
+
     status() {
-      // TODO handle finnishing state
-      return this.unit['pause-reason'] || status[this.unit.state]
+      return this.unit['pause-reason'] || status[this.state]
     },
 
 
@@ -79,9 +103,7 @@ export default {
   },
 
 
-  mounted() {
-    this.update_wait()
-  },
+  mounted() {this.update_wait()},
 
 
   methods: {
@@ -116,14 +138,18 @@ Dialog(:buttons="dump_dialog_buttons", ref="dump_dialog")
     Work Unit will be lost and no points will be granted.
 
 tr.unit
-  td
+  td.peer
   td
     a(v-if="project", :href="project_url + project", target="_blank")
       | {{project}}
 
   td(title="Run, Clone, Gen") {{unit_id}}
+
   td {{resources}}
-  td {{status}}
+
+  td.status(:class="state.toLowerCase()")
+    | #[.fa(:class="'fa-' + icon")] {{status}}
+
   td {{unit.eta}}
 
   td.progress-cell
@@ -144,6 +170,15 @@ tr.unit
 
 <style lang="stylus">
 @import('./colors.styl')
+
+.status.run, .status.finish
+  .fa
+    color green
+    animation spin 4s linear infinite
+
+@keyframes spin
+  100%
+    transform rotate(360deg)
 
 .progress-cell
   width 100%

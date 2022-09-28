@@ -97,9 +97,9 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
       Button(v-else, @click="pause_dialog()", text="Pause Folding",
         icon="pause")
 
-    table.units
+    table.units(:class="{'single-peer': peers.length < 2}")
       tr
-        th Peer
+        th.peer Peer
         th Project
         th Unit
         th Resources
@@ -109,8 +109,10 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
         th Actions
 
       template(v-for="peer in peers")
-        tr
-          td(colspan="7") {{peer.state.address}}
+        tr.peer(:class="{connected: peer.connected}")
+          td(colspan="7").
+            {{peer.state.address}}
+            #[span.status {{peer.connected ? 'C' : 'Disc'}}onnected]
           td.actions
             Button.button-icon(route="settings", title="Settings", icon="cog")
             Button.button-icon(route="log", title="Log", icon="list-alt")
@@ -120,7 +122,7 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
               icon="pause", title="Pause folding.")
 
         Unit(v-for="unit in peer.state.data.units",
-          v-if="peer.state.data.units", :unit="unit")
+          v-if="peer.state.data.units", :unit="unit", :peer="peer")
 
     News
 </template>
@@ -171,10 +173,27 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
   .control
     text-align center
 
+  .peer
+    td
+      background #888
+
+      .status
+        color error-color
+
+    &.connected td
+      background #fff
+
+      .status
+        color success-color
+
   .units
     margin 1em auto
     border-collapse collapse
     max-width 60em
+
+    &.single-peer
+      tr.peer, td.peer, th.peer
+        display none
 
     tr:nth-child(odd)
       background table-odd
