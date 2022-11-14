@@ -101,6 +101,8 @@ export default {
 
 
   isEqual(a, b) {
+    if (typeof a != typeof b) return false
+
     const keysA = Object.keys(a)
     const keysB = Object.keys(b)
 

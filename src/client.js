@@ -1,4 +1,4 @@
-import {reactive} from 'vue'
+import {reactive, watchEffect} from 'vue'
 import Sock   from './sock.js'
 import util   from './util.js'
 import Cookie from './cookie.js'
@@ -31,10 +31,14 @@ class Client extends Sock {
   on_open() {
     this.first = true
     this.state.connected = true
+    this.watch_config_stop = watchEffect(() => {this.update_stats()})
   }
 
 
-  on_close(event) {this.state.connected = false}
+  on_close(event) {
+    this.state.connected = false
+    if (this.watch_config_stop) this.watch_config_stop()
+  }
 
 
   on_message(msg) {
@@ -51,7 +55,6 @@ class Client extends Sock {
 
 
   _update() {
-    this.update_stats()
     if (this.viz_unit)    this._send_viz_enable()
     if (this.log_enabled) this._send_log_enable()
   }
@@ -106,6 +109,7 @@ class Client extends Sock {
 
   update_stats() {
     // TODO update stats periodically
+    if (!this.state.data.config) return
 
     let {user, team, passkey} = this.state.data.config
     if (!user) return

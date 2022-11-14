@@ -29,6 +29,8 @@ export default {
     'data.config'() {
       if (this.config.config == undefined && this.data.config != undefined)
         this.config = util.deepCopy(this.data.config)
+
+      if (this.config.cause) this.config.cause = this.config.cause.toLowerCase()
     }
   },
 
@@ -60,8 +62,15 @@ export default {
 
     max_cpus() {
       if (this.data.info == undefined) return 0
-      return this.data.info.cpus - this.gpus_enabled
+      return this.data.info.cpus
     },
+
+
+    min_cpus() {
+      let min = this.gpus_enabled
+      return min < 1 ? 1 : min
+    },
+
 
 
     gpus() {
@@ -216,7 +225,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       label CPUs
       .cpus-input
         span {{config.cpus}}
-        input(v-model.number="config.cpus", type="range", min="1",
+        input(v-model.number="config.cpus", type="range", :min="min_cpus",
           :max="max_cpus")
       div
 
