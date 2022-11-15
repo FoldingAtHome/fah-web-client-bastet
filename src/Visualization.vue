@@ -296,6 +296,11 @@ export default {
       let group = new THREE.Group()
       let pos = this.positions[index]
 
+      // Find center
+      let center = new THREE.Vector3()
+      for (let p of pos) center.add(new THREE.Vector3(p[0], p[1], p[2]))
+      center.divideScalar(pos.length)
+
       // Count types
       let atom_types = [0, 0, 0, 0, 0]
       let atoms = this.topology.atoms
@@ -321,7 +326,9 @@ export default {
         let type = this.get_atom_type(atoms[i])
         if (!meshes[type]) continue
 
-        m.makeTranslation(pos[i][0], pos[i][1], pos[i][2])
+        let v = new THREE.Vector3(pos[i][0], pos[i][1], pos[i][2])
+        v.sub(center)
+        m.makeTranslation(v.x, v.y, v.z)
         meshes[type].setMatrixAt(atom_types[type]++, m)
       }
 
