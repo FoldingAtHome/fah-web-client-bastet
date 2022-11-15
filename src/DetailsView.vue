@@ -28,7 +28,7 @@ export default {
 
 
     assignment() {return this.unit.assignment || {}},
-    core() {return '0x' + this.assignment.core.type.toString(16)},
+    core() {return this.assignment.core.type},
     paused() {return this.data.config.paused || this.unit.paused},
     state() {return this.paused ? 'PAUSED' : this.unit.state},
     timeout() {return addTime(this.assignment.time, this.assignment.timeout)},
