@@ -98,7 +98,7 @@ export default {
     label Work Server:
     span {{assignment.ws}}
 
-    label Collection Server:
+    label Collection Servers:
     span {{unit.wu.cs}}
 
     label Assign Time:
@@ -126,6 +126,8 @@ export default {
     display grid
     grid-template-columns auto 1fr
     gap 0.5em
+    width 30em
+    max-width 100vw
 
     label
       font-weight bold

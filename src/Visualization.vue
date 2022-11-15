@@ -319,6 +319,7 @@ export default {
       atom_types = [0, 0, 0, 0, 0]
       for (let i = 0; i < atoms.length; i++) {
         let type = this.get_atom_type(atoms[i])
+        if (!meshes[type]) continue
 
         m.makeTranslation(pos[i][0], pos[i][1], pos[i][2])
         meshes[type].setMatrixAt(atom_types[type]++, m)
