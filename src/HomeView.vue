@@ -63,10 +63,14 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
     Would you like to pause folding now or finish all the active work units
     then pause?
 
-.home-view.page-view
+.home-view.page-view(:class="{'single-peer': peers.length < 2}")
   .view-header-container
     .view-header
-      FAHLogo
+      .logo-block
+        FAHLogo
+        .client-version(v-if="peers.length == 1",
+          :title="'Folding@home client version ' + peers[0].version()")
+          | v{{peers[0].version()}}
 
       .user-info(v-if="config.user")
         label Folding as
@@ -97,7 +101,7 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
       Button(v-else, @click="pause_dialog()", text="Pause Folding",
         icon="pause")
 
-    table.units(:class="{'single-peer': peers.length < 2}")
+    table.units
       tr
         th.peer Peer
         th Project
@@ -111,7 +115,7 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
       template(v-for="peer in peers")
         tr.peer(:class="{connected: peer.connected}")
           td(colspan="7").
-            {{peer.state.address}}
+            {{peer.state.address}} (v{{peer.version()}})
             #[span.status {{peer.connected ? 'C' : 'Disc'}}onnected]
           td.actions
             Button.button-icon(route="settings", title="Settings", icon="cog")
@@ -141,6 +145,15 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
 
     > *
       text-align center
+
+    .logo-block
+      display flex
+      flex-direction column
+      gap 0.5em
+
+      .client-version
+        font-size 120%
+        text-align left
 
     .user-info, .points
       > div
@@ -191,10 +204,6 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
     border-collapse collapse
     max-width 60em
 
-    &.single-peer
-      tr.peer, td.peer, th.peer
-        display none
-
     tr:nth-child(odd)
       background table-odd
 
@@ -214,6 +223,10 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
     .actions
       > *
         width 1.3em
+
+  &.single-peer .units
+    tr.peer, td.peer, th.peer
+      display none
 
   .news-feed
     margin-top 4em

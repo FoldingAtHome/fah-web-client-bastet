@@ -28,6 +28,11 @@ class Client extends Sock {
   }
 
 
+  version() {
+    return this.state.data.info ? this.state.data.info.version : undefined
+  }
+
+
   on_open() {
     this.first = true
     this.state.connected = true
