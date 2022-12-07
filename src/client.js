@@ -3,25 +3,34 @@ import Sock   from './sock.js'
 import util   from './util.js'
 import Cookie from './cookie.js'
 
-const default_peer = '127.0.0.1'
+const default_host = '127.0.0.1'
 const default_port = 7396
 const api_url      = 'https://api.foldingathome.org'
 
 
 class Client extends Sock {
-  constructor(address = default_peer, ...args) {
-    let _address = address
-    if (!address.match(/.*:\d+/)) _address += ':' + default_port
+  constructor(address = '', ...args) {
+    let peer = util.parse_peer_address(address)
+    if (!peer) throw 'Invalid peer address "' + address + "'"
 
-    super('ws://' + _address + '/api/websocket', ...args)
+    let host = peer.host || default_host
+    let port = peer.port || default_port
+    let path = peer.path || ''
+
+    let url = 'ws://' + host + ':' + port + '/api/websocket' + path
+    super(url, ...args)
 
     this.state = reactive({
+      host:        peer.host,
+      port:        peer.port,
+      path:        peer.path,
       address,
-      connected: false,
+      default:     address == '',
+      connected:   false,
       log_enabled: false,
-      viz_unit: undefined,
-      stats: new Cookie().get('stats', {}),
-      data: {}
+      viz_unit:    undefined,
+      stats:       new Cookie().get('stats', {}),
+      data:        {}
     })
 
     this.connect()

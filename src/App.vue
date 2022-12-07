@@ -1,62 +1,99 @@
 <script>
-import Client from './client.js'
-import util from './util.js'
+import util        from './util.js'
+import Client      from './client.js'
+import PauseDialog from './PauseDialog.vue'
 
 
 export default {
+  components: {PauseDialog},
+
+
   data() {
     return {
-      peers: []
+      clients: {'': new Client}
     }
   },
 
 
   computed: {
-    data() {return this.peers.length ? this.peers[0].state.data : {}}
+    peers() {
+      let peers   = {}
+      let clients = this.clients
+
+      function add_peer(address) {
+        if (peers[address]) return
+        peers[address] = true
+
+        let client = clients[address]
+        if (client) {
+          if (client.state.path) return // Not a root client
+
+          let config = client.state.data.config
+          if (config)
+            for (let peer of config.peers)
+              add_peer(util.make_peer_address(peer, address))
+        }
+      }
+
+      add_peer('')
+
+      return Object.keys(peers).sort()
+    }
   },
 
 
   watch: {
-    'data.config.peers'() {
+    peers(peers) {
       // Add new peers
-      for (let address of this.data.config.peers) {
-        let exists = false
-
-        for (let peer of this.peers)
-          if (peer.state.address == address) exists = true
-
-        if (!exists) this.add_peer(address)
-      }
+      for (let address of peers)
+        this.add_client(address)
 
       // Remove deleted peers
-      for (let i = 1; i < this.peers.length;) {
-        let peer = this.peers[i]
+      for (let i = 1; i < this.clients.length;) {
+        let client = this.clients[i]
 
-        if (this.data.config.peers.indexOf(peer.state.address) == -1)
-          this.peers.splice(i, 1)
-        else i++
+        if (peers.indexOf(client.state.address) == -1) {
+          client.destroy()
+          this.clients.splice(i, 1)
+
+        } else i++
       }
     }
   },
 
 
-  created() {this.add_peer()},
-
-
   methods: {
-    add_peer(address) {this.peers.push(new Client(address))}
+    add_client(address) {
+      if (!this.clients[address])
+        this.clients[address] = new Client(address)
+    },
+
+
+    pause(clients) {
+      console.log(clients)
+
+      this.$refs.pause_dialog.open(result => {
+        for (let client of clients)
+          switch (result) {
+          case 'pause':  client.pause();  break
+          case 'finish': client.finish(); break
+          }
+      })
+    }
   }
 }
 </script>
 
 <template lang="pug">
 main
-  router-view(:peers="peers", v-slot="{Component}")
+  router-view(v-slot="{Component}")
     keep-alive(include="HomeView")
-      component(:is="Component")
+      component(:is="Component", :peers="peers", :clients="clients")
+
+PauseDialog(ref="pause_dialog")
 
 Teleport(to="body")
-  .connecting(v-if="!peers[0].state.connected"): h2 Connecting...
+  .connecting(v-if="!clients[''].state.connected"): h2 Connecting...
 </template>
 
 <style lang="stylus">

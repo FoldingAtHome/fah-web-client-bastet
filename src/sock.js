@@ -6,6 +6,12 @@ class Sock {
   }
 
 
+  destroy() {
+    this.connect = () => {}
+    if (this.ws) this.ws.close()
+  }
+
+
   on_message(msg) {console.log('WS:', msg)}
   on_open(event)  {}
   on_close(event) {}

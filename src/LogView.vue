@@ -4,7 +4,7 @@ import util from './util.js'
 
 export default {
   name: 'LogView',
-  props: ['peers', 'query'],
+  props: ['client', 'query'],
 
 
   data() {
@@ -26,8 +26,7 @@ export default {
 
 
   computed: {
-    peer() {return this.peers[0]},
-    data() {return this.peer.state.data},
+    data() {return this.client.state.data},
 
 
     match_exp() {
@@ -49,11 +48,11 @@ export default {
 
   mounted()   {
     this.search = this.query
-    this.peer.log_enable(true)
+    this.client.log_enable(true)
   },
 
 
-  unmounted() {this.peer.log_enable(false)},
+  unmounted() {this.client.log_enable(false)},
 
 
   methods: {
@@ -77,16 +76,19 @@ export default {
 </script>
 
 <template lang="pug">
-.log-view.page-view(v-if="data.config")
+.log-view.page-view
   .view-header-container
     .view-header
       FAHLogo
-      h2 Work Unit Log
+
+      div
+        h2 Work Unit Log
+        h3(v-if="!client.state.default") Peer {{client.state.address}}
 
       .actions
         Button(text="Close", icon="times", route="/")
 
-  .view-body
+  .view-body(v-if="data.log")
     .log-controls
       label Search
       input(v-model="search", type="text")

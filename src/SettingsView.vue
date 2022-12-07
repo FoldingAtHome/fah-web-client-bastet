@@ -3,15 +3,16 @@ import util from './util'
 
 
 export default {
-  props: ['peers'],
+  props: ['client'],
+
 
   data() {
     return {
-      config: {},
-      causes: [],
-      show_key: false,
-      confirmed: false,
-      new_peers: '',
+      config:          undefined,
+      causes:          [],
+      show_key:        false,
+      confirmed:       false,
+      new_peers:       '',
       api_url:         'https://api.foldingathome.org',
       team_app_url:    'https://apps.foldingathome.org/team',
       passkey_app_url: 'https://apps.foldingathome.org/getpasskey',
@@ -26,29 +27,25 @@ export default {
 
 
   watch: {
-    'data.config'() {
-      if (this.config.config == undefined && this.data.config != undefined)
-        this.config = util.deepCopy(this.data.config)
-
-      if (this.config.cause) this.config.cause = this.config.cause.toLowerCase()
+    'client.state.data.config'(config) {
+      if (config && !this.config) this.init(config)
     }
   },
 
 
   computed: {
-    peer() {return this.peers[0]},
-    data() {return this.peers[0].state.data},
+    info() {return this.client.state.data.info},
+    data() {return this.client.state.data},
 
 
     modified() {
-      if (this.config == undefined) return false
+      if (!this.config) return false
       return !util.isEqual(this.data.config, this.config)
     },
 
 
     gpus_enabled() {
-      if (this.config == undefined ||
-          this.config.gpus == undefined) return 0
+      if (!this.config || !this.config.gpus) return 0
 
       let c = 0
       let gpus = this.config.gpus
@@ -61,33 +58,29 @@ export default {
 
 
     max_cpus() {
-      if (this.data.info == undefined) return 0
-      return this.data.info.cpus
+      if (!this.info) return 0
+      return this.info.cpus
     },
 
 
-    min_cpus() {
-      let min = this.gpus_enabled
-      return min < 1 ? 1 : min
-    },
-
+    min_cpus() {return this.gpus_enabled},
 
 
     gpus() {
-      if (this.data.config == undefined ||
-          this.data.config.gpus == undefined) return []
+      if (!this.data.config || !this.data.config.gpus) return []
 
       let gpus = []
-      for (const name in this.data.config.gpus) {
+      for (const name in this.info.gpus) {
         let config = this.data.config.gpus[name]
-        let info = this.data.info.gpus[name]
+        let info   = this.info.gpus[name]
 
-        gpus.push({
-          name,
-          enabled: config.enabled,
-          type: info.type,
-          description: info.description
-        })
+        if (info)
+          gpus.push({
+            name,
+            enabled:     config && config.enabled,
+            type:        info.type,
+            description: info.description
+          })
       }
 
       return gpus
@@ -113,7 +106,7 @@ export default {
 
 
   mounted() {
-    this.config = this.data.config ? util.deepCopy(this.data.config) : {}
+    if (this.data.config) this.init(this.data.config)
 
     if (!this.causes.length)
       fetch(this.api_url + '/project/cause')
@@ -126,8 +119,22 @@ export default {
 
 
   methods: {
+    init(config) {
+      this.config = util.deepCopy(config)
+
+      for (let name in this.info.gpus)
+        if (!this.config.gpus[name])
+          this.config.gpus[name] = {enabled: false}
+
+      if (this.config.cpus < this.min_cpus) this.config.cpus = this.min_cpus
+
+      if (this.config.cause)
+        this.config.cause = this.config.cause.toLowerCase()
+    },
+
+
     save() {
-      this.peer.configure(this.config)
+      this.client.configure(this.config)
       this.cancel()
     },
 
@@ -140,8 +147,11 @@ export default {
 
     add_peers() {
       let peers = this.new_peers.match(/[^ ]+/g)
-      if (peers)
+      if (peers) {
+        peers = peers.filter(peer => util.parse_peer_address(peer))
         this.config.peers = [...new Set([...this.config.peers, ...peers])]
+      }
+
       this.new_peers = ''
     },
 
@@ -164,14 +174,16 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
   .view-header-container
     .view-header
       FAHLogo
-      h2 Client Settings
+      div
+        h2 Settings
+        h3(v-if="client.state.address") Peer {{client.state.address}}
 
       .actions
         Button(@click="cancel", text="Cancel", icon="times")
         Button.button-success(:disabled="!modified", @click="save",
           text="Save", icon="save")
 
-  .view-body
+  .view-body(v-if="config")
     fieldset.user-settings
       legend User Settings
 
@@ -224,9 +236,9 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
       label CPUs
       .cpus-input
-        span {{config.cpus}}
+        span {{config.cpus}} of {{max_cpus}}
         input(v-model.number="config.cpus", type="range", :min="min_cpus",
-          :max="max_cpus")
+          :max="max_cpus", v-if="min_cpus < max_cpus")
       div
 
       label GPUs
@@ -235,22 +247,23 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
           th Description
           th Enable
 
-        tr(v-for="gpu in gpus", v-if="config.gpus")
+        tr(v-for="gpu in gpus", v-if="gpus")
           td.gpu-description {{gpu.description}}
           td: input(v-model="config.gpus[gpu.name].enabled", type="checkbox")
       div
 
-    fieldset.peers
+    fieldset.peers(v-if="!client.state.path")
       legend Peers
 
       label
-      input(v-model="new_peers", title="Space separated list of peers.")
+      input(v-model="new_peers", title="Space separated list of peers.",
+        @keyup.enter="add_peers")
       button(@click="add_peers", :disabled="!new_peers.trim()").
         #[.fa.fa-plus] Add peers
 
       label
       table
-        tr(v-for="peer in config.peers", v-if="config.peers")
+        tr(v-for="peer in config.peers.sort()", v-if="config.peers")
           td.peer {{peer}}
           td.actions
             Button.button-icon(@click="del_peer(peer)", title="Remove peer.",
@@ -310,6 +323,9 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
     select, option
       text-transform capitalize
 
+    .cpus-input span
+      white-space nowrap
+
     .gpus-input
       th
         text-align left
@@ -323,7 +339,10 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
         td, th
           border 1px solid #666
-          padding 0.5em
+          padding 0.25em
+
+          button
+            margin 0
 
         .peer
           width 100%

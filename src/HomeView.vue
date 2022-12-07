@@ -1,4 +1,5 @@
 <script>
+import PeerRow from './PeerRow.vue'
 import Unit    from './Unit.vue'
 import News    from './News.vue'
 import util    from './util.js'
@@ -6,30 +7,25 @@ import Cookie  from './cookie.js'
 
 
 const team_url = 'https://stats.foldingathome.org/team/'
-const user_url ='https://stats.foldingathome.org/donor/'
+const user_url = 'https://stats.foldingathome.org/donor/'
 
 
 export default {
   name: 'HomeView',
-  props: ['peers'],
-  components: {Unit, News},
+  props: ['clients', 'peers'],
+  components: {PeerRow, Unit, News},
 
   data() {
     return {
-      pause_dialog_buttons: [
-        {name: 'pause', text: 'Pause now', icon: 'pause'},
-        {name: 'finish', text: 'Finish up, then pause', icon: 'clock-o'}
-      ],
-
       util
     }
   },
 
 
   computed: {
-    data()   {return this.peers[0].state.data},
+    data()   {return this.clients[''].state.data},
     config() {return this.data.config || {}},
-    stats()  {return this.peers[0].state.stats || {}},
+    stats()  {return this.clients[''].state.stats || {}},
 
     user_url()  {return user_url + this.config.user},
     team_url()  {return team_url + this.config.team},
@@ -38,39 +34,21 @@ export default {
 
 
   methods: {
-    fold() {for (let peer of this.peers) peer.fold()},
-
-
-    pause_dialog(peer) {
-      this.$refs.pause_dialog.open(result => {
-        let peers = peer ? [peer] : this.peers
-
-        for (let peer of peers)
-          switch (result) {
-          case 'pause':  return peer.pause()
-          case 'finish': return peer.finish()
-          }
-      })
-    }
+    fold() {for (let client of Object.values(this.clients)) client.fold()},
+    pause() {this.$root.pause(Object.values(this.clients))}
   }
 }
 </script>
 
 <template lang="pug">
-Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
-  template(v-slot:header) Pause or Finnish
-  template(v-slot:body).
-    Would you like to pause folding now or finish all the active work units
-    then pause?
-
 .home-view.page-view(:class="{'single-peer': peers.length < 2}")
   .view-header-container
     .view-header
       .logo-block
         FAHLogo
         .client-version(v-if="peers.length == 1",
-          :title="'Folding@home client version ' + peers[0].version()")
-          | v{{peers[0].version()}}
+          :title="'Folding@home client version ' + clients[''].version()")
+          | v{{clients[''].version()}}
 
       .user-info(v-if="config.user")
         label Folding as
@@ -90,16 +68,19 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
           {{util.human_number(stats.contributed)}} of
           {{util.human_number(stats.team_total)}}
 
-      .actions
-        Button.button-icon(route="settings", title="Settings", icon="cog")
-        Button.button-icon(route="log", title="Log", icon="list-alt")
+      .actions(v-if="peers.length == 1")
+        Button.button-icon(route="/0/settings", title="Settings", icon="cog")
+        Button.button-icon(route="/0/log", title="Log", icon="list-alt")
 
   .view-body
-    .control
-      Button.button-success(v-if="config.paused", @click="fold()",
-        text="Start Folding", icon="play")
-      Button(v-else, @click="pause_dialog()", text="Pause Folding",
-        icon="pause")
+    .control(v-if="peers.length == 1")
+      Button.button-success(v-if="config.paused", @click="fold", icon="play",
+        text="Start Folding")
+      Button(v-else, @click="pause", text="Pause Folding", icon="pause")
+
+    .control(v-else)
+      Button.button-success(text="Start All", @click="fold", icon="play")
+      Button(text="Pause All", @click="pause", icon="pause")
 
     table.units
       tr
@@ -112,21 +93,13 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
         th Progress
         th Actions
 
-      template(v-for="peer in peers")
-        tr.peer(:class="{connected: peer.connected}")
-          td(colspan="7").
-            {{peer.state.address}} (v{{peer.version()}})
-            #[span.status {{peer.connected ? 'C' : 'Disc'}}onnected]
-          td.actions
-            Button.button-icon(route="settings", title="Settings", icon="cog")
-            Button.button-icon(route="log", title="Log", icon="list-alt")
-            Button.button-icon(v-if="peer.paused()", @click="peer.fold()",
-              icon="play", title="Start folding.")
-            Button.button-icon(v-else, @click="pause_dialog(peer)",
-              icon="pause", title="Pause folding.")
+      template(v-for="(peer, peerID) in peers")
+        template(v-for="client in [clients[peer]]")
+          PeerRow(:client="client", :peerID="peerID")
 
-        Unit(v-for="unit in peer.state.data.units",
-          v-if="peer.state.data.units", :unit="unit", :peer="peer")
+          Unit(v-for="unit in client.state.data.units",
+            v-if="client.state.data.units", :unit="unit", :client="client",
+            :peerID="peerID")
 
     News
 </template>
@@ -184,14 +157,21 @@ Dialog(:buttons="pause_dialog_buttons", ref="pause_dialog")
         margin-right 0.25em
 
   .control
+    display flex
+    justify-content center
+    gap 0.5em
     text-align center
 
   .peer
     td
       background #888
 
-      .status
-        color error-color
+      > div
+        display flex
+        gap 0.5em
+
+        .status
+          color error-color
 
     &.connected td
       background #fff

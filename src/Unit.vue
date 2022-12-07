@@ -23,7 +23,7 @@ const icons = {
 
 
 export default {
-  props: ['unit', 'peer'],
+  props: ['unit', 'client', 'peerID'],
 
 
   data() {
@@ -73,9 +73,8 @@ export default {
 
 
     paused() {return !!this.unit['pause-reason']},
+    config() {return this.client.state.data.config || {}},
 
-
-    config() {return this.peer.state.data.config || {}},
 
     state() {
       if (this.waiting) return 'WAIT'
@@ -109,7 +108,7 @@ export default {
   methods: {
     dump(id) {
       this.$refs.dump_dialog.open(result => {
-        if (result == 'dump') this.peer.dump(id)
+        if (result == 'dump') this.client.dump(id)
       })
     },
 
@@ -161,10 +160,10 @@ tr.unit
     Button.button-icon(:disabled="!can_dump", @click="dump(unit.id)",
       icon="trash", title="Dump this Work Unit.")
 
-    Button.button-icon(:route="'/log?q=:WU' + unit.number + ':'",
+    Button.button-icon(:route="'/' + peerID + '/log?q=:WU' + unit.number + ':'",
       icon="list-alt", title="View Work Unit log.")
 
-    Button.button-icon(:route="'/view/' + unit.id", icon="eye",
+    Button.button-icon(:route="'/' + peerID + '/view/' + unit.id", icon="eye",
       :disabled="!unit.wu", title="View 3D protein and Work Unit details.")
 </template>
 

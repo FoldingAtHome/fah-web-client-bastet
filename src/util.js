@@ -22,6 +22,33 @@ const bright = [
 
 
 export default {
+  _peerRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]*)?$/),
+
+
+  parse_peer_address(address = '') {
+    let m = address.match(this._peerRE)
+    if (!m) return
+
+    return {
+      host: m[2],
+      port: m[3] ? parseInt(m[3].substring(1)) : undefined,
+      path: m[4]
+    }
+  },
+
+
+  make_peer_address(address, parent) {
+    let peer = this.parse_peer_address(address)
+    let rel  = this.parse_peer_address(parent)
+
+    let host = peer.host || rel.host || ''
+    let port = peer.port || rel.port
+    let path = peer.path || ''
+
+    return host + (port ? ':' + port : '') + path
+  },
+
+
   update(data, update) {
     let i = 0
 

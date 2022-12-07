@@ -16,7 +16,7 @@ function toRadians(angle) {return angle * (Math.PI / 180)}
 
 
 export default {
-  props: ['id', 'peers'],
+  props: ['client', 'unitID'],
 
 
   data() {
@@ -34,17 +34,16 @@ export default {
 
 
   computed: {
-    peer() {return this.peers[0]},
-    data() {return this.peer.state.data},
+    data() {return this.client.state.data},
     target() {return this.$refs.canvas},
 
 
     viz() {
-      return (this.data.viz && this.data.viz[this.id]) ?
-        this.data.viz[this.id] : undefined
+      return (this.data.viz && this.data.viz[this.unitID]) ?
+        this.data.viz[this.unitID] : undefined
     },
 
-    topology() {if (this.viz) return this.viz.topology},
+    topology()  {if (this.viz) return this.viz.topology},
     positions() {if (this.viz) return this.viz.frames},
     frames() {return this.positions ? this.positions.length : 0}
   },
@@ -60,13 +59,13 @@ export default {
 
   mounted() {
     this.graphics()
-    this.peer.visualize_unit(this.id)
+    this.client.visualize_unit(this.unitID)
     this.load()
   },
 
 
   unmounted() {
-    this.peer.visualize_unit()
+    this.client.visualize_unit()
     window.removeEventListener('resize', this.update_view)
     window.removeEventListener('keyup',  this.on_key_up)
     window.cancelAnimationFrame(this.animate)
@@ -524,7 +523,7 @@ export default {
     .control
       Button(text="Close", icon="times", :route="{path: '/', replace: true}")
 
-  DetailsView(:id="id", :data="data")
+  DetailsView(v-if="client", :id="unitID", :data="data")
 </template>
 
 <style lang="stylus">
