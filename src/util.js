@@ -21,6 +21,9 @@ const bright = [
 ]
 
 
+const store_timeout = 24 * 60 * 60 * 1000
+
+
 export default {
   _peerRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]*)?$/),
 
@@ -187,5 +190,23 @@ export default {
     let style = (fg ? 'color' : 'background') + ':' + c
 
     return '<font style="' + style + '">' + m[2] + '</font>'
-  }
+  },
+
+
+  store(key, value, timeout = store_timeout) {
+    localStorage.setItem(key, JSON.stringify(value))
+    localStorage.setItem(key + '.__ts__', new Date().toISOString())
+  },
+
+
+  retrieve(key, timeout = store_timeout) {
+    let ts = localStorage.getItem(key + '__ts__')
+
+    try {
+      if (timeout < Date.now() - new Date(ts).getTime())
+        return JSON.parse(localStorage.getItem(key))
+    } catch (e) {
+      console.log(e)
+    }
+  },
 }

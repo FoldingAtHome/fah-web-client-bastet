@@ -1,6 +1,7 @@
 <script>
 import {reactive} from 'vue'
 import Cookie from './cookie.js'
+import util   from './util.js'
 
 
 const api_base = 'https://foldingathome.org/wp-json/wp/v2'
@@ -46,10 +47,7 @@ export default {
 
 
   methods: {
-    cache_feed() {
-      localStorage.setItem('fah-feed', JSON.stringify(this.feed))
-      localStorage.setItem('fah-feed-ts', new Date().toISOString())
-    },
+    cache_feed() {util.store('fah-feed', this.feed)},
 
 
     update_feed() {
@@ -61,15 +59,8 @@ export default {
 
 
     get_feed() {
-      let feed = localStorage.getItem('fah-feed')
-      let ts   = localStorage.getItem('fah-feed-ts')
-      if (ts != null && feed != null)
-        try {
-          if (Date.now() - new Date(ts).getTime() < feed_timeout) {
-            if (!this.feed.length) this.feed = JSON.parse(feed)
-            return
-          }
-        } catch (e) {}
+      let feed = util.retrieve('fah-feed')
+      if (feed) return this.feed = feed
 
       fetch(api_base + '/posts?context=embed')
         .then(r => r.json())
@@ -78,11 +69,14 @@ export default {
           let promises = []
 
           for (const post of posts) {
+            let desc = post.excerpt.rendered
+                .replace('>Read more<', 'target="_blank">Read more<')
+
             let article = reactive({
               url:         post.link,
               title:       post.title.rendered,
               date:        new Date(post.date).toDateString(),
-              description: post.excerpt.rendered
+              description: desc
             })
             this.feed.push(article)
 
@@ -122,7 +116,6 @@ export default {
   article
     background panel-bg
     border 1px solid border-color
-    border-radius 4px
     padding 0 1em
     margin 1em auto
     max-width 60em

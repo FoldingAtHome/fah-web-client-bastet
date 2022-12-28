@@ -29,6 +29,11 @@ export default {
   watch: {
     'client.state.data.config'(config) {
       if (config && !this.config) this.init(config)
+    },
+
+    min_cpus(value) {
+      if (this.config && this.config.cpus < value)
+        this.config.cpus = value
     }
   },
 

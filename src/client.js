@@ -87,6 +87,17 @@ class Client extends Sock {
   configure(config) {this.send({cmd: 'config', config})}
 
 
+  is_active() {
+    let units = this.state.data.units
+
+    if (units && units.length)
+      for (let unit of units)
+        if (!unit.paused) return true
+
+    return false
+  }
+
+
   viz_get_frames() {
     let unit = this.viz_unit
     if (unit && this.state.data.viz && this.state.data.viz[unit])

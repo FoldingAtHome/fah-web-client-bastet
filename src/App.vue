@@ -70,15 +70,21 @@ export default {
 
 
     pause(clients) {
-      console.log(clients)
+      let active = []
 
-      this.$refs.pause_dialog.open(result => {
-        for (let client of clients)
-          switch (result) {
-          case 'pause':  client.pause();  break
-          case 'finish': client.finish(); break
-          }
-      })
+      for (let client of clients) {
+        if (client.is_active()) active.push(client)
+        else client.pause()
+      }
+
+      if (active.length)
+        this.$refs.pause_dialog.open(result => {
+          for (let client of active)
+            switch (result) {
+            case 'pause':  client.pause();  break
+            case 'finish': client.finish(); break
+            }
+        })
     }
   }
 }

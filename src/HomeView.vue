@@ -1,9 +1,10 @@
 <script>
-import PeerRow from './PeerRow.vue'
-import Unit    from './Unit.vue'
-import News    from './News.vue'
-import util    from './util.js'
-import Cookie  from './cookie.js'
+import PeerRow     from './PeerRow.vue'
+import Unit        from './Unit.vue'
+import ProjectView from './ProjectView.vue'
+import News        from './News.vue'
+import util        from './util.js'
+import Cookie      from './cookie.js'
 
 
 const team_url = 'https://stats.foldingathome.org/team/'
@@ -13,7 +14,7 @@ const user_url = 'https://stats.foldingathome.org/donor/'
 export default {
   name: 'HomeView',
   props: ['clients', 'peers'],
-  components: {PeerRow, Unit, News},
+  components: {PeerRow, Unit, News, ProjectView},
 
   data() {
     return {
@@ -29,7 +30,19 @@ export default {
 
     user_url()  {return user_url + this.config.user},
     team_url()  {return team_url + this.config.team},
-    team_name() {return this.stats.team_name || this.config.team}
+    team_name() {return this.stats.team_name || this.config.team},
+
+
+    projects() {
+      let projects = {}
+
+      for (let client of Object.values(this.clients))
+        if (client.state.data.units)
+          for (let unit of client.state.data.units)
+            projects[unit.assignment.project] = true
+
+      return Object.keys(projects)
+    }
   },
 
 
@@ -100,6 +113,10 @@ export default {
           Unit(v-for="unit in client.state.data.units",
             v-if="client.state.data.units", :unit="unit", :client="client",
             :peerID="peerID")
+
+    .projects(v-if="projects.length")
+      h2 Projects
+      ProjectView(v-for="id in projects", :id="id")
 
     News
 </template>
@@ -208,6 +225,10 @@ export default {
     tr.peer, td.peer, th.peer
       display none
 
-  .news-feed
-    margin-top 4em
+  .projects
+    > h2
+      text-align center
+
+  .news-feed, .projects
+    margin-top 2em
 </style>
