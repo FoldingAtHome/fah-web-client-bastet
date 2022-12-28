@@ -13,8 +13,16 @@ class Client extends Sock {
     let peer = util.parse_peer_address(address)
     if (!peer) throw 'Invalid peer address "' + address + "'"
 
-    let host = peer.host || default_host
-    let port = peer.port || default_port
+    let hostname = window.location.hostname
+    var def_host = default_host
+    var def_port = default_port
+    if (!hostname.endsWith('foldingathome.org')) {
+      def_host = hostname
+      def_port = window.location.port
+    }
+
+    let host = peer.host || def_host
+    let port = peer.port || def_port
     let path = peer.path || ''
 
     let url = 'ws://' + host + ':' + port + '/api/websocket' + path
