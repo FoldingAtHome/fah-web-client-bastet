@@ -14,8 +14,9 @@ class Client extends Sock {
     if (!peer) throw 'Invalid peer address "' + address + "'"
 
     let hostname = window.location.hostname
-    var def_host = default_host
-    var def_port = default_port
+    let def_host = default_host
+    let def_port = default_port
+
     if (!hostname.endsWith('foldingathome.org')) {
       def_host = hostname
       def_port = window.location.port
