@@ -23,7 +23,7 @@ const icons = {
 
 
 export default {
-  props: ['unit', 'client', 'peerID'],
+  props: ['unit', 'client', 'peer', 'peerID'],
 
 
   data() {
@@ -137,7 +137,7 @@ Dialog(:buttons="dump_dialog_buttons", ref="dump_dialog")
     Work Unit will be lost and no points will be granted.
 
 tr.unit
-  td.peer
+  td.peer {{peer}}
   td
     a(v-if="project", :href="project_url + project", target="_blank")
       | {{project}}
@@ -211,10 +211,4 @@ tr.unit
     width 100%
     text-align center
     z-index 2
-
-.home-view .units td.actions
-  text-align right
-
-  > button
-    margin 0.125em 0.25em
 </style>

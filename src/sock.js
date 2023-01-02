@@ -1,5 +1,5 @@
 class Sock {
-  constructor(url, timeout = 8000) {
+  constructor(url, timeout = 2000) {
     this.url = url
     this.timeout = timeout
     this.connected = false

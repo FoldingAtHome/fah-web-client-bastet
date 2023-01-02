@@ -39,7 +39,8 @@ export default {
       for (let client of Object.values(this.clients))
         if (client.state.data.units)
           for (let unit of client.state.data.units)
-            projects[unit.assignment.project] = true
+            if (unit.assignment)
+              projects[unit.assignment.project] = true
 
       return Object.keys(projects)
     }
@@ -95,24 +96,39 @@ export default {
       Button.button-success(text="Start All", @click="fold", icon="play")
       Button(text="Pause All", @click="pause", icon="pause")
 
-    table.units
-      tr
-        th.peer Peer
-        th Project
-        th Unit
-        th Resources
-        th Status
-        th ETA
-        th Progress
-        th Actions
+    .peers
+      h2 Peers
 
-      template(v-for="(peer, peerID) in peers")
-        template(v-for="client in [clients[peer]]")
-          PeerRow(:client="client", :peerID="peerID")
+      table
+        tr
+          th.name Peer
+          th Status
+          th Version
+          th Resources
+          th Actions
 
-          Unit(v-for="unit in client.state.data.units",
-            v-if="client.state.data.units", :unit="unit", :client="client",
-            :peerID="peerID")
+        template(v-for="(peer, peerID) in peers")
+          template(v-for="client in [clients[peer]]")
+            PeerRow(:client="client", :peerID="peerID")
+
+    .units
+      h2 Work Units
+      table
+        tr
+          th.peer Peer
+          th Project
+          th Unit
+          th.resources Resources
+          th Status
+          th ETA
+          th Progress
+          th Actions
+
+        template(v-for="(peer, peerID) in peers")
+          template(v-for="client in [clients[peer]]")
+            Unit(v-for="unit in client.state.data.units",
+              v-if="client.state.data.units", :unit="unit", :client="client",
+              :peer="peer", :peerID="peerID")
 
     .projects(v-if="projects.length")
       h2 Projects
@@ -179,27 +195,24 @@ export default {
     gap 0.5em
     text-align center
 
+  .view-body
+    > *
+      > h2, > h3
+        text-align center
+
   .peer
-    td
-      background #888
+    .status
+      color error-color
 
-      > div
-        display flex
-        gap 0.5em
+    &.connected .status
+      color success-color
 
-        .status
-          color error-color
-
-    &.connected td
-      background #fff
-
-      .status
-        color success-color
-
-  .units
+  .units, .peers
     margin 1em auto
-    border-collapse collapse
     max-width 60em
+
+    table
+      border-collapse collapse
 
     tr:nth-child(odd)
       background table-odd
@@ -217,17 +230,19 @@ export default {
       color header-fg
       background header-bg
 
+    .resources
+      width 100%
+
     .actions
-      > *
+      text-align right
+
+      > button
         width 1.3em
+        margin 0.125em 0.25em
 
-  &.single-peer .units
-    tr.peer, td.peer, th.peer
+  &.single-peer
+    .peers, .units td.peer, .units th.peer
       display none
-
-  .projects
-    > h2
-      text-align center
 
   .news-feed, .projects
     margin-top 2em

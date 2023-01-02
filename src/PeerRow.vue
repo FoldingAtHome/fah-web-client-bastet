@@ -24,13 +24,11 @@ export default {
 
 <template lang="pug">
 tr.peer(:class="{connected: client.connected}")
-  td(:colspan="client.connected ? 7 : 8")
-    div
-      span {{client.state.address}} (v{{client.version()}})
-      span.status {{client.connected ? 'C' : 'Disc'}}onnected
-      template(v-if="config")
-        span cpus:{{config.cpus}}
-        span gpus:{{gpus}}
+  td {{client.state.address}}
+  td.status {{client.connected ? 'C' : 'Disc'}}onnected
+  td v{{client.version()}}
+  td.resources
+    template(v-if="config") cpus:{{config.cpus}} gpus:{{gpus}}
 
   td.actions(v-if="client.connected")
     Button.button-icon(:route="peerID + '/settings'",

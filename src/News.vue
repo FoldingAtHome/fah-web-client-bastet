@@ -110,9 +110,6 @@ export default {
 @import('colors.styl')
 
 .news-feed
-  > h2, > h3
-    text-align center
-
   article
     background panel-bg
     border 1px solid border-color

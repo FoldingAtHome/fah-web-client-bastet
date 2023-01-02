@@ -36,7 +36,7 @@ export default {
     .project-title
       | Project {{id}}
       .project-cause(v-if="project.cause && project.cause != 'unspecified'")
-        | (Fighting {{project.cause}})
+        | {{project.cause}}
 
   .project-body(:class="{'read-less': !more}")
     .project-details
@@ -73,7 +73,11 @@ export default {
     font-weight bold
     margin-bottom 0.5em
     display flex
-    gap 1em
+    gap 0.5em
+    text-transform capitalize
+
+    .project-cause
+      color #888
 
   .project-details, .project-manager
     display flex

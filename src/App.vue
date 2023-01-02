@@ -16,6 +16,9 @@ export default {
 
 
   computed: {
+    connected() {return this.clients[''].state.connected},
+
+
     peers() {
       let peers   = {}
       let clients = this.clients
@@ -43,29 +46,41 @@ export default {
 
 
   watch: {
+    connected(ok) {
+      if (ok) util.unlock_scrolling()
+      else util.lock_scrolling()
+    },
+
+
     peers(peers) {
       // Add new peers
       for (let address of peers)
         this.add_client(address)
 
       // Remove deleted peers
-      for (let i = 1; i < this.clients.length;) {
-        let client = this.clients[i]
+      let addrs = Object.keys(this.clients)
+      for (let i = 1; i < addrs.length; i++) {
+        let address = addrs[i]
 
-        if (peers.indexOf(client.state.address) == -1) {
-          client.destroy()
-          this.clients.splice(i, 1)
-
-        } else i++
+        if (peers.indexOf(address) == -1) {
+          console.debug('Removing client', address)
+          this.clients[address].destroy()
+          delete this.clients[address]
+        }
       }
     }
   },
 
 
+  mounted() {util.lock_scrolling()},
+
+
   methods: {
     add_client(address) {
-      if (!this.clients[address])
+      if (!this.clients[address]) {
+        console.debug('Adding client', address)
         this.clients[address] = new Client(address)
+      }
     },
 
 
@@ -99,7 +114,7 @@ main
 PauseDialog(ref="pause_dialog")
 
 Teleport(to="body")
-  .connecting(v-if="!clients[''].state.connected"): h2 Connecting...
+  .connecting(v-if="!connected"): h2 Connecting...
 </template>
 
 <style lang="stylus">
