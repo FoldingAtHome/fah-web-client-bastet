@@ -1,11 +1,12 @@
 <script>
-import util        from './util.js'
-import Client      from './client.js'
-import PauseDialog from './PauseDialog.vue'
+import util           from './util.js'
+import Client         from './client.js'
+import PauseDialog    from './PauseDialog.vue'
+import LocationDialog from './LocationDialog.vue'
 
 
 export default {
-  components: {PauseDialog},
+  components: {PauseDialog, LocationDialog},
 
 
   data() {
@@ -112,6 +113,7 @@ main
       component(:is="Component", :peers="peers", :clients="clients")
 
 PauseDialog(ref="pause_dialog")
+LocationDialog(ref="location_dialog")
 
 Teleport(to="body")
   .connecting(v-if="!connected"): h2 Connecting...

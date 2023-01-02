@@ -6,7 +6,6 @@ export default {
   name: 'Dialog',
   emits: ['close'],
 
-
   props: {
     buttons: {
       default(rawProps) {
@@ -18,7 +17,9 @@ export default {
           icon: 'times'
         }]
       }
-    }
+    },
+
+    zIndex: {type: Number, default: 100}
   },
 
 
@@ -51,8 +52,8 @@ export default {
 
 <template lang="pug">
 Teleport(to="body")
-  .dialog-overlay(v-if="active", @click="close('cancel')")
-    .dialog
+  .dialog-overlay(v-if="active", :style="{'z-index': zIndex}")
+    .dialog(@click.prevent.stop="true")
       .dialog-header
         slot(name="header")
 
@@ -73,7 +74,6 @@ Teleport(to="body")
   width 100vw
   height 100vh
   background overlay-bg
-  z-index 100
 
   .dialog
     width 30em

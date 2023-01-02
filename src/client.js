@@ -3,8 +3,8 @@ import Sock   from './sock.js'
 import util   from './util.js'
 import Cookie from './cookie.js'
 
-const default_host = '127.0.0.1'
-const default_port = 7396
+const default_host = localStorage.getItem('client-host') || '127.0.0.1'
+const default_port = localStorage.getItem('client-port') || 7396
 const api_url      = 'https://api.foldingathome.org'
 
 
@@ -13,17 +13,8 @@ class Client extends Sock {
     let peer = util.parse_peer_address(address)
     if (!peer) throw 'Invalid peer address "' + address + "'"
 
-    let hostname = window.location.hostname
-    let def_host = default_host
-    let def_port = default_port
-
-    if (!hostname.endsWith('foldingathome.org')) {
-      def_host = hostname
-      def_port = window.location.port
-    }
-
-    let host = peer.host || def_host
-    let port = peer.port || def_port
+    let host = peer.host || default_host
+    let port = peer.port || default_port
     let path = peer.path || ''
 
     let url = 'ws://' + host + ':' + port + '/api/websocket' + path
