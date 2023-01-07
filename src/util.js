@@ -209,4 +209,17 @@ export default {
       console.log(e)
     }
   },
+
+
+  time_interval(secs) {
+    function div(x, y) {return (x / y) >> 0}
+    function mod(x, y) {return (x % y) >> 0}
+
+    if (secs < 60) return parseInt(secs) + 's'
+    if (secs < 60 * 60) return div(secs, 60) + 'm ' + mod(secs, 60) + 's'
+    if (secs < 60 * 60 * 24)
+      return div(secs, 60 * 60) + 'h ' + mod(secs, 60 * 60) + 'm'
+
+    return div(secs, 60 * 60 * 24) + 'd ' + mod(secs, 60 * 60 * 24) + 'h'
+  }
 }

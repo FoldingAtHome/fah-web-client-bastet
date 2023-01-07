@@ -1,4 +1,7 @@
 <script>
+import util from './util.js'
+
+
 const status = {
   'ASSIGN':   'Requesting work',
   'DOWNLOAD': 'Downloading work',
@@ -6,7 +9,9 @@ const status = {
   'RUN':      'Running',
   'FINISH':   'Finishing',
   'UPLOAD':   'Uploading',
-  'CLEAN':    'Cleaning up'
+  'CLEAN':    'Cleaning up',
+  'WAIT':     'Waiting',
+  'PAUSE':    'Paused'
 }
 
 const icons = {
@@ -78,13 +83,24 @@ export default {
 
     state() {
       if (this.waiting) return 'WAIT'
-      else if (this.unit['pause-reason']) return 'PAUSE'
-      else if (this.unit.state == 'RUN' && this.config.finish) return 'FINISH'
+      if (this.unit['pause-reason']) return 'PAUSE'
+      if (this.unit.state == 'RUN' && this.config.finish) return 'FINISH'
       return this.unit.state
     },
 
 
     icon() {return icons[this.state]},
+
+
+    eta() {
+      if (this.waiting) {
+        let eta = new Date(this.unit.wait).getTime() - (new Date).getTime()
+        // Use "progress" to force updates
+        return util.time_interval(eta / 1000, this.progress)
+      }
+
+      return this.unit.eta
+    },
 
 
     status() {
@@ -149,7 +165,7 @@ tr.unit
   td.status(:class="state.toLowerCase()")
     | #[.fa(:class="'fa-' + icon")] {{status}}
 
-  td {{unit.eta}}
+  td {{eta}}
 
   td.progress-cell
     .progress
