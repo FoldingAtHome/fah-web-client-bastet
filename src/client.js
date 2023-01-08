@@ -30,8 +30,8 @@ import {reactive, watchEffect} from 'vue'
 import Sock   from './sock.js'
 import util   from './util.js'
 
-const default_host = localStorage.getItem('client-host') || '127.0.0.1'
-const default_port = localStorage.getItem('client-port') || 7396
+const default_host = util.default_host()
+const default_port = util.default_port()
 
 
 class Client extends Sock {

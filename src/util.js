@@ -82,6 +82,25 @@ export default {
   },
 
 
+  default_host() {
+    let hostname = window.location.hostname
+    var lhost = null
+    if (hostname.endsWith('.local')) lhost = hostname
+    const host = localStorage.getItem('client-host') || lhost || '127.0.0.1'
+    return host
+  },
+
+
+  default_port() {
+    let hostname = window.location.hostname
+    var lport = null
+    if (hostname.endsWith('.local') || hostname == 'localhost')
+      lport = window.location.port
+    const port = localStorage.getItem('client-port') || lport || 7396
+    return port
+  },
+
+
   update(data, update) {
     let i = 0
 
