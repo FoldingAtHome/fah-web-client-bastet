@@ -19,6 +19,7 @@ export default {
       }
     },
 
+    allowCancel: {type: Boolean, default: true},
     zIndex: {type: Number, default: 100}
   },
 
@@ -55,7 +56,9 @@ Teleport(to="body")
   .dialog-overlay(v-if="active", :style="{'z-index': zIndex}")
     .dialog(@click.prevent.stop="true")
       .dialog-header
-        slot(name="header")
+        .dialog-header-slot: slot(name="header")
+        .dialog-close(v-if="allowCancel", @click="close('cancel')")
+          .fa.fa-times
 
       .dialog-body
         slot(name="body")
@@ -89,6 +92,18 @@ Teleport(to="body")
       background header-bg
       color header-fg
       border-bottom 1px solid border-color
+      display flex
+      gap 0.5em
+
+      > :first-child
+        flex 1
+
+      .dialog-close
+        flex 0
+        cursor pointer
+
+        &:hover
+          color #888
 
     .dialog-footer
       display flex

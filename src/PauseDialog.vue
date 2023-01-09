@@ -3,7 +3,7 @@ export default {
   data() {
     return {
       pause_dialog_buttons: [
-        {name: 'pause', text: 'Pause now', icon: 'pause'},
+        {name: 'pause',  text: 'Pause now',             icon: 'pause'},
         {name: 'finish', text: 'Finish up, then pause', icon: 'clock-o'}
       ]
     }
