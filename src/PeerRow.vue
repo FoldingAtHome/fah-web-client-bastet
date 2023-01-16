@@ -54,19 +54,21 @@ export default {
 tr.peer(:class="{connected: client.connected}")
   td {{client.state.address}}
   td.status {{client.connected ? 'C' : 'Disc'}}onnected
-  td v{{client.version()}}
+  td
+    template(v-if="client.connected") v{{client.version()}}
   td.resources
     template(v-if="config") cpus:{{config.cpus}} gpus:{{gpus}}
 
-  td.actions(v-if="client.connected")
-    Button.button-icon(:route="peerID + '/settings'",
-      title="Settings", icon="cog")
-    Button.button-icon(:route="peerID + '/log'", title="Log",
-      icon="list-alt")
-    Button.button-icon(v-if="client.paused()", @click="client.fold()",
-      icon="play", title="Start folding.")
-    Button.button-icon(v-else, @click="$root.pause([client])",
-      icon="pause", title="Pause folding.")
+  td.actions
+    template(v-if="client.connected")
+      Button.button-icon(:route="peerID + '/settings'",
+        title="Settings", icon="cog")
+      Button.button-icon(:route="peerID + '/log'", title="Log",
+        icon="list-alt")
+      Button.button-icon(v-if="client.paused()", @click="client.fold()",
+        icon="play", title="Start folding.")
+      Button.button-icon(v-else, @click="$root.pause([client])",
+        icon="pause", title="Pause folding.")
 </template>
 
 <style lang="stylus">

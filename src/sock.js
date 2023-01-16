@@ -77,14 +77,16 @@ class Sock {
 
     console.debug('Connecting to ' + this.url)
 
-    this.ws = new WebSocket(this.url)
+    try {
+      this.ws = new WebSocket(this.url)
 
-    this.ws.addEventListener('open',    e => this._open(e))
-    this.ws.addEventListener('close',   e => this._close(e))
-    this.ws.addEventListener('error',   e => this.on_error(e))
-    this.ws.addEventListener('message', e => this._message(e))
+      this.ws.addEventListener('open',    e => this._open(e))
+      this.ws.addEventListener('close',   e => this._close(e))
+      this.ws.addEventListener('error',   e => this.on_error(e))
+      this.ws.addEventListener('message', e => this._message(e))
 
-    this.timer = setTimeout(() => this._timeout(), this.timeout)
+      this.timer = setTimeout(() => this._timeout(), this.timeout)
+    } catch (e) {console.error('Connection failed', e)}
   }
 
 
