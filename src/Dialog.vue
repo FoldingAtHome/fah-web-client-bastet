@@ -61,6 +61,7 @@ export default {
 
   methods: {
     open(resolve)  {
+      if (this.active) return
       util.lock_scrolling()
       this.active = true
       this.resolve = resolve
@@ -68,6 +69,7 @@ export default {
 
 
     close(result) {
+      if (!this.active) return
       util.unlock_scrolling()
       this.active = false
 

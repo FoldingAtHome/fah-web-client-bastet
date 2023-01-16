@@ -115,6 +115,22 @@ class Client extends Sock {
   configure(config) {this.send({cmd: 'config', config})}
 
 
+  fold_anon() {
+    let config = this.state.data.config
+    config.fold_anon = true
+    this.configure(config)
+  }
+
+
+  waiting_for_config() {
+    let config = this.state.data.config
+
+    return config && config.fold_anon === false &&
+      (!config.user || config.user.toLowerCase() == 'anonymous') &&
+      !config.team && !config.passkey
+  }
+
+
   is_active() {
     let units = this.state.data.units
 

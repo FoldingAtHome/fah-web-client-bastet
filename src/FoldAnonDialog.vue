@@ -31,8 +31,8 @@ export default {
   data() {
     return {
       buttons: [
-        {name: 'pause',  text: 'Pause now',             icon: 'pause'},
-        {name: 'finish', text: 'Finish up, then pause', icon: 'clock-o'}
+        {name: 'fold',   text: 'Fold Anonymously', icon: 'play'},
+        {name: 'config', text: 'Change Settings',  icon: 'cog'}
       ]
     }
   },
@@ -45,11 +45,11 @@ export default {
 </script>
 
 <template lang="pug">
-Dialog(:buttons="buttons", ref="dialog")
-  template(v-slot:header) Pause or Finish
-  template(v-slot:body).
-    Would you like to pause folding now or finish all the active work units
-    then pause?
+Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
+  template(v-slot:header) Fold Anonymously?
+  template(v-slot:body)
+    p You have not yet configured a #[b username], #[b team] or #[b passkey].
+    p Would you prefer to fold anonymously or change your settings now?
 </template>
 
 <style lang="stylus">

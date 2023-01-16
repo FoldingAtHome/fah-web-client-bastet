@@ -168,11 +168,17 @@ export default {
 
     save() {
       this.client.configure(this.config)
-      this.cancel()
+      this.close()
     },
 
 
     cancel() {
+      this.$root.check_fold_anon()
+      this.close()
+    },
+
+
+    close() {
       this.confirmed = true
       this.$router.replace('/')
     },
@@ -220,12 +226,18 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
     fieldset.user-settings
       legend User Settings
 
+      label Fold Anonymously
+      input(v-model="config.fold_anon", type="checkbox",
+        title="Fold without a username, team or passkey.")
+      div
+
       label Username
-      input(v-model="config.user")
+      input(v-model="config.user", :disabled="config.fold_anon")
       div
 
       label Team
-      input(v-model.number="config.team", type="number")
+      input(v-model.number="config.team", type="number",
+        :disabled="config.fold_anon")
 
       Button(text="New Team", icon="plus", :href="team_app_url",
         title="Create a new team.")
@@ -233,7 +245,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       label Passkey
       div
         input(v-model="config.passkey", pattern="[\da-fA-F]{31,32}",
-          :type="show_key ? 'text' : 'password'")
+          :type="show_key ? 'text' : 'password'", :disabled="config.fold_anon")
 
         Button.button-icon(:icon="'eye' + (show_key ? '' : '-slash')",
           @click="show_key = !show_key",

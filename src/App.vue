@@ -31,10 +31,11 @@ import util           from './util.js'
 import Client         from './client.js'
 import PauseDialog    from './PauseDialog.vue'
 import LocationDialog from './LocationDialog.vue'
+import FoldAnonDialog from './FoldAnonDialog.vue'
 
 
 export default {
-  components: {PauseDialog, LocationDialog},
+  components: {PauseDialog, LocationDialog, FoldAnonDialog},
 
 
   data() {
@@ -45,6 +46,11 @@ export default {
 
 
   computed: {
+    config_available() {
+      return this.connected && this.clients[''].state.data.config
+    },
+
+
     connected() {return this.clients[''].state.connected},
 
 
@@ -79,6 +85,9 @@ export default {
       if (ok) util.unlock_scrolling()
       else util.lock_scrolling()
     },
+
+
+    config_available(ok) {if (ok) this.check_fold_anon()},
 
 
     peers(peers) {
@@ -129,6 +138,19 @@ export default {
             case 'finish': client.finish(); break
             }
         })
+    },
+
+
+    check_fold_anon() {
+      let client = this.clients['']
+
+      if (this.connected && client.waiting_for_config())
+        this.$refs.fold_anon_dialog.open(result => {
+          switch (result) {
+          case 'fold':   client.fold_anon();               break
+          case 'config': this.$router.push('/0/settings'); break
+          }
+        })
     }
   }
 }
@@ -142,6 +164,7 @@ main
 
 PauseDialog(ref="pause_dialog")
 LocationDialog(ref="location_dialog")
+FoldAnonDialog(ref="fold_anon_dialog")
 
 Teleport(to="body")
   .connecting(v-if="!connected"): h2 Connecting...
