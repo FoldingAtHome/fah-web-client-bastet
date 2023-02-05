@@ -1,5 +1,10 @@
 node_modules
 .DS_Store
-dist
+/dist
+/dist.txt
+/*.tar.bz2
 *~
 /package-lock.json
+/.sconsign.dblite
+/.sconf_temp
+/config.log
