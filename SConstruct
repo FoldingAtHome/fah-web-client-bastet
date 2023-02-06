@@ -23,11 +23,12 @@ if 'dist' in COMMAND_LINE_TARGETS:
     env.RunCommandOrRaise(['npm', 'run', 'build'])
 
   distfiles = ['dist', 'LICENSE']
-  tar = env.TarBZ2Dist('web-control', distfiles)
+  tar = env.TarBZ2Dist('fah-web-control', distfiles)
   AlwaysBuild(tar)
   Alias('dist', tar)
   Clean(tar, ['dist', 'dist.txt'])
 
 if 'distclean' in COMMAND_LINE_TARGETS:
   Clean('distclean', ['.sconsign.dblite', '.sconf_temp', 'config.log',
+    'node_modules', 'package-lock.json',
     Glob('*.tar.bz2'), 'dist', 'dist.txt'])
