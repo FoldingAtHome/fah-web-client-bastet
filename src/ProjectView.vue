@@ -45,15 +45,16 @@ export default {
   },
 
 
-  async mounted() {
-    let p = util.retrieve('fah-project-' + this.id)
+  mounted() {
+    let p = util.retrieve('fah-v2-project-' + this.id)
     if (p) return this.project = p
 
-    let r = await fetch(api_url + '/project/' + this.id)
-    if (r.ok) {
-      this.project = await r.json()
-      util.store('fah-project-' + this.id, this.project)
-    }
+    fetch(api_url + '/project/' + this.id)
+      .then(r => r.json())
+      .then(data => {
+        this.project = data
+        util.store('fah-v2-project-' + this.id, this.project)
+      })
   }
 }
 </script>
