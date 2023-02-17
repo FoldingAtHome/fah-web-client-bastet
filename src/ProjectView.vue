@@ -66,15 +66,15 @@ export default {
       | Project {{id}}
       .project-cause(v-if="project.cause && project.cause != 'unspecified'")
         | {{project.cause}}
+      .project-institution {{project.institution}}
+      .project-manager {{project.manager}}
 
   .project-body(:class="{'read-less': !more}")
     .project-details
       .project-description(v-html="project.description")
       img(v-if="project.thumb", :src="img_url + project.thumb")
 
-    h3 {{project.manager}}
-    h4(v-html="project.institution")
-    .project-manager
+    p.project-manager
       .project-manager-description(v-html="project.mdescription")
       img(v-if="project.mthumb", :src="img_url + project.mthumb")
 
@@ -104,9 +104,14 @@ export default {
     display flex
     gap 0.5em
     text-transform capitalize
+    align-items end
 
     .project-cause
+      flex 1
+
+    .project-cause, .project-institution
       color #888
+      font-size 90%
 
   .project-details, .project-manager
     display flex
