@@ -107,13 +107,26 @@ export default {
         let config = this.data.config.gpus[name]
         let info   = this.info.gpus[name]
 
-        if (info)
-          gpus.push({
-            name,
-            enabled:     config && config.enabled,
-            type:        info.type,
-            description: info.description
-          })
+        if (info) {
+          let gpu = Object.assign(
+            {name, enabled: config && config.enabled}, info)
+
+          for (let name of ['OpenCL', 'CUDA']) {
+            let type    = name.toLowerCase()
+            let cinfo   = gpu[type] = gpu[type] || {}
+            let enabled = cinfo.compute
+
+            cinfo.image = `/images/${enabled ? '' : 'no-'}${type}.png`
+
+            if (enabled)
+              cinfo.title = `${name} enabled with compute level ` +
+                `${cinfo.compute} and driver version ${cinfo.driver}.`
+
+            else cinfo.title = `${name} not supported.`
+          }
+
+          gpus.push(gpu)
+        }
       }
 
       return gpus
@@ -290,11 +303,17 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       table.gpus-input
         tr
           th Description
+          th Drivers
           th Enable
 
         tr(v-for="gpu in gpus", v-if="gpus")
           td.gpu-description {{gpu.description}}
-          td: input(v-model="config.gpus[gpu.name].enabled", type="checkbox")
+          td.gpu-compute
+            img(:src="gpu.cuda.image",   :title="gpu.cuda.title")
+            img(:src="gpu.opencl.image", :title="gpu.opencl.title")
+
+          td.gpu-enable
+            input(v-model="config.gpus[gpu.name].enabled", type="checkbox")
       div
 
     fieldset.peers(v-if="!client.state.path")
@@ -377,6 +396,16 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
       .gpu-description
         width 100%
+
+      .gpu-compute
+        white-space nowrap
+
+        img
+          height 24px
+          margin 5px
+
+      .gpu-enable
+        text-align center
 
     &.peers
       table
