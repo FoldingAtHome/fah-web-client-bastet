@@ -53,7 +53,7 @@ const store_timeout = 24 * 60 * 60 * 1000
 
 
 export default {
-  _peerRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]*)?$/),
+  _peerRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/),
 
 
   parse_peer_address(address = '') {

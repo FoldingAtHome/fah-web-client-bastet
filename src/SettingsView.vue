@@ -103,13 +103,13 @@ export default {
       if (!this.data.config || !this.data.config.gpus) return []
 
       let gpus = []
-      for (const name in this.info.gpus) {
-        let config = this.data.config.gpus[name]
-        let info   = this.info.gpus[name]
+      for (const id in this.info.gpus) {
+        let config = this.data.config.gpus[id]
+        let info   = this.info.gpus[id]
 
         if (info) {
-          let gpu = Object.assign(
-            {name, enabled: config && config.enabled}, info)
+          let gpu = Object.assign({id, enabled: config && config.enabled}, info)
+          if (gpu.supported == undefined) gpu.supported = true
 
           for (let name of ['OpenCL', 'CUDA']) {
             let type    = name.toLowerCase()
@@ -130,6 +130,19 @@ export default {
       }
 
       return gpus
+    },
+
+
+    new_peers_valid() {
+      let peers = this.new_peers.match(/[^ ]+/g)
+
+      if (!peers) return false
+
+      for (let peer of peers)
+        if (!util.parse_peer_address(peer))
+          return false
+
+      return true
     }
   },
 
@@ -306,14 +319,17 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
           th Drivers
           th Enable
 
-        tr(v-for="gpu in gpus", v-if="gpus")
+        tr.gpu-row(v-for="gpu in gpus", v-if="gpus",
+          :class="{unsupported: !gpu.supported}",
+          :title="!gpu.supported ? 'Unsupported GPU.' : ''")
           td.gpu-description {{gpu.description}}
           td.gpu-compute
             img(:src="gpu.cuda.image",   :title="gpu.cuda.title")
             img(:src="gpu.opencl.image", :title="gpu.opencl.title")
 
           td.gpu-enable
-            input(v-model="config.gpus[gpu.name].enabled", type="checkbox")
+            input(v-model="config.gpus[gpu.id].enabled", type="checkbox",
+              :disabled="!gpu.supported")
       div
 
     fieldset.peers(v-if="!client.state.path")
@@ -322,7 +338,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       label
       input(v-model="new_peers", title="Space separated list of peers.",
         @keyup.enter="add_peers")
-      button(@click="add_peers", :disabled="!new_peers.trim()").
+      button(@click="add_peers", :disabled="!new_peers_valid").
         #[.fa.fa-plus] Add peers
 
       label
@@ -393,6 +409,9 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
     .gpus-input
       th
         text-align left
+
+      .gpu-row.unsupported td
+        opacity 0.4
 
       .gpu-description
         width 100%
