@@ -68,8 +68,9 @@ export default {
 
           let config = client.state.data.config
           if (config)
-            for (let peer of config.peers)
+            for (let peer of config.peers) try {
               add_peer(util.make_peer_address(peer, address))
+            } catch(e) {console.log(e)}
         }
       }
 
