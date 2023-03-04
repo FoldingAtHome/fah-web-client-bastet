@@ -1,6 +1,6 @@
 {
   "name": "fah-web-client-bastet",
-  "version": "8.1.13",
+  "version": "8.1.14",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
