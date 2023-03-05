@@ -407,6 +407,12 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       white-space nowrap
 
     .gpus-input
+      border-collapse collapse
+
+      th, td
+        border 1px solid #666
+        padding 0.25em
+
       th
         text-align left
 
