@@ -96,7 +96,11 @@ export default {
     },
 
 
-    min_cpus() {return this.gpus_enabled},
+    min_cpus() {
+      let gpus = this.gpus_enabled
+      let cpus = this.max_cpus
+      return gpus < cpus ? gpus : cpus
+    },
 
 
     gpus() {
