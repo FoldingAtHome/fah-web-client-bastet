@@ -27,12 +27,12 @@
 -->
 
 <script>
-import PeerRow     from './PeerRow.vue'
-import Unit        from './Unit.vue'
-import ProjectView from './ProjectView.vue'
-import News        from './News.vue'
-import util        from './util.js'
-import Cookie      from './cookie.js'
+import PeerRow      from './PeerRow.vue'
+import Unit         from './Unit.vue'
+import ProjectsView from './ProjectsView.vue'
+import News         from './News.vue'
+import util         from './util.js'
+import Cookie       from './cookie.js'
 
 
 const team_url = 'https://stats.foldingathome.org/team/'
@@ -42,7 +42,7 @@ const user_url = 'https://stats.foldingathome.org/donor/'
 export default {
   name: 'HomeView',
   props: ['clients', 'peers'],
-  components: {PeerRow, Unit, News, ProjectView},
+  components: {PeerRow, Unit, News, ProjectsView},
 
   data() {
     return {
@@ -158,10 +158,7 @@ export default {
               v-if="client.state.data.units", :unit="unit", :client="client",
               :peer="peer", :peerID="peerID")
 
-    .projects(v-if="projects.length")
-      h2 Projects
-      ProjectView(v-for="id in projects", :id="id")
-
+    ProjectsView(:ids="projects")
     News
 </template>
 

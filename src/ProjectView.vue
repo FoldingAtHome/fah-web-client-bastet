@@ -33,28 +33,14 @@ const api_url = 'https://api.foldingathome.org'
 
 
 export default {
-  props: ['id'],
+  props: ['project'],
 
 
   data() {
     return {
       img_url: 'data:image/png;base64,',
-      project: {},
       more: false
     }
-  },
-
-
-  mounted() {
-    let p = util.retrieve('fah-v2-project-' + this.id)
-    if (p) return this.project = p
-
-    fetch(api_url + '/project/' + this.id)
-      .then(r => r.json())
-      .then(data => {
-        this.project = data
-        util.store('fah-v2-project-' + this.id, this.project)
-      })
   }
 }
 </script>
@@ -63,7 +49,7 @@ export default {
 .project(v-if="project.description")
   .project-header
     .project-title
-      | Project {{id}}
+      | Project {{project.id}}
       .project-cause(v-if="project.cause && project.cause != 'unspecified'")
         | {{project.cause}}
       .project-institution {{project.institution}}
