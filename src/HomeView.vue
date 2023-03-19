@@ -30,6 +30,7 @@
 import PeerRow      from './PeerRow.vue'
 import Unit         from './Unit.vue'
 import ProjectsView from './ProjectsView.vue'
+import SliderSwitch from './SliderSwitch.vue'
 import News         from './News.vue'
 import util         from './util.js'
 import Cookie       from './cookie.js'
@@ -42,11 +43,23 @@ const user_url = 'https://stats.foldingathome.org/donor/'
 export default {
   name: 'HomeView',
   props: ['clients', 'peers'],
-  components: {PeerRow, Unit, News, ProjectsView},
+  components: {PeerRow, Unit, News, ProjectsView, SliderSwitch},
 
   data() {
     return {
-      util
+      util,
+      dark_mode: !!util.retrieve('fah-dark-mode', 0)
+    }
+  },
+
+
+  watch: {
+    dark_mode(enabled) {
+      console.log(enabled)
+      if (enabled) document.body.classList.add('dark')
+      else document.body.classList.remove('dark')
+
+      util.store('fah-dark-mode', !!enabled, 0)
     }
   },
 
@@ -72,6 +85,11 @@ export default {
 
       return Object.keys(projects)
     }
+  },
+
+
+  mounted() {
+    if (this.dark_mode) document.body.classList.add('dark')
   },
 
 
@@ -111,6 +129,7 @@ export default {
           {{util.human_number(stats.team_total)}}
 
       .actions(v-if="peers.length == 1")
+        SliderSwitch(v-model="dark_mode", title="Enable dark mode.")
         Button.button-icon(route="/0/settings", title="Settings", icon="cog")
         Button.button-icon(route="/0/log", title="Log", icon="list-alt")
 

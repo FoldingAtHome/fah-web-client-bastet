@@ -231,7 +231,7 @@ export default {
     let ts = localStorage.getItem(key + '__ts__')
 
     try {
-      if (timeout < Date.now() - new Date(ts).getTime())
+      if (!timeout || timeout < Date.now() - new Date(ts).getTime())
         return JSON.parse(localStorage.getItem(key))
     } catch (e) {
       console.log(e)

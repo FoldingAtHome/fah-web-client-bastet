@@ -1,0 +1,75 @@
+/******************************************************************************\
+
+                  This file is part of the Folding@home Client.
+
+          The fah-client runs Folding@home protein folding simulations.
+                    Copyright (c) 2001-2023, foldingathome.org
+                               All rights reserved.
+
+       This program is free software; you can redistribute it and/or modify
+       it under the terms of the GNU General Public License as published by
+        the Free Software Foundation; either version 3 of the License, or
+                       (at your option) any later version.
+
+         This program is distributed in the hope that it will be useful,
+          but WITHOUT ANY WARRANTY; without even the implied warranty of
+          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                   GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+           51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+                  For information regarding this software email:
+                                 Joseph Coffland
+                          joseph@cauldrondevelopment.com
+
+\******************************************************************************/
+
+html .dark
+  input, select
+    color #fff
+    background-color #444
+    border 2px inset #666
+
+  button.button-icon:not(:hover)
+    background transparent
+    color #eee
+
+  button:disabled
+    color #666
+    background #444
+
+    .fa
+      color #666
+
+  .page-view, .view-body, .news-feed article, .settings-view fieldset, .dialog
+    color #ddd
+    background-color #222
+
+    h1, h2, h3, h4, h5
+      color #ddd
+
+
+  .home-view .units th, .home-view .units td, .news-feed article,
+  .settings-view fieldset
+    border 1px solid #666
+
+  .page-view .view-header-container .view-header .actions button:disabled .fa
+    color #666
+
+  .home-view .units
+     tr:nth-child(odd)
+        background #111
+
+     tr:nth-child(even)
+      background #222
+
+     .actions > button .fa:not(:hover)
+       color #eee
+
+     .actions > button:disabled .fa
+       color #666
+
+  .dialog-overlay .dialog .dialog-header
+    border-bottom 1px solid #666
