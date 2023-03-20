@@ -128,10 +128,12 @@ export default {
           {{util.human_number(stats.contributed)}} of
           {{util.human_number(stats.team_total)}}
 
-      .actions(v-if="peers.length == 1")
+      .actions
         SliderSwitch(v-model="dark_mode", title="Enable dark mode.")
-        Button.button-icon(route="/0/settings", title="Settings", icon="cog")
-        Button.button-icon(route="/0/log", title="Log", icon="list-alt")
+        Button.button-icon(route="/0/settings", title="Settings", icon="cog",
+          v-if="peers.length == 1")
+        Button.button-icon(route="/0/log", title="Log", icon="list-alt",
+          v-if="peers.length == 1")
 
   .view-body
     .control(v-if="peers.length == 1")
