@@ -43,17 +43,20 @@ html .dark
     .fa
       color #666
 
-  .page-view, .view-body, .news-feed article, .settings-view fieldset, .dialog
+  .page-view, .view-body, .dialog
     color #ddd
     background-color #222
 
     h1, h2, h3, h4, h5
       color #ddd
 
+  .page-view
+    .news-feed article, fieldset, .projects .project
+      background-color #111
 
-  .home-view .units th, .home-view .units td, .news-feed article,
-  .settings-view fieldset
-    border 1px solid #666
+    .units th, .units td, .news-feed article, .peers th, .peers td, fieldset,
+    .projects .project
+      border 1px solid #444
 
   .page-view .view-header-container .view-header .actions button:disabled .fa
     color #666
@@ -71,5 +74,11 @@ html .dark
      .actions > button:disabled .fa
        color #666
 
-  .dialog-overlay .dialog .dialog-header
-    border-bottom 1px solid #666
+  .dialog-overlay
+    background rgba(0, 0, 0, 0.6)
+
+    .dialog
+      background-color #222
+
+      .dialog-header
+        border-bottom 1px solid #666

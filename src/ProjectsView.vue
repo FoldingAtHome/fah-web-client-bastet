@@ -66,15 +66,17 @@ export default {
       if (this.projects[id] || this.loading[id]) return
 
       let p = util.retrieve(store_key + id)
-      if (p) return this.projects[id] = p
+      if (p && p.id == id) return this.projects[id] = p
 
       this.loading[id] = true
       fetch(api_url + '/project/' + id)
         .then(r => r.json())
         .then(data => {
-          data.id = id
-          this.projects[id] = data
-          util.store(store_key + id, data)
+          if (!data.error) {
+            data.id = parseInt(id)
+            this.projects[id] = data
+            util.store(store_key + id, data)
+          }
 
         }).finally(() => {
           this.loading[id] = false
