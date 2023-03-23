@@ -31,7 +31,6 @@ import ProjectView from './ProjectView.vue'
 import util from './util.js'
 
 const store_key = 'fah-v3-project-'
-const api_url   = 'https://api.foldingathome.org'
 
 
 export default {
@@ -69,7 +68,7 @@ export default {
       if (p && p.id == id) return this.projects[id] = p
 
       this.loading[id] = true
-      fetch(api_url + '/project/' + id)
+      fetch(util.api_url + '/project/' + id)
         .then(r => r.json())
         .then(data => {
           if (!data.error) {

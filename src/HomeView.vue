@@ -27,13 +27,14 @@
 -->
 
 <script>
-import PeerRow      from './PeerRow.vue'
-import Unit         from './Unit.vue'
-import ProjectsView from './ProjectsView.vue'
-import SliderSwitch from './SliderSwitch.vue'
-import News         from './News.vue'
-import util         from './util.js'
-import Cookie       from './cookie.js'
+import ClientVersion from './ClientVersion.vue'
+import PeerRow       from './PeerRow.vue'
+import Unit          from './Unit.vue'
+import ProjectsView  from './ProjectsView.vue'
+import SliderSwitch  from './SliderSwitch.vue'
+import News          from './News.vue'
+import util          from './util.js'
+import Cookie        from './cookie.js'
 
 
 const team_url = 'https://stats.foldingathome.org/team/'
@@ -43,12 +44,14 @@ const user_url = 'https://stats.foldingathome.org/donor/'
 export default {
   name: 'HomeView',
   props: ['clients', 'peers'],
-  components: {PeerRow, Unit, News, ProjectsView, SliderSwitch},
+  components: {ClientVersion, PeerRow, Unit, News, ProjectsView, SliderSwitch},
+
 
   data() {
     return {
       util,
-      dark_mode: !!util.retrieve('fah-dark-mode', 0)
+      dark_mode: util.retrieve_bool('fah-dark-mode', 0),
+      latest_version: util.retrieve('fah-latest-version')
     }
   },
 
@@ -59,7 +62,7 @@ export default {
       if (enabled) document.body.classList.add('dark')
       else document.body.classList.remove('dark')
 
-      util.store('fah-dark-mode', !!enabled, 0)
+      util.store_bool('fah-dark-mode', enabled, 0)
     }
   },
 
@@ -90,10 +93,30 @@ export default {
 
   mounted() {
     if (this.dark_mode) document.body.classList.add('dark')
+    this.check_version()
   },
 
 
   methods: {
+    check_version() {
+      if (this.latest_version != undefined) return
+
+      fetch('https://download.foldingathome.org/?release=beta')
+        .then(r => r.json())
+        .then(downloads => {
+          for (let download of downloads)
+            for (let group of (download.groups || []))
+              for (let file of (group.files || []))
+                if (file.version != undefined && file.version.length == 3) try {
+                  let version = file.version.join('.')
+                  util.store('fah-latest-version', version)
+                  this.latest_version = version
+                  return
+                } catch (e) {}
+        })
+    },
+
+
     fold() {for (let client of Object.values(this.clients)) client.fold()},
     pause() {this.$root.pause(Object.values(this.clients))}
   }
@@ -106,9 +129,8 @@ export default {
     .view-header
       .logo-block
         FAHLogo
-        .client-version(v-if="peers.length == 1",
-          :title="'Folding@home client version ' + clients[''].version()")
-          | v{{clients[''].version()}}
+        ClientVersion(v-if="peers.length == 1", :client="clients['']",
+          :latest="latest_version")
 
       .user-info(v-if="config.user")
         label Folding as
@@ -158,7 +180,8 @@ export default {
 
         template(v-for="(peer, peerID) in peers")
           template(v-for="client in [clients[peer]]")
-            PeerRow(:client="client", :peerID="peerID")
+            PeerRow(:client="client", :peerID="peerID",
+              :latest="latest_version")
 
     .units
       h2 Work Units

@@ -27,55 +27,43 @@
 -->
 
 <script>
-import ClientVersion from './ClientVersion.vue'
+import util from './util.js'
 
 
 export default {
-  name: 'PeerRow',
-  props: ['client', 'peerID', 'latest'],
-  components: {ClientVersion},
-
+  name: 'ClientVersion',
+  props: ['client', 'latest'],
 
   computed: {
-    config() {return this.client.state.data.config},
-
-
-    gpus() {
-      let count = 0
-
-      if (this.config.gpus)
-        for (let id in this.config.gpus)
-          if (this.config.gpus[id].enabled)
-            count++
-
-      return count
-    }
+    connected() {return this.client.state.connected},
+    version()   {return this.client.version()},
+    outdated()  {return this.client.outdated(this.latest)}
   }
 }
 </script>
 
 <template lang="pug">
-tr.peer(:class="{connected: client.connected}")
-  td {{client.state.address}}
-  td.status {{client.connected ? 'C' : 'Disc'}}onnected
+.client-version(v-if="connected")
+  a.outdated(v-if="outdated", :href="$root.util.download_url", target="_blank",
+    title="Client version outdated.  Click to open download page.")
+      | #[.fa.fa-exclamation-triangle] v{{version}}
+      |
+      | #[.fa.fa-exclamation-triangle]
 
-  td.version
-    ClientVersion(:client="client", :latest="latest")
-
-  td.resources
-    template(v-if="config") cpus:{{config.cpus}} gpus:{{gpus}}
-
-  td.actions
-    template(v-if="client.connected")
-      Button.button-icon(:route="peerID + '/settings'",
-        title="Settings", icon="cog")
-      Button.button-icon(:route="peerID + '/log'", title="Log",
-        icon="list-alt")
-      Button.button-icon(v-if="client.paused()", @click="client.fold()",
-        icon="play", title="Start folding.")
-      Button.button-icon(v-else, @click="$root.pause([client])",
-        icon="pause", title="Pause folding.")
+  span(v-else, :title="'Folding@home client version ' + version + '.'")
+    | v{{version}}
 </template>
 
 <style lang="stylus">
+@import('colors.styl')
+
+.client-version
+  .outdated
+    text-decoration none
+
+    &:not(:hover)
+      color warn-color
+
+    .fa
+      font-size 10pt
 </style>

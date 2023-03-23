@@ -33,7 +33,6 @@ import Cookie from './cookie.js'
 
 const default_host = localStorage.getItem('client-host') || '127.0.0.1'
 const default_port = localStorage.getItem('client-port') || 7396
-const api_url      = 'https://api.foldingathome.org'
 
 
 class Client extends Sock {
@@ -67,6 +66,12 @@ class Client extends Sock {
 
   version() {
     return this.state.data.info ? this.state.data.info.version : undefined
+  }
+
+
+  outdated(latest) {
+    let current = this.version()
+    return current && util.version_less(current, latest)
   }
 
 
@@ -183,7 +188,7 @@ class Client extends Sock {
     let {user, team, passkey} = this.state.data.config
     if (!user) return
 
-    let url = api_url + `/user/${user}/stats?team=${team}`
+    let url = util.api_url + `/user/${user}/stats?team=${team}`
     if (passkey) url += `&${passkey}`
 
     fetch(url)

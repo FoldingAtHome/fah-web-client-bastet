@@ -41,7 +41,6 @@ export default {
       show_key:        false,
       confirmed:       false,
       new_peers:       '',
-      api_url:         'https://api.foldingathome.org',
       team_app_url:    'https://apps.foldingathome.org/team',
       passkey_app_url: 'https://apps.foldingathome.org/getpasskey',
 
@@ -172,7 +171,7 @@ export default {
     if (this.data.config) this.init(this.data.config)
 
     if (!this.causes.length)
-      fetch(this.api_url + '/project/cause')
+      fetch(util.api_url + '/project/cause')
       .then(r => r.json())
       .then(data => {
         data[0] = 'any'

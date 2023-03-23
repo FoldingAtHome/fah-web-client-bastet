@@ -53,6 +53,8 @@ const store_timeout = 24 * 60 * 60 * 1000
 
 
 export default {
+  api_url:      'https://api.foldingathome.org',
+  download_url: 'https://foldingathome.org/beta/',
   _peerRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/),
 
 
@@ -221,6 +223,18 @@ export default {
   },
 
 
+  version_parse(v) {
+    if (typeof(v) == 'string') v = v.split('.')
+    if (v.length == 3) return v.map(x => parseInt(x))
+    return [0, 0, 0]
+  },
+
+
+  version_less(a, b) {
+    return this.version_parse(a) < this.version_parse(b)
+  },
+
+
   store(key, value, timeout = store_timeout) {
     localStorage.setItem(key, JSON.stringify(value))
     localStorage.setItem(key + '.__ts__', new Date().toISOString())
@@ -236,6 +250,16 @@ export default {
     } catch (e) {
       console.log(e)
     }
+  },
+
+
+  store_bool(key, value, timeout = store_timeout) {
+    this.store(key, !!value, timeout)
+  },
+
+
+  retrieve_bool(key, timeout = store_timeout) {
+    return !!this.retrieve(key, timeout)
   },
 
 

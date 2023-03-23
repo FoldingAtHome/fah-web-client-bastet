@@ -40,7 +40,8 @@ export default {
 
   data() {
     return {
-      clients: {'': new Client}
+      clients: {'': new Client},
+      util: util
     }
   },
 
@@ -242,12 +243,16 @@ body
       max-width 60em
       margin auto
 
-      a:visited, a:link
-        color header-fg
-
       a:hover
         text-decoration none
-        color link-color
+
+      .fah-logo
+        a:visited, a:link
+          color header-fg
+
+        a:hover
+          text-decoration none
+          color link-color
 
       button, h1, h2
         margin 0

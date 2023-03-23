@@ -27,11 +27,6 @@
 -->
 
 <script>
-import util from './util.js'
-
-const api_url = 'https://api.foldingathome.org'
-
-
 export default {
   props: ['project'],
 
