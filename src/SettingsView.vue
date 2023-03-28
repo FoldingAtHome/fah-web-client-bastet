@@ -56,11 +56,6 @@ export default {
   watch: {
     'client.state.data.config'(config) {
       if (config && !this.config) this.init(config)
-    },
-
-    min_cpus(value) {
-      if (this.config && this.config.cpus < value)
-        this.config.cpus = value
     }
   },
 
@@ -89,17 +84,7 @@ export default {
     },
 
 
-    max_cpus() {
-      if (!this.info) return 0
-      return this.info.cpus
-    },
-
-
-    min_cpus() {
-      let gpus = this.gpus_enabled
-      let cpus = this.max_cpus
-      return gpus < cpus ? gpus : cpus
-    },
+    max_cpus() {return this.info ? this.info.cpus : 0},
 
 
     gpus() {
@@ -188,7 +173,7 @@ export default {
         if (!this.config.gpus[name])
           this.config.gpus[name] = {enabled: false}
 
-      if (this.config.cpus < this.min_cpus) this.config.cpus = this.min_cpus
+      if (this.config.cpus < 0) this.config.cpus = 0
 
       if (this.config.cause)
         this.config.cause = this.config.cause.toLowerCase()
@@ -311,8 +296,8 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       label CPUs
       .cpus-input
         span {{config.cpus}} of {{max_cpus}}
-        input(v-model.number="config.cpus", type="range", :min="min_cpus",
-          :max="max_cpus", v-if="min_cpus < max_cpus")
+        input(v-model.number="config.cpus", type="range", :min="0",
+          :max="max_cpus", v-if="0 < max_cpus")
       div
 
       label GPUs
