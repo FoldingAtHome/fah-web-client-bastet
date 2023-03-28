@@ -217,7 +217,7 @@ export default {
       ]
 
       this.atom_materials = []
-      for (let i = 0; i < 6; i++)
+      for (let i = 0; i < specular.length; i++)
         this.atom_materials.push(
           new THREE.MeshPhongMaterial({
             shininess: shine[i], specular: specular[i], color: color[i]}))
@@ -272,9 +272,9 @@ export default {
 
     atom_type_from_number(number) {
       switch (number) {
-      case HYDROGEN: return 0
-      case CARBON:   return 1
-      case NITROGEN: return 2
+      case CARBON:   return 0
+      case HYDROGEN: case 3:  return 1 // Hack to fix OpenMM 0x22 viz
+      case NITROGEN: case 10: return 2 // Hack to fix OpenMM 0x22 viz
       case OXYGEN:   return 3
       case SULFUR:   return 4
       default:       return 5
@@ -282,7 +282,7 @@ export default {
     },
 
 
-    radius_from_type(type) {return 0.1 * [1.09, 1.7, 1.55, 1.52, 1.8, 1][type]},
+    radius_from_type(type) {return 0.1 * [1.7, 1.09, 1.55, 1.52, 1.8, 2][type]},
 
 
     number_from_name(name) {
@@ -321,22 +321,16 @@ export default {
 
     draw_atoms(index, draw_type) {
       let group = new THREE.Group()
-      let pos = this.positions[index]
-
-      // Find center
-      let center = new THREE.Vector3()
-      for (let p of pos) center.add(new THREE.Vector3(p[0], p[1], p[2]))
-      center.divideScalar(pos.length)
 
       // Count types
-      let atom_types = [0, 0, 0, 0, 0]
+      let atom_types = [0, 0, 0, 0, 0, 0]
       let atoms = this.topology.atoms
       for (let i = 0; i < atoms.length; i++)
         atom_types[this.get_atom_type(atoms[i])]++
 
       // Create meshes
       let meshes = []
-      for (let type = 0; type < 5; type++)
+      for (let type = 0; type < atom_types.length; type++)
         if (atom_types[type]) {
           let mesh = new THREE.InstancedMesh(
             this.get_atom_geometry(type, draw_type), this.atom_materials[type],
@@ -347,14 +341,14 @@ export default {
         }
 
       // Position atoms
+      let pos = this.positions[index]
       const m = new THREE.Matrix4()
-      atom_types = [0, 0, 0, 0, 0]
+      atom_types = [0, 0, 0, 0, 0, 0]
       for (let i = 0; i < atoms.length; i++) {
         let type = this.get_atom_type(atoms[i])
         if (!meshes[type]) continue
 
         let v = new THREE.Vector3(pos[i][0], pos[i][1], pos[i][2])
-        v.sub(center)
         m.makeTranslation(v.x, v.y, v.z)
         meshes[type].setMatrixAt(atom_types[type]++, m)
       }
@@ -414,6 +408,17 @@ export default {
 
       if (draw_type == 2 || draw_type == 3)
         group.add(this.draw_bonds(index))
+
+      // Find center
+      let pos = this.positions[index]
+      let center = new THREE.Vector3()
+      for (let p of pos) center.add(new THREE.Vector3(p[0], p[1], p[2]))
+      center.divideScalar(pos.length)
+
+      // Translate to center
+      group.translateX(-center.x)
+      group.translateY(-center.y)
+      group.translateZ(-center.z)
 
       return group
     },
