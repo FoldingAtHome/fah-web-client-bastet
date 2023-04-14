@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "publish": "vite build && rsync -r --progress dist/ fah:/var/www/app.foldingathome.org/html/"
   },
   "dependencies": {
     "three": "^0.143.0",
