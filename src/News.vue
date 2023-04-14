@@ -45,6 +45,23 @@ function get_featured_image(article, post) {
 }
 
 
+function shuffle_feed(feed) {
+  let result = []
+
+  while (feed.length) {
+    // Choose next article giving newer articles a higher probability
+    let r = Math.random()
+    let x = Math.floor(-Math.log(r) / Math.log(3 / 2))
+    let i = (r == 0 || feed.length <= x) ? 0 : x
+
+    result.push(feed[i])
+    feed.splice(i, 1)
+  }
+
+  return result
+}
+
+
 let authors = {}
 
 
@@ -88,12 +105,12 @@ export default {
 
     get_feed() {
       let feed = util.retrieve('fah-feed')
-      if (feed) return this.feed = feed
+      if (feed) return this.feed = shuffle_feed(feed)
 
       fetch(api_base + '/posts?context=embed')
         .then(r => r.json())
         .then(posts => {
-          this.feed = []
+          let feed = []
           let promises = []
 
           for (const post of posts) {
@@ -106,11 +123,13 @@ export default {
               date:        new Date(post.date).toDateString(),
               description: desc
             })
-            this.feed.push(article)
+            feed.push(article)
 
             promises.push(get_featured_image(article, post))
             promises.push(get_author(article, post))
           }
+
+          this.feed = shuffle_feed(feed)
 
           return Promise.all(promises)
         }).then(this.cache_feed)
