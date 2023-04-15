@@ -219,7 +219,6 @@ body
   margin 0
   width 100%
   background body-bg
-  padding-left calc(100vw - 100%)
 
   #app
     display flex
@@ -231,8 +230,7 @@ body
     color header-fg
     background header-bg
     min-height 8em
-    margin-left calc(100% - 100vw)
-    padding-left calc(100vw - 100%)
+    padding 0 1em
 
     .view-header
       padding 1em 0
