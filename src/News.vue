@@ -144,13 +144,11 @@ export default {
   h3(v-if="!feed.length") Loading...
 
   article(v-for="item in feed")
-    .content
-      a.title(:href="item.url", target="_blank"): h3(v-html="item.title")
-      .byline By #[span.author {{item.author}}] on #[span.date {{item.date}}].
-      p(v-html="item.description")
-
-    .image
-      a(:href="item.url", target="_blank"): img(:src="item.image")
+    a(:href="item.url", target="_blank"): img.image(:src="item.image")
+    a.title(:href="item.url", target="_blank"): h3(v-html="item.title")
+    .byline By #[span.author {{item.author}}] on #[span.date {{item.date}}].
+    p(v-html="item.description")
+    .clear
 </template>
 
 <style lang="stylus">
@@ -163,27 +161,27 @@ export default {
     padding 0 1em
     margin 1em auto
     max-width 60em
-    display flex
-    gap 1em
 
-    a h3
+    > .title h3
       color body-fg
 
       &:hover
         color link-color
 
-    .content
-      flex 1
+    > .byline
+      font-size 80%
+      margin-bottom 1em
 
-      > .byline
-        font-size 80%
-        margin-bottom 1em
+    > a .image
+      float right
+      max-width 20em
+      max-height 10em
+      margin 1em 0 1em 1em
 
-    > .image
-      width 20em
-      text-align right
+    > .clear
+      clear both
 
-      img
-        max-height 10em
-        margin 1em 0
+@media (max-width 650px)
+  .news-feed article > a .image
+    max-width 10em
 </style>

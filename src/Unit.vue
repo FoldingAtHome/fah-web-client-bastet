@@ -88,7 +88,7 @@ export default {
 
     unit_id() {
       if (this.wu)
-        return this.wu.run + ',' + this.wu.clone + ',' + this.wu.gen
+        return `Run ${this.wu.run} Clone ${this.wu.clone} Gen ${this.wu.gen}`
     },
 
 
@@ -182,20 +182,18 @@ Dialog(:buttons="dump_dialog_buttons", ref="dump_dialog")
 
 tr.unit
   td.peer {{peer}}
-  td
-    a(v-if="project", :href="project_url + project", target="_blank")
-      | {{project}}
+  td.project
+    a(v-if="project", :href="project_url + project", target="_blank",
+      :title="unit_id") {{project}}
 
-  td(title="Run, Clone, Gen") {{unit_id}}
-
-  td {{resources}}
+  td.resources {{resources}}
 
   td.status(:class="state.toLowerCase()")
     | #[.fa(:class="'fa-' + icon")] {{status}}
 
-  td {{eta}}
+  td.eta {{eta}}
 
-  td.progress-cell
+  td.progress-cell(:title="'ETA ' + eta")
     .progress
       .progress-bar(:style="{width: progress + '%'}")
       span {{progress}}%

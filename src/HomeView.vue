@@ -188,13 +188,12 @@ export default {
       table
         tr
           th.peer Peer
-          th Project
-          th Unit
+          th.project Project
           th.resources Resources
-          th Status
-          th ETA
-          th Progress
-          th Actions
+          th.status Status
+          th.eta ETA
+          th.progress-cell Progress
+          th.actions Actions
 
         template(v-for="(peer, peerID) in peers")
           template(v-for="client in [clients[peer]]")
@@ -315,4 +314,10 @@ export default {
 
   .news-feed, .projects
     margin-top 2em
+
+@media (max-width 800px)
+  .units
+    td, th
+      &.eta, &.resources
+        display none
 </style>

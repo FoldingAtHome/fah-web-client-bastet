@@ -107,11 +107,14 @@ Teleport(to="body")
   width 100vw
   height 100vh
   background overlay-bg
+  display grid
+  overflow auto
+  grid-template-rows 0.5fr min-content 1fr
+  grid-template-columns 1fr 30em 1fr
 
   .dialog
-    width 30em
-    margin 16% auto
-    min-height 10em
+    grid-column 2
+    grid-row 2
     background panel-bg
     box-shadow 3px 3px 12px #222
 

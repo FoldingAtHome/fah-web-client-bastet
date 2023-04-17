@@ -159,10 +159,9 @@ export default {
 </script>
 
 <template lang="pug">
-main
-  router-view(v-slot="{Component}")
-    keep-alive(include="HomeView")
-      component(:is="Component", :peers="peers", :clients="clients")
+router-view(v-slot="{Component}")
+  keep-alive(include="HomeView")
+    component(:is="Component", :peers="peers", :clients="clients")
 
 PauseDialog(ref="pause_dialog")
 LocationDialog(ref="location_dialog")
@@ -216,14 +215,14 @@ a.fa
     font-size 250%
 
 body
-  margin 0
   width 100%
+  margin 0
+  overflow-y scroll
   background body-bg
 
   #app
     display flex
     flex-direction column
-    width 100%
 
 .page-view
   .view-header-container
@@ -268,7 +267,7 @@ body
   .view-body
     margin auto
     max-width 60em
-    padding 1em 0
+    padding 1em
 
 @import('dark.styl')
 </style>
