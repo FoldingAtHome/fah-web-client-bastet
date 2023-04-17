@@ -162,7 +162,7 @@ export default {
     margin 1em auto
     max-width 60em
 
-    > .title h3
+    > .title
       color body-fg
 
       &:hover

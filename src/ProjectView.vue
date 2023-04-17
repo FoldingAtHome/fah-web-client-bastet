@@ -66,7 +66,7 @@ export default {
 <style lang="stylus">
 @import('colors.styl')
 
-.project
+.projects > .project
   border 1px solid border-color
   padding 1em
   margin 0.5em 0
