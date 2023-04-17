@@ -81,7 +81,7 @@ export default {
       let projects = {}
 
       for (let client of Object.values(this.clients))
-        if (client.state.data.units)
+        if (client.state.connected && client.state.data.units)
           for (let unit of client.state.data.units)
             if (unit.assignment)
               projects[unit.assignment.project] = true
@@ -198,8 +198,8 @@ export default {
         template(v-for="(peer, peerID) in peers")
           template(v-for="client in [clients[peer]]")
             Unit(v-for="unit in client.state.data.units",
-              v-if="client.state.data.units", :unit="unit", :client="client",
-              :peer="peer", :peerID="peerID")
+              v-if="client.state.connected && client.state.data.units",
+              :unit="unit", :client="client", :peer="peer", :peerID="peerID")
 
     ProjectsView(:ids="projects")
     News
