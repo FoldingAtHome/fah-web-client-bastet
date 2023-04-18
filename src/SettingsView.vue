@@ -242,16 +242,15 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
       label Fold Anonymously
       input(v-model="config.fold_anon", type="checkbox",
-        title="Fold without a username, team or passkey.")
+        title="Permit folding without a username, team or passkey.")
       div
 
       label Username
-      input(v-model="config.user", :disabled="config.fold_anon")
+      input(v-model="config.user")
       div
 
       label Team
-      input(v-model.number="config.team", type="number",
-        :disabled="config.fold_anon")
+      input(v-model.number="config.team", type="number")
 
       Button(text="New Team", icon="plus", :href="team_app_url",
         title="Create a new team.")
@@ -259,7 +258,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       label Passkey
       div
         input(v-model="config.passkey", pattern="[\da-fA-F]{31,32}",
-          :type="show_key ? 'text' : 'password'", :disabled="config.fold_anon")
+          :type="show_key ? 'text' : 'password'")
 
         Button.button-icon(:icon="'eye' + (show_key ? '' : '-slash')",
           @click="show_key = !show_key",

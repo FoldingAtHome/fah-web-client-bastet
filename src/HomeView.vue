@@ -71,8 +71,16 @@ export default {
     config() {return this.data.config || {}},
     stats()  {return this.clients[''].state.stats || {}},
 
+
+    is_anon() {
+      return !this.config.user || this.config.user.toLowerCase() == 'anonymous'
+    },
+
+
     user_url()  {return user_url + this.config.user},
     team_url()  {return team_url + this.config.team},
+
+
     team_name() {
       if (!this.config.team) return 'No team'
       return this.stats.team_name || this.config.team
@@ -80,10 +88,7 @@ export default {
 
 
     points_earned() {
-      if (!this.stats.earned || !this.config.user ||
-          this.config.user.toLowerCase() == 'anonymous')
-        return '—'
-
+      if (!this.stats.earned || this.is_anon) return '—'
       return this.stats.earned.toLocaleString()
     },
 
@@ -162,7 +167,7 @@ export default {
             v-if="config.team")
           a(:href="team_url", target="_blank") {{team_name}}
 
-      .points(v-if="stats.url")
+      .points(v-if="stats.url && !is_anon")
         label Points earned
         .user(title="Total points you've earned.") {{points_earned}}
 
