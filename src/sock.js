@@ -69,7 +69,10 @@ class Sock {
 
 
   _message(event) {this.on_message(JSON.parse(event.data))}
-  _timeout() {this.ws.close()}
+  _timeout() {this.close()}
+
+
+  close() {this.ws.close()}
 
 
   connect() {

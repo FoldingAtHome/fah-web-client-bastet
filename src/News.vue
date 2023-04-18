@@ -28,8 +28,7 @@
 
 <script>
 import {reactive} from 'vue'
-import Cookie from './cookie.js'
-import util   from './util.js'
+import util from './util.js'
 
 
 const api_base = 'https://foldingathome.org/wp-json/wp/v2'

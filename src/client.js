@@ -29,7 +29,6 @@
 import {reactive, watchEffect} from 'vue'
 import Sock   from './sock.js'
 import util   from './util.js'
-import Cookie from './cookie.js'
 
 const default_host = localStorage.getItem('client-host') || '127.0.0.1'
 const default_port = localStorage.getItem('client-port') || 7396
@@ -56,7 +55,7 @@ class Client extends Sock {
       connected:   false,
       log_enabled: false,
       viz_unit:    undefined,
-      stats:       new Cookie().get('stats', {}),
+      stats:       util.retrieve('fah-stats', 0),
       data:        {}
     })
 
@@ -83,8 +82,16 @@ class Client extends Sock {
 
 
   on_close(event) {
+    this._clear_ping()
     this.state.connected = false
+    this.state.data = {}
     if (this.watch_config_stop) this.watch_config_stop()
+  }
+
+
+  _clear_ping() {
+    if (this._ping_timer != undefined) clearTimeout(this._ping_timer)
+    delete this._ping_timer
   }
 
 
@@ -95,9 +102,19 @@ class Client extends Sock {
       this.state.data = msg
       this._update()
 
-    } else util.update(this.state.data, msg)
+    } else if (Array.isArray(msg))
+      util.update(this.state.data, msg)
 
     this.first = false
+
+    // Update keep alive timer
+    if (util.version_less('8.1.17', this.version())) {
+      this._clear_ping()
+      this._ping_timer = setTimeout(() => {
+        console.log(this.state.address + ': timedout')
+        this.close()
+      }, 30000)
+    }
   }
 
 
@@ -186,7 +203,7 @@ class Client extends Sock {
     if (!this.state.data.config) return
 
     let {user, team, passkey} = this.state.data.config
-    if (!user) return
+    if (!user || (user.toLowerCase() == 'anonymous' && !team)) return
 
     let url = util.api_url + `/user/${user}/stats?team=${team}`
     if (passkey) url += `&${passkey}`
@@ -199,7 +216,7 @@ class Client extends Sock {
         if (user == config.user && team == config.team &&
             passkey == config.passkey) {
           this.state.stats = data
-          new Cookie().set('stats', data)
+          util.store('fah-stats', data)
         }
       })
   }

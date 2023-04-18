@@ -34,7 +34,6 @@ import ProjectsView  from './ProjectsView.vue'
 import SliderSwitch  from './SliderSwitch.vue'
 import News          from './News.vue'
 import util          from './util.js'
-import Cookie        from './cookie.js'
 
 
 const team_url = 'https://stats.foldingathome.org/team/'
