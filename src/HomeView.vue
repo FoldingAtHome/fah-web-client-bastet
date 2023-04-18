@@ -74,14 +74,36 @@ export default {
 
     user_url()  {return user_url + this.config.user},
     team_url()  {return team_url + this.config.team},
-    team_name() {return this.stats.team_name || this.config.team},
+    team_name() {
+      if (!this.config.team) return 'No team'
+      return this.stats.team_name || this.config.team
+    },
+
+
+    points_earned() {
+      if (!this.stats.earned || !this.config.user ||
+          this.config.user.toLowerCase() == 'anonymous')
+        return '—'
+
+      return this.stats.earned.toLocaleString()
+    },
+
+
+    team_points() {
+      if (!this.config.team) return '—'
+
+      let contrib = util.human_number(this.stats.contributed)
+      let total   = util.human_number(this.stats.team_total)
+
+      return `${contrib} of ${total}`
+    },
 
 
     projects() {
       let projects = {}
 
       for (let client of Object.values(this.clients))
-        if (client.state.connected && client.state.data.units)
+        if (client.state.data.units)
           for (let unit of client.state.data.units)
             if (unit.assignment)
               projects[unit.assignment.project] = true
@@ -137,18 +159,16 @@ export default {
         .user #[a(:href="user_url", target="_blank") {{config.user}}]
         label for team
         .team
-          object.team-logo(:data="stats.team_urllogo", type="image/jpeg")
+          object.team-logo(:data="stats.team_urllogo", type="image/jpeg",
+            v-if="config.team")
           a(:href="team_url", target="_blank") {{team_name}}
 
       .points(v-if="stats.url")
         label Points earned
-        .user(title="Total points you've earned.").
-          {{stats.earned.toLocaleString()}}
+        .user(title="Total points you've earned.") {{points_earned}}
 
         label Team points
-        .team(title="Points you've contributed to the team.").
-          {{util.human_number(stats.contributed)}} of
-          {{util.human_number(stats.team_total)}}
+        .team(title="Points you've contributed to the team.") {{team_points}}
 
       .actions
         SliderSwitch(v-model="dark_mode", title="Enable dark mode.")
@@ -198,8 +218,8 @@ export default {
         template(v-for="(peer, peerID) in peers")
           template(v-for="client in [clients[peer]]")
             Unit(v-for="unit in client.state.data.units",
-              v-if="client.state.connected && client.state.data.units",
-              :unit="unit", :client="client", :peer="peer", :peerID="peerID")
+              v-if="client.state.data.units", :unit="unit", :client="client",
+              :peer="peer", :peerID="peerID")
 
     ProjectsView(:ids="projects")
     News
