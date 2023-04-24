@@ -84,20 +84,16 @@ export default {
 
   default_host() {
     let hostname = window.location.hostname
-    var lhost = null
-    if (hostname.endsWith('.local')) lhost = hostname
-    const host = localStorage.getItem('client-host') || lhost || '127.0.0.1'
-    return host
+    let lhost    = hostname.endsWith('.local') ? hostname : '127.0.0.1'
+    return localStorage.getItem('client-host') || lhost
   },
 
 
   default_port() {
     let hostname = window.location.hostname
-    var lport = null
-    if (hostname.endsWith('.local') || hostname == 'localhost')
-      lport = window.location.port
-    const port = localStorage.getItem('client-port') || lport || 7396
-    return port
+    let local    = hostname.endsWith('.local') || hostname == 'localhost'
+    let lport    = local ? window.location.port : 7396
+    return localStorage.getItem('client-port') || lport
   },
 
 
@@ -244,7 +240,7 @@ export default {
 
   version_parse(v) {
     if (typeof(v) == 'string') v = v.split('.')
-    if (v.length == 3) return v.map(x => parseInt(x))
+    if (v != undefined && v.length == 3) return v.map(x => parseInt(x))
     return [0, 0, 0]
   },
 
