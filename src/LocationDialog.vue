@@ -28,6 +28,7 @@
 
 <script>
 
+import util from './util.js'
 
 export default {
   data() {
@@ -50,8 +51,8 @@ export default {
 
 
     open(cb) {
-      const host = localStorage.getItem('client-host') || '127.0.0.1'
-      const port = localStorage.getItem('client-port') || 7396
+      const host = util.default_host()
+      const port = util.default_port()
       this.location = host + ':' + port
 
       this.$refs.dialog.open(result => {
