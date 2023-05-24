@@ -28,65 +28,16 @@
 
 <script>
 import ProjectView from './ProjectView.vue'
-import util from './util.js'
-
-const store_key = 'fah-v3-project-'
 
 
 export default {
-  props: ['ids'],
   components: {ProjectView},
-
-
-  data() {
-    return {
-      loading: {},
-      projects: {},
-    }
-  },
-
-
-  watch: {
-    ids() {this.update_all()}
-  },
-
-
-  mounted() {this.update_all()},
-
-
-  methods: {
-    update_all() {
-      for (let id of this.ids)
-        this.update(id)
-    },
-
-
-    update(id) {
-      if (this.projects[id] || this.loading[id]) return
-
-      let p = util.retrieve(store_key + id)
-      if (p && p.id == id) return this.projects[id] = p
-
-      this.loading[id] = true
-      fetch(util.api_url + '/project/' + id)
-        .then(r => r.json())
-        .then(data => {
-          if (!data.error) {
-            data.id = parseInt(id)
-            this.projects[id] = data
-            util.store(store_key + id, data)
-          }
-
-        }).finally(() => {
-          this.loading[id] = false
-        })
-    }
-  }
+  computed: {projects() {return this.$projects.get()}}
 }
 </script>
 
 <template lang="pug">
-.projects(v-if="Object.keys(projects).length")
+.projects(v-if="projects.length")
   h2 Projects
   ProjectView(v-for="project in projects", :project="project")
 </template>

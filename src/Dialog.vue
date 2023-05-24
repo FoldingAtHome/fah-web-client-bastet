@@ -36,35 +36,47 @@ export default {
 
   props: {
     buttons: {
+      type: Object,
       default(rawProps) {
-        return [{
-          name: 'Ok',
-          icon: 'check'
-        }, {
-          name: 'Cancel',
-          icon: 'times'
-        }]
+        return [
+          {name: 'Cancel', icon: 'times'},
+          {name: 'Ok',     icon: 'check', success: true}
+        ]
       }
     },
 
-    allowCancel: {type: Boolean, default: true},
-    zIndex: {type: Number, default: 100}
+    allowCancel:    {type: Boolean, default: true},
+    allowClickAway: {type: Boolean, default: false},
+    zIndex:         {type: Number,  default: 100},
+    class:          {},
+    width:          {default: '30em'}
   },
 
 
   data() {
-    return {
-      active: false
+    return {active: false}
+  },
+
+
+  computed: {
+    style() {
+      return {
+        'z-index': this.zIndex,
+        'grid-template-columns': `1fr ${this.width} 1fr`
+      }
     }
   },
 
 
   methods: {
-    open(resolve)  {
+    click_away() {if (this.allowClickAway) this.close('cancel')},
+
+
+    exec()  {
       if (this.active) return
       util.lock_scrolling()
       this.active = true
-      this.resolve = resolve
+      return new Promise(resolve => this.resolve = resolve)
     },
 
 
@@ -83,8 +95,8 @@ export default {
 
 <template lang="pug">
 Teleport(to="body")
-  .dialog-overlay(v-if="active", :style="{'z-index': zIndex}")
-    .dialog(@click.prevent.stop="true")
+  .dialog-overlay(v-show="active", @click="click_away", :style="style")
+    .dialog(@click.prevent.stop="true", :class="class")
       .dialog-header
         .dialog-header-slot: slot(name="header")
         .dialog-close(v-if="allowCancel", @click="close('cancel')")
@@ -127,6 +139,8 @@ Teleport(to="body")
       border-bottom 1px solid border-color
       display flex
       gap 0.5em
+      font-size 120%
+      font-weight bold
 
       > :first-child
         flex 1
@@ -143,6 +157,6 @@ Teleport(to="body")
       justify-content right
       gap 1em
 
-      button
+      a.button
         margin 0
 </style>

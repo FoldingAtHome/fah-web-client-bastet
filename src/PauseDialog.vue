@@ -39,7 +39,7 @@ export default {
 
 
   methods: {
-    open(cb) {this.$refs.dialog.open(cb)}
+    exec() {return this.$refs.dialog.exec()}
   }
 }
 </script>

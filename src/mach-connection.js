@@ -1,4 +1,4 @@
-<!--
+/******************************************************************************\
 
                   This file is part of the Folding@home Client.
 
@@ -24,29 +24,24 @@
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
--->
-
-<script>
-export default {
-  props: ['peerID', 'peers', 'clients'],
+\******************************************************************************/
 
 
-  computed: {
-    peer() {
-      let id = parseInt(this.peerID)
-      if (this.peers && id < this.peers.length) return this.peers[id]
-    },
+class MachConnection {
+  constructor(mach) {this.mach = mach}
+  destroy() {}
 
+  is_connected()  {return false}
+  is_direct()     {return false}
 
-    client() {return this.clients[this.peer]}
-  }
+  get_id()        {return this.mach.get_id()}
+
+  on_open()       {this.mach.on_open()}
+  on_close()      {this.mach.on_close()}
+  on_message(msg) {this.mach.on_message(msg)}
+
+  async send(msg) {}
+  close() {}
 }
-</script>
 
-<template lang="pug">
-.peer-view
-  router-view(v-if="client", :client="client")
-</template>
-
-<style lang="stylus">
-</style>
+export default MachConnection

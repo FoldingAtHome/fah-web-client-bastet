@@ -27,44 +27,81 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
-  name: 'ClientVersion',
-  props: ['mach'],
+  props: ['name'],
+  data() {return {hover: false}},
+
+  methods: {
+    enter() {
+      if (this.$root._help_balloon) this.$root._help_balloon.hover = false
+      this.$root._help_balloon = this
+      clearTimeout(this.timer)
+      this.hover = true
+    },
 
 
-  computed: {
-    latest()    {return this.$api.get_latest_version()},
-    version()   {return this.mach.get_version()},
-    outdated()  {return this.mach.is_outdated(this.latest)}
+    leave() {
+      this.timer = setTimeout(() => {
+        this.hover = false
+
+        if (this.$root._help_balloon == this)
+          delete this.$root._help_balloon
+      }, 500)
+    }
   }
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="$util.download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
-      | #[.fa.fa-exclamation-triangle] v{{version}}
-      |
-      | #[.fa.fa-exclamation-triangle]
-
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
-    | v{{version}}
+label.help-balloon(@mouseenter="enter", @mouseleave="leave")
+  | {{name}}
+  |
+  span
+    .fa(:class="hover ? 'fa-caret-left' : 'fa-question'")
+    .help-content(v-if="hover"): slot
 </template>
 
 <style lang="stylus">
 @import('colors.styl')
 
-.client-version
-  .outdated
-    text-decoration none
+.help-balloon
+  display inline-block
 
-    &:not(:hover)
-      color warn-color
+  > span
+    display inline-block
+    width 0.5em
 
-    .fa
-      font-size 10pt
+    > .fa
+      display inline-block
+      height 1em
+      vertical-align unset
+      font-size 100%
+      color border-color
+
+  > span > .fa-caret-left
+    transform scale(2.5)
+
+  .help-content
+    display inline-block
+    position absolute
+    margin-top -6px
+    margin-left 3px
+    font-size 12pt
+    white-space normal
+    text-align left
+    width 30em
+    max-width 80vw
+    font-weight normal
+    background #fff
+    border 1px solid border-color
+    border-radius 4px
+    padding 1em
+    box-shadow 4px 4px 8px #666
+    color initial
+
+    p:first-child
+      margin-top 0
+
+    p:last-child
+      margin-bottom 0
 </style>

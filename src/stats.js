@@ -1,4 +1,4 @@
-<!--
+/******************************************************************************\
 
                   This file is part of the Folding@home Client.
 
@@ -24,35 +24,46 @@
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
--->
+\******************************************************************************/
 
-<script>
-import util from './util'
-
-
-export default {
-  name: 'ButtonImpl',
-  props: ['name', 'text', 'icon', 'disabled', 'route'],
-  emits: ['click'],
+import {watchEffect, reactive} from 'vue'
+import util   from './util.js'
+import crypto from './crypto.js'
 
 
-  computed: {
-    content() {
-      return this.text == undefined ? util.capitalize(this.name) : this.text
-    }
-  },
+class Stats {
+  constructor(api, adata, timeout = 60 * 60 * 1000) {
+    this.api      = api
+    this.adata    = adata
+    this.data     = reactive({stats: {}})
+    this.timeout  = timeout
+    this.team_url = 'https://stats.foldingathome.org/team/'
+    this.user_url = 'https://stats.foldingathome.org/donor/'
+
+    watchEffect(() => this._update())
+  }
 
 
-  methods: {
-    click(event) {
-      if (this.route) this.$router.push(this.route)
-      else this.$emit('click', event)
-    }
+  get_data() {return this.data.stats}
+
+
+  async _update() {
+    // Update stats periodically (cached up to `timeout`)
+    setTimeout(() => this._update(), 60 * 1000)
+
+    let {name, team, passkey} = this.adata
+
+    if (!name || (name.toLowerCase() == 'anonymous' && !team))
+      return this.data.stats = {}
+
+    let path = `/user/${name}/stats`
+    let data = {team}
+    if (passkey) data.passkey = passkey
+
+    this.data.stats = await this.api.fetch({
+      path, data, action: 'Getting user stats', expire: this.timeout})
   }
 }
-</script>
 
-<template lang="pug">
-button(@click="click", :disabled="this.disabled").
-  #[.fa(v-if="icon", :class="'fa-' + icon")] {{content}}
-</template>
+
+export default Stats

@@ -27,44 +27,61 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
-  name: 'ClientVersion',
-  props: ['mach'],
+  data() {
+    return {
+      passphrase:  '',
+      show: false
+    }
+  },
 
 
   computed: {
-    latest()    {return this.$api.get_latest_version()},
-    version()   {return this.mach.get_version()},
-    outdated()  {return this.mach.is_outdated(this.latest)}
+    buttons() {
+      return [
+        {name: 'cancel', icon: 'times'},
+        {name: 'unlock', text: 'Unlock', icon: 'unlock', disabled: !this.valid}
+      ]
+    },
+
+
+    valid() {return 9 < this.passphrase.length}
+  },
+
+
+  methods: {
+    async exec() {
+      this.passphrase = ''
+      this.show = false
+      let result = await this.$refs.dialog.exec()
+      return {result, passphrase: this.passphrase}
+    }
   }
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="$util.download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
-      | #[.fa.fa-exclamation-triangle] v{{version}}
-      |
-      | #[.fa.fa-exclamation-triangle]
+Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
+  template(v-slot:header) Unlock Account Secret
+  template(v-slot:body)
+    .unlock-secret
+      fieldset.settings
+        label Passphrase
+        input(v-model="passphrase",
+          :type="show ? 'text' : 'password'")
 
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
-    | v{{version}}
+        div
+          Button.button-icon(:icon="'eye' + (show ? '' : '-slash')",
+            @click="show = !show",
+            :title="(show ? 'Hide' : 'Show') + ' passphrase'")
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
+.unlock-secret
+  display flex
+  flex-direction column
+  gap 1em
 
-.client-version
-  .outdated
-    text-decoration none
-
-    &:not(:hover)
-      color warn-color
-
-    .fa
-      font-size 10pt
+  fieldset.settings
+    border none
 </style>

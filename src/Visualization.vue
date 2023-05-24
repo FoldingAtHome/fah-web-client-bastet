@@ -30,7 +30,6 @@
 import * as THREE from 'three'
 import InfiniteGridHelper from './viewer/InfiniteGridHelper.js'
 import Sky from './viewer/Sky.js'
-import DetailsView from './DetailsView.vue'
 
 let HYDROGEN = 1
 let CARBON   = 6
@@ -44,7 +43,7 @@ function toRadians(angle) {return angle * (Math.PI / 180)}
 
 
 export default {
-  props: ['client', 'unitID'],
+  props: ['mach', 'unitID'],
 
 
   data() {
@@ -58,11 +57,8 @@ export default {
   },
 
 
-  components: {DetailsView},
-
-
   computed: {
-    data() {return this.client.state.data},
+    data()   {return this.mach.get_data()},
     target() {return this.$refs.canvas},
 
 
@@ -87,13 +83,13 @@ export default {
 
   mounted() {
     this.graphics()
-    this.client.visualize_unit(this.unitID)
+    this.mach.visualize_unit(this.unitID)
     this.load()
   },
 
 
   unmounted() {
-    this.client.visualize_unit()
+    this.mach.visualize_unit()
     window.removeEventListener('resize', this.update_view)
     window.removeEventListener('keyup',  this.on_key_up)
     window.cancelAnimationFrame(this.animate)
@@ -103,8 +99,6 @@ export default {
 
   methods: {
     load() {
-      if (this.positions == undefined) return
-
       this.draw()
       this.update_view()
       this.render()
@@ -131,7 +125,7 @@ export default {
 
 
     change_frame(frame) {
-      if (this.positions == undefined || !this.positions.length) return
+      if (this.positions == undefined || this.positions.length < 2) return
       if (this.positions.length <= frame) frame = 0
       if (frame < 0) frame = this.positions.length - 1
 
@@ -256,7 +250,7 @@ export default {
 
 
     get_dims() {
-      const width = this.target.clientWidth
+      const width  = this.target.clientWidth
       const height = this.target.clientHeight
       return {width, height}
     },
@@ -313,9 +307,12 @@ export default {
       if (draw_type == 2) radius /= 3
       if (draw_type == 3) radius = 0.025
 
-      let segs = draw_type == 1 ? 2 : 1
+      // Scale resolution based on number of atoms
+      let segs = (draw_type == 1 ? 2 : 1) * 8
+      if (this.topology.atoms.length < 10000) segs *= 2
+      if (this.topology.atoms.length < 1000)  segs *= 2
 
-      return new THREE.SphereBufferGeometry(radius, 16 * segs, 8 * segs)
+      return new THREE.SphereGeometry(radius, segs, segs)
     },
 
 
@@ -348,8 +345,7 @@ export default {
         let type = this.get_atom_type(atoms[i])
         if (!meshes[type]) continue
 
-        let v = new THREE.Vector3(pos[i][0], pos[i][1], pos[i][2])
-        m.makeTranslation(v.x, v.y, v.z)
+        m.makeTranslation(pos[i][0], pos[i][1], pos[i][2])
         meshes[type].setMatrixAt(atom_types[type]++, m)
       }
 
@@ -384,9 +380,15 @@ export default {
 
 
     draw_bonds(index) {
-      let pos = this.positions[index]
+      let pos   = this.positions[index]
       let bonds = this.topology.bonds
-      let geometry = new THREE.CylinderBufferGeometry(0.02, 0.02, 1, 8, 1, true)
+
+      // Scale resolution based on number of atoms
+      let segs = 4
+      if (this.topology.atoms.length < 10000) segs *= 2
+      if (this.topology.atoms.length < 1000)  segs *= 2
+
+      let geometry = new THREE.CylinderGeometry(0.01, 0.01, 1, segs, 1, true)
       let mesh =
           new THREE.InstancedMesh(geometry, this.bond_material, bonds.length)
 
@@ -394,7 +396,8 @@ export default {
       for (let i = 0; i < bonds.length; i++) {
         let a = pos[bonds[i][0]]
         let b = pos[bonds[i][1]]
-        mesh.setMatrixAt(i, this.get_bond_transform(a, b))
+        if (a != undefined && b != undefined)
+          mesh.setMatrixAt(i, this.get_bond_transform(a, b))
       }
 
       return mesh
@@ -427,24 +430,23 @@ export default {
     compute_bounds(index) {
       let bbox = new THREE.Box3(new THREE.Vector3, new THREE.Vector3)
 
-      for (let i = 0; i < this.topology.atoms.length; i++) {
-        let p = this.positions[index][i]
-        let v = new THREE.Vector3(p[0], p[1], p[2])
+      if (this.topology != undefined)
+        for (let i = 0; i < this.topology.atoms.length; i++) {
+          let p = this.positions[index][i]
+          let v = new THREE.Vector3(p[0], p[1], p[2])
 
-        bbox.expandByPoint(v)
-      }
+          bbox.expandByPoint(v)
+        }
 
       return bbox
     },
 
 
     draw() {
-      if (this.positions == undefined) return
-
       this.frame = 0
       this.protein.clear()
 
-      if (this.positions.length)
+      if (this.positions != undefined && this.positions.length)
         this.protein.add(this.draw_protein(0, this.draw_type))
 
       if (!this.camera.position.z) {
@@ -550,13 +552,11 @@ export default {
     .control
       label Frame:
       Button(@click="prev_frame", icon="chevron-left")
-      span {{frame + 1}} of {{frames}}
+      span {{frames ? frame + 1 : 0}} of {{frames}}
       Button(@click="next_frame", icon="chevron-right")
 
     .control
       Button(text="Close", icon="times", :route="{path: '/', replace: true}")
-
-  DetailsView(v-if="client", :id="unitID", :data="data")
 </template>
 
 <style lang="stylus">
@@ -597,13 +597,12 @@ export default {
     gap 2em
 
     .control
-      font-size 150%
       display flex
       gap 0.25em
       white-space nowrap
       align-items center
 
-      button
+      a.button
         margin 0
 
    .details-view

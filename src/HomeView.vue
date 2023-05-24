@@ -27,8 +27,8 @@
 -->
 
 <script>
-import ClientVersion from './ClientVersion.vue'
-import PeerRow       from './PeerRow.vue'
+import LoginDialog   from './LoginDialog.vue'
+import MachRow       from './MachRow.vue'
 import Unit          from './Unit.vue'
 import ProjectsView  from './ProjectsView.vue'
 import SliderSwitch  from './SliderSwitch.vue'
@@ -36,55 +36,37 @@ import News          from './News.vue'
 import util          from './util.js'
 
 
-const team_url = 'https://stats.foldingathome.org/team/'
-const user_url = 'https://stats.foldingathome.org/donor/'
-
-
 export default {
   name: 'HomeView',
-  props: ['clients', 'peers'],
-  components: {ClientVersion, PeerRow, Unit, News, ProjectsView, SliderSwitch},
+  components: {LoginDialog, MachRow, Unit, News, ProjectsView, SliderSwitch},
 
 
   data() {
     return {
-      util,
-      dark_mode: util.retrieve_bool('fah-dark-mode', 0),
-      latest_version: util.retrieve('fah-latest-version')
+      dark_mode: util.retrieve_bool('fah-dark-mode', 0)
     }
   },
 
 
   watch: {
     dark_mode(enabled) {
-      console.log(enabled)
       if (enabled) document.body.classList.add('dark')
       else document.body.classList.remove('dark')
 
-      util.store_bool('fah-dark-mode', enabled, 0)
+      util.store_bool('fah-dark-mode', enabled)
     }
   },
 
 
   computed: {
-    data()   {return this.clients[''].state.data},
-    config() {return this.data.config || {}},
-    stats()  {return this.clients[''].state.stats || {}},
-
-
-    is_anon() {
-      return !this.config.user || this.config.user.toLowerCase() == 'anonymous'
-    },
-
-
-    user_url()  {return user_url + this.config.user},
-    team_url()  {return team_url + this.config.team},
-
-
-    team_name() {
-      if (!this.config.team) return 'No team'
-      return this.stats.team_name || this.config.team
-    },
+    units()     {return [...this.$machs.get_units()]},
+    stats()     {return this.$stats.get_data()},
+    is_anon()   {return !this.name || this.name.toLowerCase() == 'anonymous'},
+    name()      {return this.$adata.name},
+    team()      {return this.$adata.team},
+    user_url()  {return this.$stats.user_url + this.name},
+    team_url()  {return this.$stats.team_url + this.team},
+    team_name() {return this.$stats.team_name || this.team},
 
 
     points_earned() {
@@ -94,139 +76,129 @@ export default {
 
 
     team_points() {
-      if (!this.config.team) return '—'
-
       let contrib = util.human_number(this.stats.contributed)
       let total   = util.human_number(this.stats.team_total)
 
       return `${contrib} of ${total}`
-    },
-
-
-    projects() {
-      let projects = {}
-
-      for (let client of Object.values(this.clients))
-        if (client.state.data.units)
-          for (let unit of client.state.data.units)
-            if (unit.assignment)
-              projects[unit.assignment.project] = true
-
-      return Object.keys(projects)
     }
   },
 
 
   mounted() {
     if (this.dark_mode) document.body.classList.add('dark')
-    this.check_version()
   },
 
 
   methods: {
-    check_version() {
-      if (this.latest_version != undefined) return
+    async login() {
+      let result = await this.$refs.login_dialog.exec()
 
-      fetch('https://download.foldingathome.org/?release=beta')
-        .then(r => r.json())
-        .then(downloads => {
-          for (let download of downloads)
-            for (let group of (download.groups || []))
-              for (let file of (group.files || []))
-                if (file.version != undefined && file.version.length == 3) try {
-                  let version = file.version.join('.')
-                  util.store('fah-latest-version', version)
-                  this.latest_version = version
-                  return
-                } catch (e) {}
-        })
+      switch (result.response) {
+      case 'login':    return this.$account.login_with_passphrase(result.data)
+      case 'register': return this.$account.register(result.data)
+      case 'cancel':   return
+      default:         return this.$account.login(result.response) // OAuth2
+      }
     },
 
 
-    fold() {for (let client of Object.values(this.clients)) client.fold()},
-    pause() {this.$root.pause(Object.values(this.clients))}
+    fold() {this.$root.fold()},
+    pause() {this.$root.pause()}
   }
 }
 </script>
 
 <template lang="pug">
-.home-view.page-view(:class="{'single-peer': peers.length < 2}")
+.home-view.page-view
   .view-header-container
     .view-header
       .logo-block
         FAHLogo
-        ClientVersion(v-if="peers.length == 1", :client="clients['']",
-          :latest="latest_version")
 
-      .user-info(v-if="config.user")
-        label Folding as
-        .user #[a(:href="user_url", target="_blank") {{config.user}}]
-        label for team
-        .team
-          object.team-logo(:data="stats.team_urllogo", type="image/jpeg",
-            v-if="config.team")
-          a(:href="team_url", target="_blank") {{team_name}}
+      .user-info(v-if="name")
+        template(v-if="is_anon")
+          label Folding anonymously
+
+        template(v-else)
+          label Folding as
+          .user #[a(:href="user_url", target="_blank") {{name}}]
+
+        template(v-if="team")
+          label for team
+          .team
+            object.team-logo(:data="stats.team_urllogo", type="image/jpeg")
+            a(:href="team_url", target="_blank") {{team_name}}
 
       .points(v-if="stats.url && !is_anon")
         label Points earned
         .user(title="Total points you've earned.") {{points_earned}}
 
-        label Team points
-        .team(title="Points you've contributed to the team.") {{team_points}}
+        template(v-if="team")
+          label Team points
+          .team(title="Points you've contributed to the team.") {{team_points}}
 
-      .actions
-        SliderSwitch(v-model="dark_mode", title="Enable dark mode.")
-        Button.button-icon(route="/0/settings", title="Settings", icon="cog",
-          v-if="peers.length == 1")
-        Button.button-icon(route="/0/log", title="Log", icon="list-alt",
-          v-if="peers.length == 1")
+      .actions(:class="{'icon-buttons': $adata.avatar}")
+        Button.button-image(v-if="$adata.avatar", route="/account",
+          :image="$adata.avatar",
+          :title="$adata.name + ': Account Settings and Logout.'")
+
+        Button(v-else-if="$adata.created", route="/account", icon="cog",
+          :title="$adata.name + ': Account Settings and Logout.'",
+          name="account")
+
+        Button(v-else, text="Login", icon="sign-in", @click="login",
+          title="Login to Folding@home or register a new account.")
+
+        SliderSwitch(v-model="dark_mode", title="Toggle dark mode.")
 
   .view-body
-    .control(v-if="peers.length == 1")
-      Button.button-success(v-if="config.paused", @click="fold", icon="play",
-        text="Start Folding")
-      Button(v-else, @click="pause", text="Pause Folding", icon="pause")
+    .control
+      Button.button-success(text="Start All", @click="fold", icon="play",
+        :disabled="$machs.is_empty()")
+      Button(text="Pause All", @click="pause", icon="pause",
+        :disabled="$machs.is_empty()")
 
-    .control(v-else)
-      Button.button-success(text="Start All", @click="fold", icon="play")
-      Button(text="Pause All", @click="pause", icon="pause")
-
-    .peers
-      h2 Peers
+    .machines
+      h2 Machines
 
       table
         tr
-          th.name Peer
-          th Status
-          th Version
-          th Resources
-          th Actions
+          th.name Name
+          th.version Version
+          th.resources Resources
+          th.actions Actions
 
-        template(v-for="(peer, peerID) in peers")
-          template(v-for="client in [clients[peer]]")
-            PeerRow(:client="client", :peerID="peerID",
-              :latest="latest_version")
+        MachRow(v-for="mach in $machs", :mach="mach")
+
+        tr.no-data(v-if="$machs.is_empty()")
+          td(colspan="100")
+            p No folding machines found.
+            p Login or install the Folding@home client software.
 
     .units
       h2 Work Units
       table
         tr
-          th.peer Peer
+          th.machine Machine
           th.project Project
           th.resources Resources
           th.status Status
+          th.progress Progress
           th.eta ETA
-          th.progress-cell Progress
           th.actions Actions
 
-        template(v-for="(peer, peerID) in peers")
-          template(v-for="client in [clients[peer]]")
-            Unit(v-for="unit in client.state.data.units",
-              v-if="client.state.data.units", :unit="unit", :client="client",
-              :peer="peer", :peerID="peerID")
+        template(v-for="mach in $machs")
+          Unit(v-for="unit in mach", :unit="unit", :mach="mach")
 
-    ProjectsView(:ids="projects")
+        tr.no-data(v-if="!units.length")
+          td(colspan="100")
+            p No work units.
+            p Start folding to download work units.
+
+    ProjectsView
     News
+
+  LoginDialog(ref="login_dialog")
 </template>
 
 <style lang="stylus">
@@ -234,7 +206,7 @@ export default {
 
 .home-view
   .view-header
-    > *:first-child, > *:last-child
+    > :first-child
       flex 1
 
     label
@@ -281,6 +253,24 @@ export default {
         max-height 24px
         margin-right 0.25em
 
+    .actions
+      display flex
+
+      a.button
+        padding 0.5em 0.75em
+
+      > *, a.button
+        width 8em !important
+
+      &.icon-buttons
+        a.button
+          padding 0
+
+        > *, a.button
+          width 48px !important
+          border-radius 4px
+          overflow hidden
+
   .control
     display flex
     justify-content center
@@ -292,14 +282,7 @@ export default {
       > h2, > h3
         text-align center
 
-  .peer
-    .status
-      color error-color
-
-    &.connected .status
-      color success-color
-
-  .units, .peers
+  .units, .machines
     margin 1em auto
     max-width 60em
 
@@ -312,29 +295,30 @@ export default {
     tr:nth-child(even)
       background table-even
 
+    th
+      color header-fg
+      background header-bg
+
     td, th
       text-align left
       border 1px solid border-color
       padding 0.25em 0.5em
       white-space nowrap
 
-    th
-      color header-fg
-      background header-bg
+      &.actions
+        display flex
+        gap 0.5em
 
-    .resources
-      width 100%
+        .button
+          text-align center
 
-    .actions
-      text-align right
+    .no-data
+      p
+        text-align center
+        margin 0.5em
 
-      > button
-        width 1.3em
-        margin 0.125em 0.25em
-
-  &.single-peer
-    .peers, .units td.peer, .units th.peer
-      display none
+  .machines .resources, .units .progress
+    width 100%
 
   .news-feed, .projects
     margin-top 2em

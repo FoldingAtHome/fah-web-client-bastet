@@ -26,6 +26,9 @@
 
 \******************************************************************************/
 
+import {ungzip} from 'pako'
+
+
 const colors = [
   '#000000',
   '#cd0000',
@@ -53,48 +56,8 @@ const store_timeout = 24 * 60 * 60 * 1000
 
 
 export default {
-  api_url:      'https://api.foldingathome.org',
   download_url: 'https://foldingathome.org/beta/',
-  _peerRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/),
-
-
-  parse_peer_address(address = '') {
-    let m = address.match(this._peerRE)
-    if (!m) return
-
-    return {
-      host: m[2],
-      port: m[3] ? parseInt(m[3].substring(1)) : undefined,
-      path: m[4]
-    }
-  },
-
-
-  make_peer_address(address, parent) {
-    let peer = this.parse_peer_address(address)
-    let rel  = this.parse_peer_address(parent)
-
-    let host = peer.host || rel.host || ''
-    let port = peer.port || rel.port
-    let path = peer.path || ''
-
-    return host + (port ? ':' + port : '') + path
-  },
-
-
-  default_host() {
-    let hostname = window.location.hostname
-    let lhost    = hostname.endsWith('.local') ? hostname : '127.0.0.1'
-    return localStorage.getItem('client-host') || lhost
-  },
-
-
-  default_port() {
-    let hostname = window.location.hostname
-    let local    = hostname.endsWith('.local') || hostname == 'localhost'
-    let lport    = local ? window.location.port : 7396
-    return localStorage.getItem('client-port') || lport
-  },
+  _addressRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/),
 
 
   update(data, update) {
@@ -114,8 +77,11 @@ export default {
     let key   = update[i++]
     let value = update[i]
 
-    if (Array.isArray(data) && key === -1) data.push(value)
-    else if (value === null) {
+    if (Array.isArray(data) && key < 0) {
+      if (key === -1) data.push(value)
+      else data.splice(data.length, 0, ...value)
+
+    } else if (value === null) {
       if (Array.isArray(data)) data.splice(key, 1)
       else delete data[key]
 
@@ -219,22 +185,35 @@ export default {
   capitalize(s) {return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''},
 
 
+  escapehtml(s) {
+    return s.replace(/[&<>"']/g, c => {
+      switch (c) {
+      case '&': return '&amp;'
+      case '<': return '&lt;'
+      case '>': return '&gt;'
+      case '"': return '&quot;'
+      case "'": return '&#039;'
+      }
+    })
+  },
+
+
   ansi2html(s) {
-    let m = s.match(/^\u001b\[(\d+)m(.*)\u001b\[0m$/)
-    if (!m) return s
+    return this.escapehtml(s).replace(
+      /\u001b\[(\d+)m(.*?)((\u001b\[0m)|$)/g, (s, m1, m2) => {
 
-    let c = parseInt(m[1])
-    let fg = true
+        let c = parseInt(m1)
+        let fg
 
-    if (30 <= c && c <= 37) c = colors[c - 30]
-    else if (40 <= c && c <= 47) {c = colors[c - 40]; fg = false}
-    else if (90 <= c && c <= 97) c = bright[c - 90]
-    else if (100 <= c && c <= 107) {c = colors[c - 100]; fg = false}
-    else return m[2]
+        if      ( 30 <= c && c <=  37) {c = colors[c -  30]; fg = true }
+        else if ( 40 <= c && c <=  47) {c = colors[c -  40]; fg = false}
+        else if ( 90 <= c && c <=  97) {c = bright[c -  90]; fg = true }
+        else if (100 <= c && c <= 107) {c = colors[c - 100]; fg = false}
+        else return m2
 
-    let style = (fg ? 'color' : 'background') + ':' + c
-
-    return '<font style="' + style + '">' + m[2] + '</font>'
+        let style = (fg ? 'color' : 'background') + ':' + c
+        return '<font style="' + style + '">' + m2 + '</font>'
+      })
   },
 
 
@@ -245,36 +224,67 @@ export default {
   },
 
 
-  version_less(a, b) {
-    return this.version_parse(a) < this.version_parse(b)
+  version_less(a, b) {return this.version_parse(a) < this.version_parse(b)},
+
+
+  remove(key) {
+    localStorage.removeItem(key)
+    localStorage.removeItem(key + '.__ts__')
   },
 
 
-  store(key, value, timeout = store_timeout) {
+  store(key, value) {
     localStorage.setItem(key, JSON.stringify(value))
     localStorage.setItem(key + '.__ts__', new Date().toISOString())
   },
 
 
-  retrieve(key, timeout = store_timeout) {
-    let ts = localStorage.getItem(key + '__ts__')
+  is_expired(key, timeout = store_timeout) {
+    if (!timeout) return false
+    let ts = localStorage.getItem(key + '.__ts__')
 
     try {
-      if (!timeout || Date.now() - new Date(ts).getTime() < timeout)
+      if (Date.now() - new Date(ts).getTime() < timeout) return false
+    } catch (e) {}
+
+    return true
+  },
+
+
+  retrieve(key, timeout = store_timeout) {
+    try {
+      if (!this.is_expired(key, timeout))
         return JSON.parse(localStorage.getItem(key))
-    } catch (e) {
-      console.log(e)
-    }
+    } catch (e) {console.log(e)}
   },
 
 
-  store_bool(key, value, timeout = store_timeout) {
-    this.store(key, !!value, timeout)
-  },
+  store_bool(key, value) {this.store(key, !!value)},
 
 
   retrieve_bool(key, timeout = store_timeout) {
     return !!this.retrieve(key, timeout)
+  },
+
+
+  uri_get(str, name, defaultValue) {
+    let regex   = new RegExp('((^[\\?#]?)|[&])' + name + '=([^&#]*)')
+    let results = regex.exec(str)
+
+    return results === null ?
+      (defaultValue === undefined ? '' : defaultValue) :
+      decodeURIComponent(results[3].replace(/\+/g, ' '))
+  },
+
+
+  query_get(name, defaultValue) {
+    return this.uri_get(location.search, name, defaultValue)
+  },
+
+
+  cookie_get(name) {
+    const parts = `; ${document.cookie}`.split(`; ${name}=`)
+    if (parts.length == 2) return parts.pop().split(';').shift()
   },
 
 
@@ -288,5 +298,58 @@ export default {
       return div(secs, 60 * 60) + 'h ' + mod(secs, 60 * 60) + 'm'
 
     return div(secs, 60 * 60 * 24) + 'd ' + mod(secs, 60 * 60 * 24) + 'h'
-  }
+  },
+
+
+  wrap(s, length) {
+    if (!length) return s
+
+    let chunks = []
+
+    for (let i = 0; i < Math.ceil(s.length / length); i++)
+      chunks.push(s.substr(i * length, length))
+
+    return chunks.join('\n')
+  },
+
+
+  _urlbase64_map: {'+': '-', '\/': '_', '=': ''},
+  _base64_map:    {'-': '+', '_': '\/'},
+
+
+  base64_encode(s, length) {return this.wrap(btoa(s), length)},
+
+
+  urlbase64_encode(s, length) {
+    s = this.base64_encode(s, length)
+    return s.replace(/[+\/=]/g, c => this._urlbase64_map[c])
+  },
+
+
+  base64_decode(s) {
+    return atob(s.replace(/[-_]/g, c => this._base64_map[c]))
+  },
+
+
+  str2buf(str) {return Uint8Array.from(str, c => c.codePointAt(0))},
+
+
+  buf2str(buf) {
+    let view   = new Uint8Array(buf)
+    let block  = 65535
+    let result = ''
+
+    for (let i = 0; i < view.length; i += block) {
+      if (view.length < i + block) block = view.length - i
+      result += String.fromCharCode.apply(null, view.subarray(i, i + block))
+    }
+
+    return result
+  },
+
+
+  async decompress(s, type) {
+    if (type != 'gzip') throw 'Unsupported compression type "' + type + '"'
+    return this.buf2str(ungzip(this.str2buf(s)))
+  },
 }

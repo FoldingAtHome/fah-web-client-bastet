@@ -27,7 +27,7 @@
 \******************************************************************************/
 
 class Sock {
-  constructor(url, timeout = 2000) {
+  constructor(url, timeout = 20000) {
     this.url = url
     this.timeout = timeout
     this.connected = false
@@ -40,13 +40,17 @@ class Sock {
   }
 
 
+  set_url(url) {this.url = url}
+  set_timeout(timeout) {this.timeout = timeout}
+
+
   on_message(msg) {console.log('WS:', msg)}
   on_open(event)  {}
   on_close(event) {}
   on_error(event) {}
 
 
-  _clear_timeout () {
+  _clear_timeout() {
     if (this.timer != undefined) clearTimeout(this.timer)
     this.timer = undefined
   }
@@ -64,10 +68,10 @@ class Sock {
     this.connected = false
     this.ws = undefined
     this.on_close(event)
-    this.connect()
   }
 
 
+  _error(event) {this.on_error(event)}
   _message(event) {this.on_message(JSON.parse(event.data))}
   _timeout() {this.close()}
 
@@ -80,25 +84,20 @@ class Sock {
 
     console.debug('Connecting to ' + this.url)
 
-    try {
-      this.ws = new WebSocket(this.url)
+    this.ws = new WebSocket(this.url)
 
-      this.ws.addEventListener('open',    e => this._open(e))
-      this.ws.addEventListener('close',   e => this._close(e))
-      this.ws.addEventListener('error',   e => this.on_error(e))
-      this.ws.addEventListener('message', e => this._message(e))
+    this.ws.onopen    = e => this._open(e)
+    this.ws.onclose   = e => this._close(e)
+    this.ws.onerror   = e => this._error(e)
+    this.ws.onmessage = e => this._message(e)
 
-      this.timer = setTimeout(() => this._timeout(), this.timeout)
-    } catch (e) {console.error('Connection failed', e)}
+    this.timer = setTimeout(() => this._timeout(), this.timeout)
   }
 
 
   send(msg) {
-    if (this.connected) {
-      console.debug('Sending:', msg)
-      this.ws.send(JSON.stringify(msg))
-
-    } else console.debug('Cannot send message, not connected:', msg)
+    if (this.connected) this.ws.send(JSON.stringify(msg))
+    else console.debug('Cannot send message, not connected:', msg)
   }
 }
 

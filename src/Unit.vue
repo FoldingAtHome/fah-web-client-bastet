@@ -28,6 +28,7 @@
 
 <script>
 import util from './util.js'
+import UnitDetailsDialog from './UnitDetailsDialog.vue'
 
 
 const status = {
@@ -56,18 +57,15 @@ const icons = {
 
 
 export default {
-  props: ['unit', 'client', 'peer', 'peerID'],
+  props: ['unit', 'mach'],
+  components: {UnitDetailsDialog},
 
 
   data() {
     return {
       project_url: 'https://stats.foldingathome.org/project/',
       waiting: false,
-      wait_progress: 0,
-      dump_dialog_buttons: [
-        {name: 'cancel', icon: 'times'},
-        {name: 'dump', icon: 'trash'}
-      ]
+      wait_progress: 0
     }
   },
 
@@ -78,6 +76,10 @@ export default {
 
 
   computed: {
+    info()     {return this.mach.get_info()},
+    disabled() {return !this.mach.is_connected()},
+
+
     project() {
       if (this.unit.assignment) return this.unit.assignment.project
     },
@@ -95,18 +97,20 @@ export default {
     resources() {
       let l = []
 
-      if (this.unit.gpus)
-        for (let i = 0; i < this.unit.gpus.length; i++)
-          l.push(this.unit.gpus[i])
+      if (this.unit.cpus) l.push('cpu:' + this.unit.cpus)
 
-      l.push('cpu:' + this.unit.cpus)
+      if (this.unit.gpus && this.info.gpus)
+        for (let i = 0; i < this.unit.gpus.length; i++) {
+          let id = this.unit.gpus[i]
+          if (this.info.gpus[id]) l.push(id)
+        }
 
       return l.join(' ')
     },
 
 
     paused() {return !!this.unit['pause-reason']},
-    config() {return this.client.state.data.config || {}},
+    config() {return this.mach.get_data().config || {}},
 
 
     state() {
@@ -142,7 +146,7 @@ export default {
     },
 
 
-    can_dump() {return this.paused || this.waiting}
+    can_dump() {return (this.paused || this.waiting) && !this.disabled}
   },
 
 
@@ -150,10 +154,13 @@ export default {
 
 
   methods: {
-    dump(id) {
-      this.$refs.dump_dialog.open(result => {
-        if (result == 'dump') this.client.dump(id)
-      })
+    async dump(id) {
+      let result = await this.$root.message(
+        'confirm', 'Dump Work Unit?',
+        'Are you sure you want to dump this Work Unit.  All progress on this ' +
+        'Work Unit will be lost and no points will be awarded.')
+
+      if (result == 'dump') this.mach.dump(id)
     },
 
 
@@ -168,20 +175,19 @@ export default {
         this.wait_progress = 1 - (t - now) / 1000 / this.unit.delay
         setTimeout(this.update_wait, 250)
       }
-    }
+    },
+
+
+    show_details() {this.$refs.details_dialog.exec()}
   }
 }
 </script>
 
 <template lang="pug">
-Dialog(:buttons="dump_dialog_buttons", ref="dump_dialog")
-  template(v-slot:header) Dump Work Unit?
-  template(v-slot:body).
-    Are you sure you want to dump this Work Unit.  All progress on this
-    Work Unit will be lost and no points will be granted.
+UnitDetailsDialog(ref="details_dialog", :unit="unit")
 
-tr.unit
-  td.peer {{peer}}
+tr.unit(:class="{disabled: disabled}", :title="disabled ? 'Disconnected' : ''")
+  td.name {{mach.get_name()}}
   td.project
     a(v-if="project", :href="project_url + project", target="_blank",
       :title="unit_id") {{project}}
@@ -191,66 +197,76 @@ tr.unit
   td.status(:class="state.toLowerCase()")
     | #[.fa(:class="'fa-' + icon")] {{status}}
 
-  td.eta {{eta}}
-
   td.progress-cell(:title="'ETA ' + eta")
     .progress
       .progress-bar(:style="{width: progress + '%'}")
       span {{progress}}%
 
+  td.eta {{eta}}
+
   td.actions
     Button.button-icon(:disabled="!can_dump", @click="dump(unit.id)",
       icon="trash", title="Dump this Work Unit.")
 
-    Button.button-icon(:route="'/' + peerID + '/log?q=:WU' + unit.number + ':'",
+    Button.button-icon(:disabled="disabled",
+      :route="mach.get_url('/log?q=:WU' + unit.number + ':')",
       icon="list-alt", title="View Work Unit log.")
 
-    Button.button-icon(:route="'/' + peerID + '/view/' + unit.id", icon="eye",
-      :disabled="!unit.wu", title="View 3D protein and Work Unit details.")
+    Button.button-icon(@click="show_details", icon="info-circle",
+      :disabled="!unit.wu", title="View Work Unit details.")
+
+    Button.button-icon(
+      :route="mach.get_url('/view/' + unit.id)", icon="eye",
+      :disabled="!unit.wu || disabled", title="View 3D protein.")
 </template>
 
 <style lang="stylus">
 @import('./colors.styl')
 
-.status.run, .status.finish
-  .fa
-    color green
-    animation spin 4s linear infinite
+.unit
+  &.disabled
+    color #666
+    background #aaa !important
 
-@keyframes spin
-  100%
-    transform rotate(360deg)
+  .status.run, .status.finish
+    .fa
+      color green
+      animation spin 4s linear infinite
 
-.progress-cell
-  width 100%
+  @keyframes spin
+    100%
+      transform rotate(360deg)
 
-.progress
-  position relative
-  height 1.3rem
-  width 100%
-  border-radius .25rem
-  overflow hidden
-  font-size 1.1rem
-  background #aaa
-  color #fff
-
-  .progress-bar
-    height 100%
-    display flex
-    color #fff
-    text-align center
-    white-space nowrap
-    background-color green
-    transition width .6s ease
-    background-image linear-gradient(45deg, rgba(255,255,255,.15) 25%,
-      transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%,
-      rgba(255,255,255,.15) 75%, transparent 75%, transparent)
-    background-size 1rem 1rem
-
-  > span
-    position absolute
-    top 0
+  .progress-cell
     width 100%
-    text-align center
-    z-index 2
+
+  .progress
+    position relative
+    height 1.3rem
+    width 100%
+    border-radius .25rem
+    overflow hidden
+    font-size 1.1rem
+    background #aaa
+    color #fff
+
+    .progress-bar
+      height 100%
+      display flex
+      color #fff
+      text-align center
+      white-space nowrap
+      background-color green
+      transition width .6s ease
+      background-image linear-gradient(45deg, rgba(255,255,255,.15) 25%,
+        transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%,
+        rgba(255,255,255,.15) 75%, transparent 75%, transparent)
+      background-size 1rem 1rem
+
+    > span
+      position absolute
+      top 0
+      width 100%
+      text-align center
+      z-index 2
 </style>
