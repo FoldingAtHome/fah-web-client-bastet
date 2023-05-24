@@ -25,40 +25,64 @@
                           joseph@cauldrondevelopment.com
 
 \******************************************************************************/
-
-// Author: Fyrestar https://mevedia.com
-// (https://github.com/Fyrestar/THREE.InfiniteGridHelper)
-import * as THREE from 'three'
-import vertexShader   from './grid.vert?raw'
-import fragmentShader from './grid.frag?raw'
+import {watchEffect, reactive} from 'vue'
+import util from './util.js'
 
 
-class InfiniteGridHelper extends THREE.Mesh {
-  constructor(size1 = 10, size2 = 100, color = new THREE.Color('#888'),
-              distance = 8000) {
-    const matrix =
-          new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), 1)
-    matrix.premultiply(new THREE.Matrix4().makeTranslation(0, -100, 0))
+class Projects {
+  constructor(api, machs, timeout = 24 * 60 * 60 * 1000) {
+    this.api      = api
+    this.machs    = machs
+    this.loading  = {}
+    this.projects = reactive({})
+    this.timeout  = timeout
+    watchEffect(() => this._update())
+  }
 
-    const geometry = new THREE.PlaneGeometry(2, 2, 1, 1)
-    const material = new THREE.ShaderMaterial({
-      side: THREE.DoubleSide,
-      transparent: true,
-      vertexShader,
-      fragmentShader,
-      extensions: {derivatives: true},
-      uniforms: {
-        uMatrix: new THREE.Uniform(matrix),
-        uSize1: {value: size1},
-        uSize2: {value: size2},
-        uColor: {value: color},
-        uDistance: {value: distance}
+
+  get() {return Object.values(this.projects)}
+
+
+  _update() {
+    let projects = {}
+
+    for (let mach of this.machs)
+      if (mach.get_data().units)
+        for (let unit of mach.get_data().units)
+          if (unit.assignment) projects[unit.assignment.project] = true
+
+    this._load_all(Object.keys(projects))
+
+    // Remove old projects
+    for (let id of Object.keys(this.projects))
+      if (!projects[id]) delete this.projects[id]
+  }
+
+
+  async _load_all(ids) {
+    for (let id of ids) try {await this._load(id)} catch(e) {}
+  }
+
+
+  async _load(id) {
+    if (this.projects[id] || this.loading[id]) return
+
+    this.loading[id] = true
+    try {
+      let url = this.api.url + '/project/' + id
+      let data = await this.api.fetch({
+        path: '/project/' + id, expire: 0,
+        action: 'Downloading project description.',
+        error_cb: () => false // Don't show error message
+      })
+
+      if (!data.error) {
+        data.id = parseInt(id)
+        this.projects[id] = data
       }
-    })
 
-    super(geometry, material)
-    this.frustumCulled = false
+    } finally {this.loading[id] = false}
   }
 }
 
-export default InfiniteGridHelper
+export default Projects

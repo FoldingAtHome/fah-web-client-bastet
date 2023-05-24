@@ -1,4 +1,4 @@
-<!--
+/******************************************************************************\
 
                   This file is part of the Folding@home Client.
 
@@ -24,33 +24,35 @@
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
--->
-
-<script>
-export default {
-  data() {
-    return {
-      buttons: [
-        {name: 'fold',   text: 'Fold Anonymously', icon: 'play'},
-        {name: 'config', text: 'Change Settings',  icon: 'cog'}
-      ]
-    }
-  },
+\******************************************************************************/
 
 
-  methods: {
-    open(cb) {this.$refs.dialog.open(cb)}
+class Cache {
+  constructor(name, timeout) {
+    this.name    = name
+    this.timeout = timeout
+  }
+
+
+  async set(key, value) {
+    if (!this.cache) this.cache = await caches.open(this.name)
+    let data = {ts: new Date().toISOString(), value}
+    await this.cache.put(key, new Response(JSON.stringify(data)))
+  }
+
+
+  async get(key, timeout) {
+    if (!this.cache) this.cache = await caches.open(this.name)
+    if (timeout == undefined) timeout = this.timeout
+
+    let res = await this.cache.match(key)
+    if (!res) return
+    let data = await res.json()
+
+    if (!timeout || Date.now() - new Date(data.ts).getTime() < timeout)
+      return data.value
   }
 }
-</script>
 
-<template lang="pug">
-Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
-  template(v-slot:header) Fold Anonymously?
-  template(v-slot:body)
-    p You have not yet configured a #[b username], #[b team] or #[b passkey].
-    p Would you prefer to fold anonymously or change your settings now?
-</template>
 
-<style lang="stylus">
-</style>
+export default Cache

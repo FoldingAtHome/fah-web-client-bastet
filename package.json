@@ -5,10 +5,12 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "publish": "vite build && rsync -r --progress dist/ fah:/var/www/app.foldingathome.org/html/"
+    "publish": "vite build && rsync -r --progress dist/ fah:/var/www/app.foldingathome.org/html/",
+    "alpha": "vite build && rsync -r --progress dist/ fah:/var/www/alpha.foldingathome.org/html/"
   },
   "dependencies": {
     "npm-check-updates": "^16.10.8",
+    "pako": "^2.1.0",
     "three": "^0.151.3",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"

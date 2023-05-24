@@ -12,8 +12,7 @@ conf = env.CBConfigure()
 
 with open('package.json', 'r') as f: package_info = json.load(f)
 
-version = package_info['version']
-env.Replace(PACKAGE_VERSION = version)
+env.Replace(PACKAGE_VERSION = package_info['version'])
 env.Replace(dist_build = '')
 conf.Finish()
 

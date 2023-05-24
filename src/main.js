@@ -26,17 +26,61 @@
 
 \******************************************************************************/
 
-import {createApp} from 'vue'
-import App     from './App.vue'
-import router  from './router'
-import Button  from './Button.vue'
-import Dialog  from './Dialog.vue'
-import FAHLogo from './FAHLogo.vue'
+import {createApp}    from 'vue'
+import App            from './App.vue'
+import router         from './router'
+import Button         from './Button.vue'
+import Dialog         from './Dialog.vue'
+import HelpBalloon    from './HelpBalloon.vue'
+import FAHLogo        from './FAHLogo.vue'
+import ClientVersion  from './ClientVersion.vue'
+import Cache          from './cache.js'
+import API            from './api.js'
+import Account        from './account.js'
+import util           from './util.js'
+import crypto         from './crypto.js'
+import Node           from './node.js'
+import Machines       from './machines.js'
+import Stats          from './stats.js'
+import Projects       from './projects.js'
+import News           from './news.js'
+import DirectMachConn from './direct-mach-conn.js'
 
 
-const app = createApp(App);
-app.use(router)
-app.component('Button',  Button)
-app.component('Dialog',  Dialog)
-app.component('FAHLogo', FAHLogo)
-app.mount('#app');
+async function main(url) {
+  const cache   = new Cache('fah')
+  const api     = new API(url, cache)
+  const account = new Account(api)
+  const adata   = await account.try_login()
+  const machs   = new Machines(api, account)
+  const app     = createApp(App);
+  const global  = app.config.globalProperties
+
+  console.debug({account: Object.assign({}, adata)})
+
+  global.$util     = util
+  global.$crypto   = crypto
+  global.$adata    = adata
+  global.$account  = account
+  global.$api      = api
+  global.$machs    = machs
+  global.$node     = new Node(account, machs)
+  global.$projects = new Projects(api, machs)
+  global.$stats    = new Stats(api, adata)
+  global.$news     = new News(cache)
+
+  new DirectMachConn(machs, 'local', '127.0.0.1:7396')
+
+  app.use(router)
+  app.component('Button',        Button)
+  app.component('Dialog',        Dialog)
+  app.component('HelpBalloon',   HelpBalloon)
+  app.component('FAHLogo',       FAHLogo)
+  app.component('ClientVersion', ClientVersion)
+  app.mount('#app')
+}
+
+
+if (fah_build_mode == 'development')
+  main('http://localhost:7000')
+else main('https://api.foldingathome.org')

@@ -27,132 +27,54 @@
 -->
 
 <script>
-import util           from './util.js'
-import Client         from './client.js'
-import PauseDialog    from './PauseDialog.vue'
-import LocationDialog from './LocationDialog.vue'
-import FoldAnonDialog from './FoldAnonDialog.vue'
+import util             from './util.js'
+import PauseDialog      from './PauseDialog.vue'
+import NewAccountDialog from './NewAccountDialog.vue'
+import MessageDialog    from './MessageDialog.vue'
 
 
 export default {
-  components: {PauseDialog, LocationDialog, FoldAnonDialog},
-
-
-  data() {
-    return {
-      clients: {'': new Client},
-      util: util
-    }
-  },
-
-
-  computed: {
-    config_available() {
-      return this.connected && this.clients[''].state.data.config
-    },
-
-
-    connected() {return this.clients[''].state.connected},
-
-
-    peers() {
-      let peers   = {}
-      let clients = this.clients
-
-      function add_peer(address) {
-        if (peers[address]) return
-        peers[address] = true
-
-        let client = clients[address]
-        if (client) {
-          if (client.state.path) return // Not a root client
-
-          let config = client.state.data.config
-          if (config)
-            for (let peer of config.peers) try {
-              add_peer(util.make_peer_address(peer, address))
-            } catch(e) {console.log(e)}
-        }
-      }
-
-      add_peer('')
-
-      return Object.keys(peers).sort()
-    }
-  },
+  components: {PauseDialog, NewAccountDialog, MessageDialog},
 
 
   watch: {
-    connected(ok) {
-      if (ok) util.unlock_scrolling()
-      else util.lock_scrolling()
-    },
-
-
-    config_available(ok) {if (ok) this.check_fold_anon()},
-
-
-    peers(peers) {
-      // Add new peers
-      for (let address of peers)
-        this.add_client(address)
-
-      // Remove deleted peers
-      let addrs = Object.keys(this.clients)
-      for (let i = 1; i < addrs.length; i++) {
-        let address = addrs[i]
-
-        if (peers.indexOf(address) == -1) {
-          console.debug('Removing client', address)
-          this.clients[address].destroy()
-          delete this.clients[address]
-        }
-      }
-    }
+    '$adata.unlocked'(unlocked) {if (unlocked) this.$node.login()},
   },
 
 
-  mounted() {util.lock_scrolling()},
+  mounted() {
+    this.$api.set_error_handler(this.error_handler)
+    this.check_account()
+  },
 
 
   methods: {
-    add_client(address) {
-      if (!this.clients[address]) {
-        console.debug('Adding client', address)
-        this.clients[address] = new Client(address)
-      }
+    async message(type, title, body, buttons) {
+      return this.$refs.message_dialog.exec(type, title, body, buttons)
     },
 
 
-    pause(clients) {
-      let active = []
+    error_handler(action, error) {
+      if (error == 'User disabled')
+        return this.message(
+          'error', 'Account not active',
+          'Please verify your email address to activate your account.')
 
-      for (let client of clients) {
-        if (client.is_active()) active.push(client)
-        else client.pause()
-      }
-
-      if (active.length)
-        this.$refs.pause_dialog.open(result => {
-          for (let client of active)
-            switch (result) {
-            case 'pause':  client.pause();  break
-            case 'finish': client.finish(); break
-            }
-        })
+      this.message('error', action + ' failed', error)
     },
 
 
-    check_fold_anon() {
-      let client = this.clients['']
+    async check_account() {
+      let dialog = this.$refs.new_account_dialog
+      return this.$account.check(dialog.exec, () => {this.$node.login()})
+    },
 
-      if (this.connected && client.waiting_for_config())
-        this.$refs.fold_anon_dialog.open(result => {
-          switch (result) {
-          case 'fold':   client.fold_anon();               break
-          case 'config': this.$router.push('/0/settings'); break
-          }
-        })
+
+    fold() {this.$machs.fold()},
+
+
+    async pause(machs) {
+      this.$machs.pause(this.$refs.pause_dialog.exec, machs)
     }
   }
 }
@@ -161,14 +83,11 @@ export default {
 <template lang="pug">
 router-view(v-slot="{Component}")
   keep-alive(include="HomeView")
-    component(:is="Component", :peers="peers", :clients="clients")
+    component(:is="Component")
 
 PauseDialog(ref="pause_dialog")
-LocationDialog(ref="location_dialog")
-FoldAnonDialog(ref="fold_anon_dialog")
-
-Teleport(to="body")
-  .connecting(v-if="!connected"): h2 Connecting...
+NewAccountDialog(ref="new_account_dialog")
+MessageDialog(ref="message_dialog")
 </template>
 
 <style lang="stylus">
@@ -198,21 +117,13 @@ a.fa
   &:hover
     text-decoration none
 
-.connecting
-  top 0
-  left 0
-  position absolute
-  width 100vw
-  height 100vh
-  background overlay-bg
-  display flex
-  justify-content center
-  align-items center
-  z-index 1000
+tt
+  background rgba(0, 0, 0, 0.05)
+  padding 0 0.25em
 
-  > *
-    color overlay-fg
-    font-size 250%
+input:invalid
+  outline none
+  box-shadow 0 0 1px 2px #f44
 
 body
   width 100%
@@ -232,7 +143,7 @@ body
     padding 0 1em
 
     .view-header
-      padding 1em 0
+      padding 1em
       display flex
       flex-wrap wrap
       gap 4em
@@ -251,23 +162,73 @@ body
           text-decoration none
           color link-color
 
-      button, h1, h2
+      a.button, h1, h2
         margin 0
 
       .actions
+        flex 1
+        align-items end
         display flex
         gap 0.25em
         flex-direction column
-        align-items end
-        font-size 150%
 
         .fa:not(:hover)
           color header-fg
+
+        a.button
+          width 8em
 
   .view-body
     margin auto
     max-width 60em
     padding 1em
+
+fieldset
+  background panel-bg
+  border-radius 4px
+  max-width 60em
+  margin 0 auto 1em auto
+  padding 2em 1em
+
+  &.settings
+    background panel-bg
+    border-radius 4px
+    display grid
+    gap 1em
+    align-items center
+    grid-template-columns 10em 1fr 10em
+
+    > a.button
+      margin 0
+      width 100%
+      text-align left
+
+  legend
+    font-size 125%
+    font-weight bold
+
+  label
+    font-weight bold
+    text-align right
+    white-space nowrap
+
+  > div
+    display flex
+    gap 1em
+    align-items center
+
+  input, select
+    width 100%
+    max-width 45em
+
+  input[type=checkbox]
+    width 1em
+
+  select, option
+    text-transform capitalize
+
+.dialog-body fieldset.settings
+    grid-template-columns auto 1fr auto
 
 @import('dark.styl')
 </style>

@@ -44,42 +44,50 @@ export default {
 </script>
 
 <template lang="pug">
-label.slider-switch
+.slider-switch
   input(type="checkbox", v-model="value")
-  span: .fa(:class="'fa-' + (modelValue ? 'moon-o' : 'sun-o')")
+  .slider-handle: .fa(:class="'fa-' + (modelValue ? 'moon-o' : 'sun-o')")
 </template>
 
 <style lang="stylus">
+handle-size = 1.75em
+
 .slider-switch
   position relative
-  display inline-block
-  width 44px
-  height 24px
-
-  input
-    opacity 0
-    width 0
-    height 0
+  display flex
+  flex-direction column
+  background-color #666
+  height handle-size
 
   .fa
-    font-size 16pt
-    transform translate(-9px, -4.5px)
-    transition .4s
+    font-size 14pt
 
-  input:checked + span
-    background-color #000
-
-    .fa
-      transform translate(10px, -4.5px)
-
-  span
+  input
     position absolute
-    cursor pointer
+    display block
+    width 100%
+    height 100%
     top 0
+    bottom 0
     left 0
     right 0
-    bottom 0
+    opacity 0
+    z-index 100
+    cursor pointer
+
+  .slider-handle
+    position absolute
+    left 0
+    transition .4s
+    display flex
     background-color #999
     transition .4s
-    border-radius 10px
+    align-items center
+    justify-content center
+    width handle-size
+    height 100%
+
+  input:checked + .slider-handle
+    background-color #000
+    left "calc(100% - %s)" % handle-size
 </style>

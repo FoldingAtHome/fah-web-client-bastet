@@ -32,7 +32,7 @@ import util from './util.js'
 
 export default {
   name: 'LogView',
-  props: ['client', 'query'],
+  props: ['mach', 'query'],
 
 
   data() {
@@ -40,8 +40,7 @@ export default {
       search: '',
       errors: false,
       warnings: false,
-      follow: true,
-      util
+      follow: true
     }
   },
 
@@ -54,7 +53,7 @@ export default {
 
 
   computed: {
-    data() {return this.client.state.data},
+    data() {return this.mach.get_data()},
 
 
     match_exp() {
@@ -76,11 +75,11 @@ export default {
 
   mounted()   {
     this.search = this.query
-    this.client.log_enable(true)
+    this.mach.log_enable(true)
   },
 
 
-  unmounted() {this.client.log_enable(false)},
+  unmounted() {this.mach.log_enable(false)},
 
 
   methods: {
@@ -97,7 +96,8 @@ export default {
 
 
     scroll_to_end() {
-      this.$refs.log.scrollTop = this.$refs.log.scrollHeight
+      if (this.$refs.log)
+        this.$refs.log.scrollTop = this.$refs.log.scrollHeight
     }
   }
 }
@@ -111,7 +111,7 @@ export default {
 
       div
         h2 Work Unit Log
-        h3(v-if="!client.state.default") Peer {{client.state.address}}
+        h3 Machine {{mach.get_name()}}
 
       .actions
         Button(text="Close", icon="times", route="/")
@@ -131,7 +131,7 @@ export default {
     .log-container
       .log(ref="log")
         .log-line(v-for="line in this.data.log", v-show="match(line)",
-          v-html="util.ansi2html(line)")
+          v-html="$util.ansi2html(line)")
 </template>
 
 <style lang="stylus">
@@ -150,9 +150,6 @@ export default {
   .view-header-container .view-header
     padding 1em
     max-width 100vw
-
-    .actions
-      flex 1
 
   .view-body
     width 100%

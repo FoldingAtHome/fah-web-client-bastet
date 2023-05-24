@@ -27,54 +27,13 @@
 -->
 
 <script>
-import ClientVersion from './ClientVersion.vue'
-
-
 export default {
-  name: 'PeerRow',
-  props: ['client', 'peerID', 'latest'],
-  components: {ClientVersion},
-
-
-  computed: {
-    config() {return this.client.state.data.config},
-
-
-    gpus() {
-      let count = 0
-
-      if (this.config.gpus)
-        for (let id in this.config.gpus)
-          if (this.config.gpus[id].enabled)
-            count++
-
-      return count
-    }
-  }
+  props: ['href']
 }
 </script>
 
 <template lang="pug">
-tr.peer(:class="{connected: client.connected}")
-  td {{client.state.address}}
-  td.status {{client.connected ? 'C' : 'Disc'}}onnected
-
-  td.version
-    ClientVersion(:client="client", :latest="latest")
-
-  td.resources
-    template(v-if="config") cpus:{{config.cpus}} gpus:{{gpus}}
-
-  td.actions
-    template(v-if="client.connected")
-      Button.button-icon(:route="peerID + '/settings'",
-        title="Settings", icon="cog")
-      Button.button-icon(:route="peerID + '/log'", title="Log",
-        icon="list-alt")
-      Button.button-icon(v-if="client.paused()", @click="client.fold()",
-        icon="play", title="Start folding.")
-      Button.button-icon(v-else, @click="$root.pause([client])",
-        icon="pause", title="Pause folding.")
+a(:href="href", target="_blank"): slot
 </template>
 
 <style lang="stylus">

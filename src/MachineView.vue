@@ -27,44 +27,23 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
-  name: 'ClientVersion',
-  props: ['mach'],
+  props: ['machID'],
 
 
   computed: {
-    latest()    {return this.$api.get_latest_version()},
-    version()   {return this.mach.get_version()},
-    outdated()  {return this.mach.is_outdated(this.latest)}
+    mach() {
+      if (this.$machs.has(this.machID))
+        return this.$machs.get(this.machID)
+    }
   }
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="$util.download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
-      | #[.fa.fa-exclamation-triangle] v{{version}}
-      |
-      | #[.fa.fa-exclamation-triangle]
-
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
-    | v{{version}}
+.mach-view
+  router-view(v-if="mach", :mach="mach")
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
-
-.client-version
-  .outdated
-    text-decoration none
-
-    &:not(:hover)
-      color warn-color
-
-    .fa
-      font-size 10pt
 </style>

@@ -65,7 +65,7 @@ class Sky extends THREE.Mesh {
       }
     })
 
-    super(new THREE.SphereBufferGeometry(5000, 320, 150), material)
+    super(new THREE.SphereGeometry(5000, 320, 150), material)
   }
 }
 

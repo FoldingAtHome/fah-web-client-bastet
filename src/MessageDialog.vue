@@ -27,62 +27,52 @@
 -->
 
 <script>
-
-import util from './util.js'
-
 export default {
   data() {
     return {
-      location: ''
-    }
-  },
-
-
-  created() {
-    document.getElementsByTagName('body')[0].onkeyup = ev => {
-      if (ev.keyCode == 76 && ev.ctrlKey && ev.shiftKey)
-        this.open()
+      title: '',
+      body: '',
+      icon: '',
+      buttons: []
     }
   },
 
 
   methods: {
-    accept() {this.$refs.dialog.close('Ok')},
+    exec(type, title, body, buttons) {
+      this.title = title
+      this.body  = body
+      this.icon  = type
 
+      if (buttons) this.buttons = buttons
+      else {
+        this.buttons = [{name: 'ok', icon: 'check'}]
 
-    open(cb) {
-      const host = util.default_host()
-      const port = util.default_port()
-      this.location = host + ':' + port
-
-      this.$refs.dialog.open(result => {
-        if (result == 'Ok') {
-          let parts = this.location.split(':')
-
-          if (parts[0]) localStorage.setItem('client-host', parts[0])
-          else localStorage.removeItem('client-host')
-          if (parts[1]) localStorage.setItem('client-port', parts[1])
-          else localStorage.removeItem('client-port')
-
-          location.reload()
+        switch (type) {
+        case 'confirm':
+          this.buttons = [
+            {name: 'ok',     icon: 'check'},
+            {name: 'cancel', icon: 'times'}
+          ]
+          break
         }
-      })
+      }
+
+      return this.$refs.dialog.exec()
     }
   }
 }
 </script>
 
 <template lang="pug">
-Dialog(ref="dialog", :zIndex="2000")
-  template(v-slot:header) Set Client Location
-  template(v-slot:body)
-    .location-dialog-body
-      label Location
-      input(v-model="location", @keyup.enter="accept")
+Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
+  template(v-slot:header)
+    .fa(v-if="icon", :class="'fa-' + icon")
+    |
+    | {{title}}
+
+  template(v-slot:body) {{body}}
 </template>
 
 <style lang="stylus">
-  .location-dialog-body
-    display flex
-    gap 0.25em
 </style>

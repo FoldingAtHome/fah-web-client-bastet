@@ -27,44 +27,55 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
-  name: 'ClientVersion',
   props: ['mach'],
 
 
+  data() {
+    return {
+      name: this.mach.get_name()
+    }
+  },
+
+
   computed: {
-    latest()    {return this.$api.get_latest_version()},
-    version()   {return this.mach.get_version()},
-    outdated()  {return this.mach.is_outdated(this.latest)}
+    linked() {return this.mach.is_linked()},
+    valid() {return /^[\w-]+$/.test(this.name)},
+    modified() {return this.name != this.mach.get_name()},
+  },
+
+
+  methods: {
+    async save() {return this.mach.save_name(this.name)},
+
+
+    async link() {
+      this.mach.set_name(this.name)
+      this.mach.link(this.$adata.token)
+    },
+
+
+    async unlink() {
+      await this.mach.unlink()
+      await this.$account.update()
+    }
   }
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="$util.download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
-      | #[.fa.fa-exclamation-triangle] v{{version}}
-      |
-      | #[.fa.fa-exclamation-triangle]
+label(:title="'Machine id ' + mach.get_id()") Name
+input(v-model="name", pattern="[\\w-]+")
+div
+  Button.button-icon(v-if="linked", @click="save", icon="save",
+    :disabled="!valid || !modified", title="Save machine name.")
 
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
-    | v{{version}}
+  Button.button-icon(v-if="linked", @click="unlink",
+    icon="unlink", title="Unlink machine from this account.")
+
+  Button.button-icon(v-if="!linked", @click="link", icon="link",
+    :disabled="!valid", title="Link machine to this account.")
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
-
-.client-version
-  .outdated
-    text-decoration none
-
-    &:not(:hover)
-      color warn-color
-
-    .fa
-      font-size 10pt
 </style>

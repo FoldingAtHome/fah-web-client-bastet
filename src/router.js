@@ -31,17 +31,19 @@ import HomeView      from './HomeView.vue'
 import SettingsView  from './SettingsView.vue'
 import Visualization from './Visualization.vue'
 import LogView       from './LogView.vue'
-import PeerView      from './PeerView.vue'
+import MachineView   from './MachineView.vue'
+import AccountView   from './AccountView.vue'
 
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
-    {path: '/', component: HomeView},
+    {path: '/',        component: HomeView},
+    {path: '/account', component: AccountView, props: true},
     {
-      path: '/:peerID',
+      path: '/:machID?',
       props: true,
-      component: PeerView,
+      component: MachineView,
       children: [
         {path: 'settings',     component: SettingsView},
         {path: 'view/:unitID', component: Visualization, props: true},
