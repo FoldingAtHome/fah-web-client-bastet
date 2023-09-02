@@ -59,7 +59,7 @@ export default {
 
     match_exp() {
       try {
-        let exp = new RegExp(this.search)
+        let exp = new RegExp(this.search, 'i')
 
         if (this.errors || this.warnings) {
           let exp2 = new RegExp(':[' + (this.errors ? 'E' : '') +
