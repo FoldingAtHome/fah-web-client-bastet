@@ -323,4 +323,13 @@ export default {
     if (type != 'gzip') throw 'Unsupported compression type "' + type + '"'
     return this.buf2str(ungzip(this.str2buf(s)))
   },
+
+
+  default_address() {
+    let hostname = window.location.hostname
+    let host     = hostname.endsWith('.local') ? hostname : '127.0.0.1'
+    let local    = hostname.endsWith('.local') || hostname == 'localhost'
+    let port     = local ? window.location.port : 7396
+    return host + ':' + port
+  },
 }

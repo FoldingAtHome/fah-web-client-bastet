@@ -69,7 +69,7 @@ async function main(url) {
   global.$stats    = new Stats(global)
   global.$news     = new News(cache)
 
-  new DirectMachConn(machs, 'local', '127.0.0.1:7396')
+  new DirectMachConn(machs, 'local', util.default_address())
 
   app.use(router)
   app.component('Button',        Button)
