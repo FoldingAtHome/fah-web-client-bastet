@@ -95,7 +95,7 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
 
       tr
         th Runtime
-        td {{unit['run-time']}}s
+        td {{unit.run_time}}s
 
       tr
         th Base Credit

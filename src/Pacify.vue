@@ -1,4 +1,4 @@
-/******************************************************************************\
+<!--
 
                   This file is part of the Folding@home Client.
 
@@ -24,37 +24,52 @@
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
-\******************************************************************************/
+-->
 
-import {createRouter, createWebHistory} from 'vue-router'
-import HomeView      from './HomeView.vue'
-import SettingsView  from './SettingsView.vue'
-import Visualization from './Visualization.vue'
-import LogView       from './LogView.vue'
-import MachineView   from './MachineView.vue'
-import AccountView   from './AccountView.vue'
-import VerifyView    from './VerifyView.vue'
+<script>
+import util from './util.js'
 
 
-export default createRouter({
-  history: createWebHistory(),
-  routes: [
-    {path: '/',              component: HomeView},
-    {path: '/account',       component: AccountView, props: true},
-    {path: '/verify/:token', component: VerifyView,  props: true},
-    {
-      path: '/:machID?',
-      props: true,
-      component: MachineView,
-      children: [
-        {path: 'settings',     component: SettingsView},
-        {path: 'view/:unitID', component: Visualization, props: true},
-        {
-          path: 'log',
-          component: LogView,
-          props: route => ({query: route.query.q})
-        }
-      ]
+export default {
+  name: 'Pacify',
+  data() {return {active: false}},
+
+
+  methods: {
+    open()  {
+      if (this.active) return
+      util.lock_scrolling()
+      this.active = true
+    },
+
+
+    close() {
+      if (!this.active) return
+      util.unlock_scrolling()
+      this.active = false
     }
-  ]
-})
+  }
+}
+</script>
+
+<template lang="pug">
+Teleport(to="body")
+  .pacify-overlay(v-show="active")
+    img.pacify(src="/images/spinner.gif")
+</template>
+
+<style lang="stylus">
+@import('./colors.styl')
+
+.pacify-overlay
+  position absolute
+  top 0
+  left 0
+  width 100vw
+  height 100vh
+  background pacify-bg
+  display flex
+  overflow hidden
+  align-items center
+  justify-content center
+</style>

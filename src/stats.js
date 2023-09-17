@@ -32,36 +32,66 @@ import crypto from './crypto.js'
 
 
 class Stats {
-  constructor(api, adata, timeout = 60 * 60 * 1000) {
-    this.api      = api
-    this.adata    = adata
+  constructor(app, timeout = 60 * 60 * 1000) {
+    this.api      = app.$api
+    this.adata    = app.$account.data
+    this.machs    = app.$machs
     this.data     = reactive({stats: {}})
     this.timeout  = timeout
     this.team_url = 'https://stats.foldingathome.org/team/'
     this.user_url = 'https://stats.foldingathome.org/donor/'
 
-    watchEffect(() => this._update())
+    watchEffect(() => this._get_stats())
   }
 
 
   get_data() {return this.data.stats}
+  get_name() {return this.data.name}
+  get_team() {return this.data.team}
 
 
-  async _update() {
+  is_anon() {
+    let name = this.data.name
+    return !name || name.toLowerCase() == 'anonymous'
+  }
+
+
+  _update() {
     // Update stats periodically (cached up to `timeout`)
     setTimeout(() => this._update(), 60 * 1000)
+    this._get_stats()
+  }
 
-    let {name, team, passkey} = this.adata
 
-    if (!name || (name.toLowerCase() == 'anonymous' && !team))
-      return this.data.stats = {}
+  _get_config() {
+    // Use account settings
+    if (this.adata.created) return this.adata
+
+    // Otherwise use local machine settings
+    for (let mach of this.machs)
+      if (mach.is_direct()) return mach.get_config()
+
+    return {}
+  }
+
+
+  _get_stats() {
+    let {user, name, team, passkey} = this._get_config()
+
+    name = user || name
+    this.data.name    = name
+    this.data.team    = team
+    this.data.passkey = passkey
+
+    if (this.is_anon() && !team) return this.data.stats = {}
 
     let path = `/user/${name}/stats`
     let data = {team}
     if (passkey) data.passkey = passkey
 
-    this.data.stats = await this.api.fetch({
+    this.api.fetch({
       path, data, action: 'Getting user stats', expire: this.timeout})
+      .then(stats => this.data.stats = stats)
   }
 }
 

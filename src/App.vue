@@ -28,13 +28,16 @@
 
 <script>
 import util             from './util.js'
+import Pacify           from './Pacify.vue'
 import PauseDialog      from './PauseDialog.vue'
 import NewAccountDialog from './NewAccountDialog.vue'
 import MessageDialog    from './MessageDialog.vue'
+import LoginDialog      from './LoginDialog.vue'
 
 
 export default {
-  components: {PauseDialog, NewAccountDialog, MessageDialog},
+  components: {
+    Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog},
 
 
   watch: {
@@ -49,6 +52,10 @@ export default {
 
 
   methods: {
+    open_pacify()  {this.$refs.pacify.open()},
+    close_pacify() {this.$refs.pacify.close()},
+
+
     async message(type, title, body, buttons) {
       return this.$refs.message_dialog.exec(type, title, body, buttons)
     },
@@ -70,6 +77,37 @@ export default {
     },
 
 
+    async login() {
+      let result = await this.$refs.login_dialog.exec()
+
+      try {
+        this.open_pacify()
+
+        switch (result.response) {
+        case 'login':
+          await this.$account.login_with_passphrase(result.data)
+          this.$router.push('/')
+          break
+
+        case 'register':
+          await this.$account.register(result.data)
+          return this.message(
+            'info', 'Account registered', 'Your Folding@home account has ' +
+            'been registered.<br/>You have been sent an email verification ' +
+            'message.  Please follow the link in the email to activate your ' +
+            'account.')
+
+        case 'cancel': return
+
+        default: return this.$account.login(result.response) // OAuth2
+        }
+
+      } finally {
+        this.close_pacify()
+      }
+    },
+
+
     fold() {this.$machs.fold()},
 
 
@@ -85,9 +123,11 @@ router-view(v-slot="{Component}")
   keep-alive(include="HomeView")
     component(:is="Component")
 
+Pacify(ref="pacify")
 PauseDialog(ref="pause_dialog")
 NewAccountDialog(ref="new_account_dialog")
 MessageDialog(ref="message_dialog")
+LoginDialog(ref="login_dialog")
 </template>
 
 <style lang="stylus">

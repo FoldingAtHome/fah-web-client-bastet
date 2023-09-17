@@ -27,12 +27,23 @@
 -->
 
 <script>
+
+function get_icon(type) {
+  switch (type) {
+  case 'error':   return 'exclamation-circle'
+  case 'warn':    return 'exclamation-triangle'
+  case 'info':    return 'info-circle'
+  case 'confirm': return 'question-circle'
+  }
+}
+
+
 export default {
   data() {
     return {
-      title: '',
-      body: '',
-      icon: '',
+      title:   '',
+      body:    '',
+      icon:    '',
       buttons: []
     }
   },
@@ -42,7 +53,7 @@ export default {
     exec(type, title, body, buttons) {
       this.title = title
       this.body  = body
-      this.icon  = type
+      this.icon  = get_icon(type)
 
       if (buttons) this.buttons = buttons
       else {
@@ -65,14 +76,17 @@ export default {
 </script>
 
 <template lang="pug">
-Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
+Dialog.message-dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
   template(v-slot:header)
     .fa(v-if="icon", :class="'fa-' + icon")
-    |
-    | {{title}}
+    span(v-html="title")
 
-  template(v-slot:body) {{body}}
+  template(v-slot:body): div(v-html="body")
 </template>
 
 <style lang="stylus">
+.message-dialog
+  .dialog-header-slot
+    display flex
+    gap 0.5em
 </style>

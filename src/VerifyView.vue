@@ -1,4 +1,4 @@
-/******************************************************************************\
+<!--
 
                   This file is part of the Folding@home Client.
 
@@ -24,37 +24,54 @@
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
-\******************************************************************************/
+-->
 
-import {createRouter, createWebHistory} from 'vue-router'
-import HomeView      from './HomeView.vue'
-import SettingsView  from './SettingsView.vue'
-import Visualization from './Visualization.vue'
-import LogView       from './LogView.vue'
-import MachineView   from './MachineView.vue'
-import AccountView   from './AccountView.vue'
-import VerifyView    from './VerifyView.vue'
+<script>
+export default {
+  props: ['token'],
+  data() {return {success: false, failed: false}},
 
 
-export default createRouter({
-  history: createWebHistory(),
-  routes: [
-    {path: '/',              component: HomeView},
-    {path: '/account',       component: AccountView, props: true},
-    {path: '/verify/:token', component: VerifyView,  props: true},
-    {
-      path: '/:machID?',
-      props: true,
-      component: MachineView,
-      children: [
-        {path: 'settings',     component: SettingsView},
-        {path: 'view/:unitID', component: Visualization, props: true},
-        {
-          path: 'log',
-          component: LogView,
-          props: route => ({query: route.query.q})
-        }
-      ]
+  async mounted() {
+    try {
+      await this.$api.get('/verify/' + this.token)
+      this.success = true
+
+    } catch (e) {
+      this.failed = true
+      console.debug(e)
     }
-  ]
-})
+  }
+}
+</script>
+
+<template lang="pug">
+.verify-view.page-view
+  .view-header-container
+    .view-header
+      FAHLogo
+      div
+        h2 Verifying Account Email
+
+  .view-body
+    div(v-if="!success && !failed")
+      p Loading...
+
+    div(v-if="success")
+      p Email verification successful.
+
+    div(v-if="failed")
+      p Email verification failed.
+      p.
+        A verification token can be used only once.  If you've already
+        verified your email address, please try to login.
+
+    Button.button-success(icon="sign-in", text="Login in",
+      @click="$root.login()", title="Login to your Folding@home account.",
+      v-if="success || failed")
+</template>
+
+<style lang="stylus">
+  .verify-view .button
+    width 9em
+</style>

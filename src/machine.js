@@ -30,6 +30,65 @@ import {reactive} from 'vue'
 import util from './util.js'
 
 
+function clean_key(key) {
+  if (typeof key == 'string') return key.replace('-', '_')
+  return key
+}
+
+
+function clean_keys(data) {
+  if (Array.isArray(data)) {
+    let r = []
+
+    for (const value of data)
+      r.push(clean_keys(value))
+
+    return r
+  }
+
+  if (util.isObject(data)) {
+    let r = {}
+
+    for (const [key, value] of Object.entries(data))
+      r[clean_key(key)] = clean_keys(value)
+
+    return r
+  }
+
+  return data
+}
+
+
+function update_obj(data, update) {
+  let i = 0
+
+  while (i < update.length - 2) {
+    let key = clean_key(update[i++])
+
+    if (data[key] == undefined) {
+      let isList = i == update.length - 1 || Number.isInteger(update[i])
+      data[key] = isList ? [] : {}
+    }
+
+    data = data[key]
+  }
+
+  let key   = clean_key(update[i++])
+  let value = update[i]
+
+  if (Array.isArray(data) && key < 0) {
+    if (key === -1) data.push(value)
+    else data.splice(data.length, 0, ...value)
+
+  } else if (value === null) {
+    if (Array.isArray(data)) data.splice(key, 1)
+    else delete data[key]
+
+  } else data[key] = value
+}
+
+
+
 class Machine {
   constructor(id, api, aid) {
     this.id       = id
@@ -39,7 +98,7 @@ class Machine {
     this.name     = id
     this.state    = reactive({
       connected: false,
-      data:      {}
+      data:      {config: {}, info: {}}
     })
   }
 
@@ -53,11 +112,11 @@ class Machine {
   get_version() {return this.get_info().version}
 
 
-  get_conn() {return this.conn}
+  get_conn()     {return this.conn}
   set_conn(conn) {this.conn = conn}
 
 
-  is_direct() {return this.conn && this.conn.is_direct()}
+  is_direct() {return this.get_conn() && this.get_conn().is_direct()}
 
 
   *[Symbol.iterator]() {
@@ -141,13 +200,14 @@ class Machine {
   }
 
 
-  async send(msg) {return this.conn.send(msg)}
+  async send(msg) {return this.get_conn().send(msg)}
   on_open()  {this.first = true}
   on_close() {this.state.connected = false}
-  close() {if (this.conn) this.conn.close()}
+  close() {if (this.get_conn()) this.get_conn().close()}
 
 
   async on_message(msg) {
+    msg = clean_keys(msg)
     console.debug(this.get_name() + ':', msg)
 
     if (this.first) {
@@ -156,7 +216,7 @@ class Machine {
       this._update()
 
     } else if (Array.isArray(msg)) {
-      util.update(this.state.data, msg)
+      update_obj(this.state.data, msg)
 
       if (msg.length && msg[0] == 'viz') {
         let key   = msg.slice(0, -1).join('/')

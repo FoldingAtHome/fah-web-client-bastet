@@ -82,8 +82,10 @@ class Account {
     const {pubkey, password, secret, key} =
           await this.create_secret(passphrase, salt)
 
+    const verify_url = location.origin + '/verify/'
     const data =
-        {name, team, passkey, avatar, node, email, password, pubkey, secret}
+        {name, team, passkey, avatar, node, email, password, pubkey, secret,
+         verify_url}
 
     return this.api.put('/register', data)
   }
@@ -95,8 +97,9 @@ class Account {
     const {hash, key} = await this.derive_password(passphrase, salt)
 
     try {
-      await this.api.put('/login', {email, password: hash}, 'Signing in')
-      this.api.sid_save(util.cookie_get('sid'))
+      let config = {email, password: hash}
+      let data = await this.api.get('/login', config, 'Signing in')
+      this.api.sid_save(data.id)
       await this.retrieve_secret(hash, key, salt)
       await this.update()
 
