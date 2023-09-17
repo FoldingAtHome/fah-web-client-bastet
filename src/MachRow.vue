@@ -85,7 +85,7 @@ tr.mach-row(:class="{connected: connected, disconnected: !connected}",
       title="View machine log.", icon="list-alt", :disabled="!connected")
 
     Button.button-icon(@click="show_details", icon="info-circle",
-      :disabled="!info", title="View Machine details.")
+      :disabled="!info.version", title="View Machine details.")
 
     Button.button-icon(v-if="mach.is_paused()", @click="mach.fold()",
       icon="play", title="Start folding on this machine.",

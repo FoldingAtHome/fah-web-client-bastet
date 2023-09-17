@@ -109,13 +109,13 @@ export default {
     },
 
 
-    paused() {return !!this.unit['pause-reason']},
+    paused() {return !!this.unit.pause_reason},
     config() {return this.mach.get_data().config || {}},
 
 
     state() {
       if (this.waiting) return 'WAIT'
-      if (this.unit['pause-reason']) return 'PAUSE'
+      if (this.unit.pause_reason) return 'PAUSE'
       if (this.unit.state == 'RUN' && this.config.finish) return 'FINISH'
       return this.unit.state
     },
@@ -136,7 +136,7 @@ export default {
 
 
     status() {
-      return this.unit['pause-reason'] || status[this.state]
+      return this.unit.pause_reason || status[this.state]
     },
 
 

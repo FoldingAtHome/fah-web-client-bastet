@@ -60,35 +60,6 @@ export default {
   _addressRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/),
 
 
-  update(data, update) {
-    let i = 0
-
-    while (i < update.length - 2) {
-      let key = update[i++]
-
-      if (data[key] == undefined) {
-        let isList = i == update.length - 1 || Number.isInteger(update[i])
-        data[key] = isList ? [] : {}
-      }
-
-      data = data[key]
-    }
-
-    let key   = update[i++]
-    let value = update[i]
-
-    if (Array.isArray(data) && key < 0) {
-      if (key === -1) data.push(value)
-      else data.splice(data.length, 0, ...value)
-
-    } else if (value === null) {
-      if (Array.isArray(data)) data.splice(key, 1)
-      else delete data[key]
-
-    } else data[key] = value
-  },
-
-
   lock_scrolling() {
     document.body.style.position = 'fixed'
     document.body.style.top = `-${window.scrollY}px`

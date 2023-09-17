@@ -92,9 +92,9 @@ export default {
     },
 
 
-    sign_in() {if (this.valid) this.$refs.dialog.close('login')},
-    google()  {this.$refs.dialog.close('google')},
-    cancel()  {this.$refs.dialog.close('cancel')},
+    do_login() {if (this.valid) this.$refs.dialog.close('login')},
+    google()   {this.$refs.dialog.close('google')},
+    cancel()   {this.$refs.dialog.close('cancel')},
 
 
     generate_passphrase() {
@@ -122,7 +122,7 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
 
         label {{login ? '' : '* '}}Passphrase
         input(v-model="passphrase", :type="show ? 'text' : 'password'",
-          @keyup.enter="sign_in()")
+          @keyup.enter="do_login")
 
         div
           Button.button-icon(:icon="'eye' + (show ? '' : '-slash')",
@@ -154,17 +154,17 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
       template(v-if="login")
         .actions
           Button(icon="times", text="Cancel", @click="cancel",
-            title="Cancel sign in.")
+            title="Cancel login.")
 
-          Button.button-success(icon="sign-in", text="Sign in",
-            @click="sign_in", :disabled="!valid",
-            title="Sign in to your Folding@home account.")
+          Button.button-success(icon="sign-in", text="Login", @click="do_login",
+            :disabled="!valid", title="Login to your Folding@home account.")
 
-        .text-bar Or
+        template(v-if="false")
+          .text-bar Or
 
-        .actions
-          Button(icon="sign-in", text="Login in with Google", @click="google",
-             title="Login in to Folding@home with your Google account.")
+          .actions
+            Button(icon="sign-in", text="Login in with Google", @click="google",
+              title="Login in to Folding@home with your Google account.")
 
         .bar
 
@@ -172,8 +172,7 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
           Don't already have a Folding@home account?
 
         .actions
-          Button(icon="plus", text="New Account",
-             @click="login = false",
+          Button(icon="plus", text="New Account", @click="login = false",
              title="Create a new account with Folding@home.")
 
       template(v-else)

@@ -34,16 +34,16 @@ html .dark
     background-color #444
     border 2px inset #666
 
-  a.button.button-icon:not(:hover)
-    background transparent
-    color #eee
+  a.button
+    &.button-icon:not(:hover)
+      background transparent
+      color #eee
 
-  a.button:disabled
-    color #666
-    background #444
-
-    .fa
+    &.button-disabled
       color #666
+
+      &:hover, .fa
+        color #666
 
   .page-view, .view-body, .dialog, .help-balloon .help-content
     color #ddd
@@ -57,13 +57,14 @@ html .dark
       background-color #111
 
     .units th, .units td, .news-feed article, .machines th,
-    .machinse td, fieldset, .projects .project
+    .machines td, fieldset, .projects .project
       border 1px solid #444
 
   .page-view .view-header-container .view-header .actions a.button:disabled .fa
     color #666
 
-  .home-view .units, .home-view .machines, .details-dialog table
+  .home-view .units, .home-view .machines, .details-dialog table,
+  .machine-details-dialog
      tr:nth-child(odd)
         background #111
 
@@ -73,7 +74,7 @@ html .dark
      .actions > a.button .fa:not(:hover)
        color #eee
 
-     .actions > a.button:disabled .fa
+     .actions > a.button.button-disabled .fa
        color #666
 
   .dialog-overlay
@@ -85,6 +86,10 @@ html .dark
 
       .dialog-header
         border-bottom 1px solid #666
+
+    .dialog-body fieldset
+      background-color #111
+      border 1px solid #444
 
   .help-balloon .help-content
     box-shadow 3px 3px 12px #000

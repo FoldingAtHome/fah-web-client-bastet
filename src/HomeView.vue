@@ -27,7 +27,6 @@
 -->
 
 <script>
-import LoginDialog   from './LoginDialog.vue'
 import MachRow       from './MachRow.vue'
 import Unit          from './Unit.vue'
 import ProjectsView  from './ProjectsView.vue'
@@ -38,7 +37,7 @@ import util          from './util.js'
 
 export default {
   name: 'HomeView',
-  components: {LoginDialog, MachRow, Unit, News, ProjectsView, SliderSwitch},
+  components: {MachRow, Unit, News, ProjectsView, SliderSwitch},
 
 
   data() {
@@ -61,9 +60,9 @@ export default {
   computed: {
     units()     {return [...this.$machs.get_units()]},
     stats()     {return this.$stats.get_data()},
-    is_anon()   {return !this.name || this.name.toLowerCase() == 'anonymous'},
-    name()      {return this.$adata.name},
-    team()      {return this.$adata.team},
+    is_anon()   {return this.$stats.is_anon()},
+    name()      {return this.$stats.get_name()},
+    team()      {return this.$stats.get_team()},
     user_url()  {return this.$stats.user_url + this.name},
     team_url()  {return this.$stats.team_url + this.team},
     team_name() {return this.$stats.team_name || this.team},
@@ -90,19 +89,8 @@ export default {
 
 
   methods: {
-    async login() {
-      let result = await this.$refs.login_dialog.exec()
-
-      switch (result.response) {
-      case 'login':    return this.$account.login_with_passphrase(result.data)
-      case 'register': return this.$account.register(result.data)
-      case 'cancel':   return
-      default:         return this.$account.login(result.response) // OAuth2
-      }
-    },
-
-
-    fold() {this.$root.fold()},
+    login() {this.$root.login()},
+    fold()  {this.$root.fold()},
     pause() {this.$root.pause()}
   }
 }
@@ -197,8 +185,6 @@ export default {
 
     ProjectsView
     News
-
-  LoginDialog(ref="login_dialog")
 </template>
 
 <style lang="stylus">

@@ -146,8 +146,14 @@ export default {
         ])
 
       if (response == 'delete') {
-        await this.$account.delete()
-        this.close()
+        try {
+          this.$root.open_pacify()
+          await this.$account.delete()
+          this.close()
+
+        } finally {
+          this.$root.close_pacify()
+        }
       }
     }
   }

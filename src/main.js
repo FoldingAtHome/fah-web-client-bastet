@@ -66,7 +66,7 @@ async function main(url) {
   global.$machs    = machs
   global.$node     = new Node(account, machs)
   global.$projects = new Projects(api, machs)
-  global.$stats    = new Stats(api, adata)
+  global.$stats    = new Stats(global)
   global.$news     = new News(cache)
 
   new DirectMachConn(machs, 'local', '127.0.0.1:7396')
