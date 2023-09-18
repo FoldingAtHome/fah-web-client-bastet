@@ -48,18 +48,18 @@ export default {
     team()      {return this.$stats.get_team()},
     user_url()  {return this.$stats.user_url + this.name},
     team_url()  {return this.$stats.team_url + this.team},
-    team_name() {return this.$stats.team_name || this.team},
+    team_name() {return this.stats.team_name || this.team},
 
 
     points_earned() {
-      if (!this.stats.earned || this.is_anon) return '—'
-      return this.stats.earned.toLocaleString()
+      if (this.is_anon) return '—'
+      return (this.stats.earned || 0).toLocaleString()
     },
 
 
     team_points() {
-      let contrib = util.human_number(this.stats.contributed)
-      let total   = util.human_number(this.stats.team_total)
+      let contrib = util.human_number(this.stats.contributed || 0)
+      let total   = util.human_number(this.stats.team_total  || 0)
 
       return `${contrib} of ${total}`
     }

@@ -172,16 +172,24 @@ class Machine {
   }
 
 
-  fold()            {this.send({cmd: 'unpause'})}
-  finish()          {this.send({cmd: 'finish'})}
-  pause()           {this.send({cmd: 'pause'})}
-  dump(unit)        {this.send({cmd: 'dump',   unit})}
-  configure(config) {this.send({cmd: 'config', config})}
-  link(token)       {this.send({cmd: 'link',   token, name: this.name})}
+  sendCommand(cmd, data = {}) {
+    this.send(Object.assign({}, data, {cmd, time: new Date().toISOString()}))
+  }
+
+
+  setState(state)   {this.sendCommand('state', {state})}
+  fold()            {this.setState('unpause')}
+  finish()          {this.setState('finish')}
+  pause()           {this.setState('pause')}
+
+
+  dump(unit)        {this.sendCommand('dump', {unit})}
+  configure(config) {this.sendCommand('config', {config})}
+  link(token)       {this.sendCommand('link', {token, name: this.name})}
 
 
   async unlink() {
-    if (this.is_connected()) this.send({cmd: 'unlink'})
+    if (this.is_connected()) this.sendCommand('reset')
     return this.api.delete('/account/machines/' + this.id)
   }
 
@@ -262,12 +270,12 @@ class Machine {
     if (!this.is_connected()) return
     const unit  = this.vizUnit
     const frame = await this._viz_get_frames(unit)
-    this.send({cmd: 'viz', unit, frame})
+    this.sendCommand('viz', {unit, frame})
   }
 
 
   _send_log_enable() {
-    if (this.is_connected()) this.send({cmd: 'log', enable: this.logEnabled})
+    if (this.is_connected()) this.sendCommand('log', {enable: this.logEnabled})
   }
 
 
