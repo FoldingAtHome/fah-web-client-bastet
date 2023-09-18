@@ -97,8 +97,10 @@ export default {
 
 
     async logout() {
-      await this.$account.logout()
-      this.close()
+      await this.$root.pacify(async () => {
+        await this.$account.logout()
+        this.close()
+      })
     },
 
 
@@ -116,8 +118,10 @@ export default {
 
 
     async save() {
-      await this.$account.save(copy_account(this.account_new))
-      this.close()
+      return this.$root.pacify(async () => {
+        await this.$account.save(copy_account(this.account_new))
+        this.close()
+      })
     },
 
 
@@ -145,16 +149,11 @@ export default {
           {name: 'cancel', icon: 'times'}
         ])
 
-      if (response == 'delete') {
-        try {
-          this.$root.open_pacify()
+      if (response == 'delete')
+        return this.$root.pacify(async () => {
           await this.$account.delete()
           this.close()
-
-        } finally {
-          this.$root.close_pacify()
-        }
-      }
+        })
     }
   }
 }

@@ -56,9 +56,9 @@ export default {
   },
 
 
-  async import(type, data, config, usage) {
+  async import(type, data, config, usage, allowExport = true) {
     return this.subtle.importKey(
-      type, util.str2buf(data), config, true, usage)
+      type, util.str2buf(data), config, allowExport, usage)
   },
 
 
@@ -188,7 +188,7 @@ export default {
 
   async pbkdf2_derive(passphrase, salt) {
     let material = await this.import(
-      'raw', passphrase, {name: 'PBKDF2'}, ['deriveKey'])
+      'raw', passphrase, {name: 'PBKDF2'}, ['deriveKey'], false)
 
     let config = {
       name: 'PBKDF2',

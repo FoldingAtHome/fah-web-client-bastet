@@ -85,6 +85,18 @@ class Machines {
   create(id) {return new Machine(id, this.api, this.account.data.id)}
 
 
+  get_local() {
+    for (let mach of this)
+      if (mach.is_direct()) return mach
+  }
+
+
+  get_local_config() {
+    let local = this.get_local()
+    return local ? local.get_config() : {}
+  }
+
+
   *get_units() {for (let mach of this) yield* mach}
 
 

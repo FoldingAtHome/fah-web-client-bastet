@@ -40,23 +40,6 @@ export default {
   components: {MachRow, Unit, News, ProjectsView, SliderSwitch},
 
 
-  data() {
-    return {
-      dark_mode: util.retrieve_bool('fah-dark-mode', 0)
-    }
-  },
-
-
-  watch: {
-    dark_mode(enabled) {
-      if (enabled) document.body.classList.add('dark')
-      else document.body.classList.remove('dark')
-
-      util.store_bool('fah-dark-mode', enabled)
-    }
-  },
-
-
   computed: {
     units()     {return [...this.$machs.get_units()]},
     stats()     {return this.$stats.get_data()},
@@ -80,11 +63,6 @@ export default {
 
       return `${contrib} of ${total}`
     }
-  },
-
-
-  mounted() {
-    if (this.dark_mode) document.body.classList.add('dark')
   },
 
 
@@ -137,7 +115,7 @@ export default {
         Button(v-else, text="Login", icon="sign-in", @click="login",
           title="Login to Folding@home or register a new account.")
 
-        SliderSwitch(v-model="dark_mode", title="Toggle dark mode.")
+        SliderSwitch(v-model="$root.dark_mode", title="Toggle dark mode.")
 
   .view-body
     .control

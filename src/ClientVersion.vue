@@ -27,25 +27,23 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
   name: 'ClientVersion',
   props: ['mach'],
 
 
   computed: {
-    latest()    {return this.$api.get_latest_version()},
-    version()   {return this.mach.get_version()},
-    outdated()  {return this.mach.is_outdated(this.latest)}
+    latest()       {return this.$api.get_latest_version()},
+    version()      {return this.mach.get_version()},
+    outdated()     {return this.mach.is_outdated(this.latest)},
+    download_url() {return this.$api.get_download_url()}
   }
 }
 </script>
 
 <template lang="pug">
 .client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="$util.download_url", target="_blank",
+  a.outdated(v-if="outdated", :href="download_url", target="_blank",
     title="Client version outdated.  Click to open download page.")
       | #[.fa.fa-exclamation-triangle] v{{version}}
       |

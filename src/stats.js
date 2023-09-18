@@ -68,10 +68,7 @@ class Stats {
     if (this.adata.created) return this.adata
 
     // Otherwise use local machine settings
-    for (let mach of this.machs)
-      if (mach.is_direct()) return mach.get_config()
-
-    return {}
+    return this.machs.get_local_config()
   }
 
 

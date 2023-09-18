@@ -128,17 +128,16 @@ class Node extends Sock {
 
   async _login() {
     // Compute account ID
-    let apub = this.adata.pubkey
-    apub = await crypto.spki_import(util.base64_decode(apub))
-    this.id = await crypto.pubkey_id(apub)
+    let apub = await crypto.spki_import(util.base64_decode(this.adata.pubkey))
+    this.id  = await crypto.pubkey_id(apub)
 
     // Import private key for decryption
     this.prikey = await crypto.pkcs8_import(this.account.secret, 'RSA-OAEP')
 
     // Send login message
-    this.sid = util.urlbase64_encode(crypto.get_random(12))
+    this.sid    = util.urlbase64_encode(crypto.get_random(12))
     let payload = {time: new Date().toISOString(), session: this.sid}
-    let prikey = await crypto.pkcs8_import(
+    let prikey  = await crypto.pkcs8_import(
       this.account.secret, 'RSASSA-PKCS1-v1_5')
     let signature = await crypto.rsa_sign(prikey, JSON.stringify(payload))
 

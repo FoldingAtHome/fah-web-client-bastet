@@ -40,22 +40,34 @@ export default {
     Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog},
 
 
+  data() {
+    return {
+      dark_mode: util.retrieve_bool('fah-dark-mode', 0)
+    }
+  },
+
+
   watch: {
     '$adata.unlocked'(unlocked) {if (unlocked) this.$node.login()},
+
+
+    dark_mode(enabled) {
+      if (enabled) document.body.classList.add('dark')
+      else document.body.classList.remove('dark')
+
+      util.store_bool('fah-dark-mode', enabled)
+    }
   },
 
 
   mounted() {
+    if (this.dark_mode) document.body.classList.add('dark')
     this.$api.set_error_handler(this.error_handler)
     this.check_account()
   },
 
 
   methods: {
-    open_pacify()  {this.$refs.pacify.open()},
-    close_pacify() {this.$refs.pacify.close()},
-
-
     async message(type, title, body, buttons) {
       return this.$refs.message_dialog.exec(type, title, body, buttons)
     },
@@ -77,12 +89,24 @@ export default {
     },
 
 
-    async login() {
-      let result = await this.$refs.login_dialog.exec()
-
+    async pacify(cb) {
       try {
-        this.open_pacify()
+        this.$refs.pacify.open()
+        await cb()
 
+      } finally {
+        this.$refs.pacify.close()
+      }
+    },
+
+
+    async login() {
+      const {user, team, passkey} = this.$machs.get_local_config()
+      const config = {name: user || '', team: team || 0, passkey: passkey || ''}
+
+      let result = await this.$refs.login_dialog.exec(config)
+
+      await this.pacify(async () => {
         switch (result.response) {
         case 'login':
           await this.$account.login_with_passphrase(result.data)
@@ -101,10 +125,7 @@ export default {
 
         default: return this.$account.login(result.response) // OAuth2
         }
-
-      } finally {
-        this.close_pacify()
-      }
+      })
     },
 
 

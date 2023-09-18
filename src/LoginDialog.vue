@@ -65,10 +65,13 @@ export default {
 
 
   methods: {
-    async exec() {
+    async exec(config = {}) {
       this.login = true
       this.passphrase = this.passphrase2 = ''
       this.show = false
+
+      for (const [key, value] of Object.entries(config))
+        this[key] = value
 
       let response = await this.$refs.dialog.exec()
       let data

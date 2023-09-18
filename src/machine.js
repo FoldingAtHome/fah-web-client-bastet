@@ -138,7 +138,7 @@ class Machine {
 
 
   is_outdated(latest) {
-    let current = this.get_version()
+    const current = this.get_version()
     return current && util.version_less(current, latest)
   }
 

@@ -56,7 +56,6 @@ const store_timeout = 24 * 60 * 60 * 1000
 
 
 export default {
-  download_url: 'https://foldingathome.org/beta/',
   _addressRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/),
 
 
@@ -190,12 +189,23 @@ export default {
 
   version_parse(v) {
     if (typeof(v) == 'string') v = v.split('.')
-    if (v != undefined && v.length == 3) return v.map(x => parseInt(x))
+    if (v != undefined) return v.map(x => parseInt(x))
     return [0, 0, 0]
   },
 
 
-  version_less(a, b) {return this.version_parse(a) < this.version_parse(b)},
+  version_less(a, b) {
+    a = this.version_parse(a)
+    b = this.version_parse(b)
+
+    for (let i = 0; i < a.length || i < b.length; i++) {
+      const [A, B] = [a[i] || 0, b[i] || 0]
+      if (A < B) return true
+      if (B < A) return false
+    }
+
+    return false
+  },
 
 
   remove(key) {

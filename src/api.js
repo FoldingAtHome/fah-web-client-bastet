@@ -57,6 +57,25 @@ class API {
   }
 
 
+  get_release() {
+    switch (location.hostname) {
+    case 'alpha.foldingathome.org': return 'alpha'
+    case 'beta.foldingathome.org':  return 'beta'
+    case 'app.foldingathome.org':   return 'beta'
+    default:                        return 'public'
+    }
+  }
+
+
+  get_download_url() {
+    const release = this.get_release()
+    const base    = 'https://foldingathome.org/'
+
+    if (release == 'public') return base + 'start-folding/'
+    return base + release + '/'
+  }
+
+
   get_latest_version() {return this.data.latest_version}
 
 
@@ -64,7 +83,9 @@ class API {
     this.data.latest_version = await this.cache.get('latest-version')
     if (this.data.latest_version != undefined) return
 
-    let r = await fetch('https://download.foldingathome.org/?release=beta')
+    const release = this.get_release()
+    const url = 'https://download.foldingathome.org/?release=' + release
+    let r = await fetch(url)
     let downloads = await r.json()
 
     for (let download of downloads)

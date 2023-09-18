@@ -212,7 +212,7 @@ class Account {
             if (r.status == 401) this.api.sid_clear() // Not logged in
           }})
 
-        if (!account) this.set_data({})
+        if (!account.pubkey) this.set_data({})
         else {
           let pubkey = util.base64_decode(account.pubkey)
           pubkey     = await crypto.spki_import(pubkey)
