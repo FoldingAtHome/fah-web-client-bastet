@@ -41,8 +41,6 @@ export default {
       gpu_advanced:    '',
       show_key:        false,
       confirmed:       false,
-      team_app_url:    'https://apps.foldingathome.org/team',
-      passkey_app_url: 'https://apps.foldingathome.org/getpasskey',
 
       confirm_dialog_buttons: [
         {name: 'cancel',  icon: 'times'},
@@ -54,14 +52,25 @@ export default {
 
 
   watch: {
-    'data.config'(config) {
-      if (config && !this.config) this.init(config)
-    }
+    'data.config'(config) {this.init(config)}
   },
 
 
   computed: {
-    info() {return this.data.info || {}},
+    have_account() {return this.$adata.created},
+
+
+    keys() {
+      let keys = ['on_idle', 'cpus', 'gpus', 'advanced']
+
+      if (!this.have_account)
+        return Array.concat(keys, ['user', 'team', 'passkey', 'cause'])
+
+      return keys
+    },
+
+
+    info() {return this.data.info       || {}},
     data() {return this.mach.get_data() || {}},
 
 
@@ -116,7 +125,8 @@ export default {
         let info   = this.available_gpus[id]
 
         if (info) {
-          let gpu = Object.assign({id, enabled: config && config.enabled}, info)
+          let enabled = config && config.enabled
+          let gpu = Object.assign({id, enabled}, info)
           if (gpu.supported == undefined) gpu.supported = true
           gpus.push(gpu)
         }
@@ -145,13 +155,15 @@ export default {
 
 
   async mounted() {
-    if (this.data.config) this.init(this.data.config)
+    this.init(this.data.config)
     this.causes = await this.$api.get_causes()
   },
 
 
   methods: {
     init(config) {
+      if (this.config || !config || util.isEmpty(config)) return
+
       this.config = util.deepCopy(config)
 
       for (let name in this.available_gpus)
@@ -166,7 +178,11 @@ export default {
 
 
     save() {
-      this.mach.configure(this.config)
+      let config = {}
+      for (const key of this.keys)
+        config[key] = this.config[key]
+
+      this.mach.configure(config)
       this.close()
     },
 
@@ -232,7 +248,7 @@ Dialog.gpu-settings-dialog(
           text="Save", icon="save")
 
   .view-body(v-if="config")
-    fieldset.settings.user-settings(v-if="!$adata.created")
+    fieldset.settings.user-settings(v-if="!have_account")
       legend Settings
 
       label Username
@@ -275,7 +291,7 @@ Dialog.gpu-settings-dialog(
           power.
 
       .cpus-input
-        input(v-model="config.cpus", :min="0", type="range",
+        input(v-model.number="config.cpus", :min="0", type="range",
           :max="available_cpus", v-if="0 < available_cpus")
         | {{config.cpus}} of {{available_cpus}}
       div
@@ -298,7 +314,7 @@ Dialog.gpu-settings-dialog(
           th Description
           th Actions
 
-        tr.gpu-row(v-for="gpu in gpus", v-if="gpus",
+        tr.gpu-row(v-for="gpu in gpus",
           :class="{unsupported: !gpu.supported}",
           :title="!gpu.supported ? 'Unsupported GPU.' : ''")
           td.gpu-id {{gpu.id.substr(4)}}

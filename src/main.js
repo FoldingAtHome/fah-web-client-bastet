@@ -81,6 +81,6 @@ async function main(url) {
 }
 
 
-if (fah_build_mode == 'development')
+if (false && fah_build_mode == 'development')
   main('http://localhost:7000')
 else main('https://api.foldingathome.org')

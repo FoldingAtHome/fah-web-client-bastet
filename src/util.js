@@ -86,6 +86,7 @@ export default {
 
 
   isObject(o) {return o != null && typeof o === 'object'},
+  isEmpty(o)  {return !Object.keys(o).length},
 
 
   deepCopy(o) {

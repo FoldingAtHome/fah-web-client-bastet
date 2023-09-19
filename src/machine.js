@@ -208,7 +208,12 @@ class Machine {
   }
 
 
-  async send(msg) {return this.get_conn().send(msg)}
+  async send(msg) {
+    console.debug(this.get_name(), msg)
+    return this.get_conn().send(msg)
+  }
+
+
   on_open()  {this.first = true}
   on_close() {this.state.connected = false}
   close() {if (this.get_conn()) this.get_conn().close()}
