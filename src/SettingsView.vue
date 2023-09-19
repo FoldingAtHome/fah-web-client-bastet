@@ -118,21 +118,6 @@ export default {
         if (info) {
           let gpu = Object.assign({id, enabled: config && config.enabled}, info)
           if (gpu.supported == undefined) gpu.supported = true
-
-          for (let name of ['OpenCL', 'CUDA']) {
-            let type    = name.toLowerCase()
-            let cinfo   = gpu[type] = gpu[type] || {}
-            let enabled = cinfo.compute
-
-            cinfo.image = `/images/${enabled ? '' : 'no-'}${type}.png`
-
-            if (enabled)
-              cinfo.title = `${name} enabled with compute level ` +
-                `${cinfo.compute} and driver version ${cinfo.driver}.`
-
-            else cinfo.title = `${name} not supported.`
-          }
-
           gpus.push(gpu)
         }
       }

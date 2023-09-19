@@ -27,8 +27,12 @@
 -->
 
 <script>
+import GPUFieldset from './GPUFieldset.vue'
+
+
 export default {
   props: ['info'],
+  components: {GPUFieldset},
 
 
   data() {
@@ -89,54 +93,7 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
           th Cores
           td {{info.cpus}}
 
-    fieldset(v-for="(gpu, id) in info.gpus")
-      legend {{id}}
-      table
-        tr
-          th Description
-          td {{gpu.description}}
-
-        tr
-          th Supported
-          td {{gpu.supported ? 'True' : 'False'}}
-
-        tr
-          th Vendor
-          td {{gpu.type}}
-
-        tr
-          th UUID
-          td {{gpu.uuid}}
-
-        tr
-          th PCI Device ID
-          td 0x{{gpu.device.toString(16)}}
-
-        tr
-          th PCI Vendor ID
-          td 0x{{gpu.vendor.toString(16)}}
-
-      fieldset
-        legend: img.gpu-icon(:src="gpu.cuda.image")
-        table
-          tr
-            th Compute
-            td {{gpu.cuda.compute}}
-
-          tr
-            th Driver
-            td {{gpu.cuda.driver}}
-
-      fieldset
-        legend: img.gpu-icon(:src="gpu.opencl.image")
-        table
-          tr
-            th Compute
-            td {{gpu.opencl.compute}}
-
-          tr
-            th Driver
-            td {{gpu.opencl.driver}}
+    GPUFieldset(v-for="(gpu, id) in info.gpus", :gpu="gpu", :id="id")
 </template>
 
 <style lang="stylus">
