@@ -67,10 +67,10 @@ export default {
 @import('colors.styl')
 
 .projects > .project
-  border 1px solid border-color
+  border 1px solid var(--border-color)
   padding 1em
   margin 0.5em 0
-  background panel-bg
+  background var(--panel-bg)
 
   .project-body
     overflow hidden
@@ -105,7 +105,7 @@ export default {
         margin 0
 
   .read-more
-    color link-color
+    color var(--link-color)
     cursor pointer
     padding 0.5em 0
 

@@ -76,7 +76,7 @@ label.help-balloon(@mouseenter="enter", @mouseleave="leave")
       height 1em
       vertical-align unset
       font-size 100%
-      color border-color
+      color var(--border-color)
 
   > span > .fa-caret-left
     transform scale(2.5)
@@ -93,7 +93,7 @@ label.help-balloon(@mouseenter="enter", @mouseleave="leave")
     max-width 80vw
     font-weight normal
     background #fff
-    border 1px solid border-color
+    border 1px solid var(--border-color)
     border-radius 4px
     padding 1em
     box-shadow 4px 4px 8px #666

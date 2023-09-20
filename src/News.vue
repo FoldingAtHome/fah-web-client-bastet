@@ -52,17 +52,17 @@ export default {
 
 .news-feed
   article
-    background panel-bg
-    border 1px solid border-color
+    background var(--panel-bg)
+    border 1px solid var(--border-color)
     padding 0 1em
     margin 1em auto
     max-width 60em
 
     > .title
-      color body-fg
+      color var(--body-fg)
 
       &:hover
-        color link-color
+        color var(--link-color)
 
     > .byline
       font-size 80%

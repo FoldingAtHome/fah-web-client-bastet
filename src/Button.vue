@@ -82,8 +82,8 @@ a.button
   font-weight bold
   padding 0.75em 1.5em
   border 0
-  color button-fg
-  background button-bg
+  color var(--button-fg)
+  background var(--button-bg)
   white-space nowrap
   display flex
   gap 0.5em
@@ -91,13 +91,13 @@ a.button
   text-decoration none
 
   &.button-success
-    background button-success
+    background var(--button-success)
 
   &.button-caution
-    background button-caution
+    background var(--button-caution)
 
   &:hover
-    background link-color
+    background var(--link-color)
 
   &.button-image, &.button-icon
     padding 0
@@ -108,7 +108,7 @@ a.button
     font-size 110%
 
     &:hover
-      color link-color
+      color var(--link-color)
 
   &.button-image
     border 1px solid transparent
@@ -116,7 +116,7 @@ a.button
     overflow hidden
 
     &:hover
-      border-color link-color
+      var(--border-color) var(--link-color)
 
   img
     margin 0
@@ -124,16 +124,16 @@ a.button
     max-height 48px
 
   &.button-disabled
-    color button-disabled-fg
-    background button-disabled-bg
+    color var(--button-disabled-fg)
+    background var(--button-disabled-bg)
     cursor default
 
     &:hover
-      background button-disabled-bg
+      background var(--button-disabled-bg)
 
     &.button-icon
       background transparent
-      color button-disabled-fg
+      color var(--button-disabled-fg)
 
       &:hover
         background transparent

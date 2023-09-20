@@ -61,7 +61,7 @@ export default {
     text-decoration none
 
     &:not(:hover)
-      color warn-color
+      color var(--warn-color)
 
     .fa
       font-size 10pt

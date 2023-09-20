@@ -207,10 +207,10 @@ export default {
 
     .user-info
       a:visited, a:link
-        color link-alt
+        color var(--link-alt)
 
       a:hover
-        color link-color
+        color var(--link-color)
 
       .team-logo
         max-width 24px
@@ -254,18 +254,18 @@ export default {
       border-collapse collapse
 
     tr:nth-child(odd)
-      background table-odd
+      background var(--table-odd)
 
     tr:nth-child(even)
-      background table-even
+      background var(--table-even)
 
     th
-      color header-fg
-      background header-bg
+      color var(--header-fg)
+      background var(--header-bg)
 
     td, th
       text-align left
-      border 1px solid border-color
+      border 1px solid var(--border-color)
       padding 0.25em 0.5em
       white-space nowrap
 

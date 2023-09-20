@@ -103,7 +103,7 @@ Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
   gap 1em
 
   fieldset
-    background panel-bg
+    background var(--panel-bg)
     border-radius 3px
     display grid
     gap 1em

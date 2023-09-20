@@ -35,17 +35,6 @@ export default {
   components: {GPUFieldset},
 
 
-  data() {
-    return {
-      buttons: [{name: 'Ok', icon: 'check'}]
-    }
-  },
-
-
-  computed: {
-  },
-
-
   methods: {
     exec() {return this.$refs.dialog.exec()}
   }
@@ -53,7 +42,7 @@ export default {
 </script>
 
 <template lang="pug">
-Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
+Dialog(ref="dialog", :zIndex="2000", :allowClickAway="true",
   class="machine-details-dialog", width="40em")
   template(v-slot:header) Machine Details
   template(v-slot:body)
@@ -98,10 +87,6 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
 
 <style lang="stylus">
 .machine-details-dialog
-  max-height 100vh
-  max-width 100vw
-  overflow auto
-
   .gpu-icon
     max-height 32px
 
@@ -129,7 +114,7 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
       vertical-align top
       text-align right
       white-space nowrap
-      width 10em
+      width 8em
 
   .dialog-footer
     display none !important

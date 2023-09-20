@@ -147,7 +147,7 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
 
     th, td
       border 1px solid #666
-      padding 0.125em
+      padding 0.125em 0.25em
 
     th
       vertical-align top

@@ -118,25 +118,29 @@ Teleport(to="body")
   left 0
   width 100vw
   height 100vh
-  background overlay-bg
+  background var(--overlay-bg)
   display grid
-  overflow auto
   grid-template-rows 0.5fr min-content 1fr
   grid-template-columns 1fr 30em 1fr
 
   .dialog
+    max-width 95vw
+    max-height 95vh
+    overflow hidden
     grid-column 2
     grid-row 2
-    background panel-bg
+    background var(--panel-bg)
     box-shadow 3px 3px 12px #222
+    display flex
+    flex-direction column
 
     > *
       padding 1em
 
     .dialog-header
-      background header-bg
-      color header-fg
-      border-bottom 1px solid border-color
+      background var(--header-bg)
+      color var(--header-fg)
+      border-bottom 1px solid var(--border-color)
       display flex
       gap 0.5em
       font-size 120%
@@ -151,6 +155,10 @@ Teleport(to="body")
 
         &:hover
           color #888
+
+    .dialog-body
+      flex 1
+      overflow-y auto
 
     .dialog-footer
       display flex
