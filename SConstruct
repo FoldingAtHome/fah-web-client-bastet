@@ -22,7 +22,7 @@ if 'dist' in COMMAND_LINE_TARGETS:
     env.RunCommandOrRaise(['npm', 'run', 'build'])
 
   distfiles = ['dist', 'LICENSE']
-  tar = env.TarBZ2Dist('fah-web-control', distfiles)
+  tar = env.TarBZ2Dist(package_info['name'], distfiles)
   AlwaysBuild(tar)
   Alias('dist', tar)
   Clean(tar, ['dist', 'dist.txt'])
