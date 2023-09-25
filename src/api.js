@@ -28,12 +28,12 @@ import util from './util.js'
 
 
 class API {
-  constructor(url, cache, timeout = 24 * 60 * 60 * 1000) {
+  constructor(ctx, url, timeout = 24 * 60 * 60 * 1000) {
     this.url      = url
-    this.cache    = cache
+    this.cache    = ctx.$cache
     this.timeout  = timeout
     this.sid      = util.retrieve('fah-sid', 0)
-    this.data     = reactive({})
+    this.data     = reactive({causes: []})
 
     this._error_handler = (action, error) => {
       console.error(action + ' failed with "' + error + '"')
@@ -111,7 +111,9 @@ class API {
     delete causes[0]
     causes = Object.values(causes).sort()
     causes.unshift('any')
-    this.data.causes = causes
+
+    for (let cause of causes)
+      this.data.causes.push(cause)
   }
 
 

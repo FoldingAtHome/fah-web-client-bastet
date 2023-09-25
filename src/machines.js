@@ -31,17 +31,16 @@ import Machine from './machine.js'
 
 
 class Machines {
-  constructor(api, account) {
-    this.api      = api
-    this.account  = account
+  constructor(ctx) {
+    this.ctx      = ctx
     this.machines = reactive({})
 
     watchEffect(() => {
-      if (!account.data.machines) return
+      if (!ctx.$account.data.machines) return
 
       // Add new machines and set machine name
       let found = {}
-      for (let config of account.data.machines) {
+      for (let config of ctx.$account.data.machines) {
         let mach = this.get(config.id)
         if (!mach) mach = this.add(config.id)
         mach.set_name(config.name)
@@ -82,7 +81,7 @@ class Machines {
   has(id) {return this.machines[id] != undefined}
   get(id) {return this.machines[id]}
   add(id) {this.set(id, this.create(id)); return this.get(id)}
-  create(id) {return new Machine(id, this.api, this.account.data.id)}
+  create(id) {return new Machine(id, this.ctx)}
 
 
   get_local() {
@@ -100,32 +99,24 @@ class Machines {
   *get_units() {for (let mach of this) yield* mach}
 
 
-  fold() {
+  async fold() {
+    if (this.ctx.$node.active)
+      return this.ctx.$node.broadcast('state', {state: 'fold'})
+
     for (let mach of this)
-      if (mach.is_connected())
-        mach.fold()
+      mach.fold()
   }
 
 
   async pause(confirm, machs) {
-    let active = []
-    if (!machs) machs = this
+    let state = await confirm()
+    if (state != 'pause' && state != 'finish') return
 
-    for (let mach of machs) {
-      if (mach.is_active()) active.push(mach)
-      else if (mach.is_connected()) mach.pause()
-    }
+    if (machs || !this.ctx.$node.active)
+      for (let mach of (machs || this))
+        mach[state]()
 
-    if (active.length) {
-      let result = 'pause'
-      if (confirm) result = await confirm()
-
-      for (let mach of active)
-        switch (result) {
-        case 'pause':  mach.pause();  break
-        case 'finish': mach.finish(); break
-        }
-    }
+    else return this.ctx.$node.broadcast('state', {state})
   }
 }
 

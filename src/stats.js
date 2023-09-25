@@ -46,13 +46,13 @@ class Stats {
 
 
   get_data() {return this.data.stats}
-  get_name() {return this.data.name}
+  get_user() {return this.data.user}
   get_team() {return this.data.team}
 
 
   is_anon() {
-    let name = this.data.name
-    return !name || name.toLowerCase() == 'anonymous'
+    let user = this.data.user
+    return !user || user.toLowerCase() == 'anonymous'
   }
 
 
@@ -73,16 +73,15 @@ class Stats {
 
 
   _get_stats() {
-    let {user, name, team, passkey} = this._get_config()
+    let {user, team, passkey} = this._get_config()
 
-    name = user || name
-    this.data.name    = name
+    this.data.user    = user
     this.data.team    = team
     this.data.passkey = passkey
 
     if (this.is_anon() && !team) return this.data.stats = {}
 
-    let path = `/user/${name}/stats`
+    let path = `/user/${user}/stats`
     let data = {team}
     if (passkey) data.passkey = passkey
 

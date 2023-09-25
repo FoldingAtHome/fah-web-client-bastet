@@ -102,7 +102,7 @@ export default {
 
     async login() {
       const {user, team, passkey} = this.$machs.get_local_config()
-      const config = {name: user || '', team: team || 0, passkey: passkey || ''}
+      const config = {user: user || '', team: team || 0, passkey: passkey || ''}
 
       let result = await this.$refs.login_dialog.exec(config)
 
@@ -110,6 +110,7 @@ export default {
         switch (result.response) {
         case 'login':
           await this.$account.login_with_passphrase(result.data)
+          await this.$node.login()
           this.$router.push('/')
           break
 
@@ -129,11 +130,31 @@ export default {
     },
 
 
-    fold() {this.$machs.fold()},
+    async logout() {
+      await this.$root.pacify(async () => {
+        await this.$node.logout()
+        await this.$account.logout()
+      })
+    },
+
+
+    async fold() {
+      try {
+        await this.$machs.fold()
+      } catch (e) {
+        this.message('error', 'Folding failed',
+                     'Failed to start folding on all machines: ' + e)
+      }
+    },
 
 
     async pause(machs) {
-      this.$machs.pause(this.$refs.pause_dialog.exec, machs)
+      try {
+        await this.$machs.pause(this.$refs.pause_dialog.exec, machs)
+      } catch (e) {
+        this.message('error', 'Pause failed',
+                     'Failed to pause folding on all machines: ' + e)
+      }
     }
   }
 }

@@ -65,7 +65,7 @@ export default {
 
 <template lang="pug">
 label(:title="'Machine id ' + mach.get_id()") Name
-input(v-model="name", pattern="[\\w-]+")
+input(v-model="name", pattern="[\\w\\-]+")
 div
   Button.button-icon(v-if="linked", @click="save", icon="save",
     :disabled="!valid || !modified", title="Save machine name.")

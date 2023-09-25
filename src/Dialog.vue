@@ -27,9 +27,6 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
   name: 'Dialog',
   emits: ['close'],
@@ -74,7 +71,7 @@ export default {
 
     exec()  {
       if (this.active) return
-      util.lock_scrolling()
+      this.$util.lock_scrolling()
       this.active = true
       return new Promise(resolve => this.resolve = resolve)
     },
@@ -82,7 +79,7 @@ export default {
 
     close(result) {
       if (!this.active) return
-      util.unlock_scrolling()
+      this.$util.unlock_scrolling()
       this.active = false
 
       if (result) this.$emit('close', result)
@@ -96,7 +93,7 @@ export default {
 <template lang="pug">
 Teleport(to="body")
   .dialog-overlay(v-show="active", @click="click_away", :style="style")
-    .dialog(@click.prevent.stop="true", :class="class")
+    .dialog(:class="class", @click.stop="true")
       .dialog-header
         .dialog-header-slot: slot(name="header")
         .dialog-close(v-if="allowCancel", @click="close('cancel')")

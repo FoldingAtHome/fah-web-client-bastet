@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       account: {
-        name: this.$adata.name,
+        user: this.$adata.user,
         team: 0,
         passkey: ''
       }
@@ -49,10 +49,10 @@ export default {
 
 
     valid() {
-      for (const name of Object.keys(this.account)) {
-        this.account[name] = this.account[name] // Trigger on value change
+      for (const key of Object.keys(this.account)) {
+        this.account[key] = this.account[key] // Trigger on value change
 
-        if (this.$refs[name] && !this.$refs[name].validity.valid)
+        if (this.$refs[key] && !this.$refs[key].validity.valid)
           return false
       }
 
@@ -79,7 +79,7 @@ Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
         legend Required
 
         label Username
-        input(ref="name", v-model="account.name", minLength="2",
+        input(ref="user", v-model="account.user", minLength="2",
           maxLength="100", required)
         div
 
@@ -92,7 +92,7 @@ Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
 
         label Passkey
         input(ref="passkey", v-model="account.passkey",
-          pattern="[0-9a-fA-F]{31,32}")
+          pattern="[\\da-fA-F]{31,32}")
         div
 </template>
 

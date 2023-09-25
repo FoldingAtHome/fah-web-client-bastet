@@ -31,12 +31,10 @@ import NodeMachConn from './node-mach-conn.js'
 
 
 class Node extends Sock {
-  constructor(account, machs, ...args) {
+  constructor(ctx, ...args) {
     super(undefined, ...args)
-
-    this.account = account
-    this.adata   = account.get_data()
-    this.machs   = machs
+    this.ctx = ctx
+    this.active = false
   }
 
 
@@ -60,20 +58,20 @@ class Node extends Sock {
 
     // Decrypt cipher key
     let key = util.base64_decode(msg.payload.key)
-    key = await crypto.rsa_decrypt(this.prikey, key)
+    key = await crypto.rsa_decrypt(this.deckey, key)
     key = await crypto.aes_import(key)
 
-    let mach = this.machs.get(id)
+    let mach = this.ctx.$machs.get(id)
 
     // Update our machines list
     if (!mach) {
-      await this.account.update()
-      mach = this.machs.get(id)
+      await this.ctx.$account.update()
+      mach = this.ctx.$machs.get(id)
     }
 
     if (mach && !mach.is_direct()) {
       console.log('Adding node machine connection', id)
-      let conn = new NodeMachConn(mach, this, key)
+      let conn = new NodeMachConn(this.ctx, mach, key)
       mach.set_conn(conn)
       await conn.open()
 
@@ -82,7 +80,7 @@ class Node extends Sock {
 
 
   async _mach_del(id) {
-    let mach = this.machs.get(id)
+    let mach = this.ctx.$machs.get(id)
     if (!mach || mach.is_direct()) return
 
     console.log('Closing node machine connection', id)
@@ -93,7 +91,7 @@ class Node extends Sock {
 
 
   async _mach_msg(msg) {
-    let mach = this.machs.get(msg.client)
+    let mach = this.ctx.$machs.get(msg.client)
     if (mach) return mach.get_conn().receive(msg)
   }
 
@@ -103,6 +101,7 @@ class Node extends Sock {
     case 'connect':    return this._mach_add(msg.client)
     case 'disconnect': return this._mach_del(msg.id)
     case 'message':    return this._mach_msg(msg)
+    case 'broadcast':  break // Ignore for now
     default: throw 'Unsupported account message type "' + msg.type + '"'
     }
   }
@@ -114,12 +113,14 @@ class Node extends Sock {
   on_close(event) {
     console.log('Account closed')
 
-    for (let mach of this.machs)
+    for (let mach of this.ctx.$machs)
       if (!mach.is_direct())
         mach.close()
 
-    // TODO Backoff reconnect attempts
-    this.connect()
+    // Work around for Brave.  Loading the node's root page lets it connect.
+    fetch('https://' + this.ctx.$adata.node, {mode: 'no-cors'})
+
+    if (this.active) setTimeout(() => this.connect(), 1000)
   }
 
 
@@ -128,34 +129,55 @@ class Node extends Sock {
 
   async _login() {
     // Compute account ID
-    let apub = await crypto.spki_import(util.base64_decode(this.adata.pubkey))
+    let apub = util.base64_decode(this.ctx.$adata.pubkey)
+    apub     = await crypto.spki_import(apub)
     this.id  = await crypto.pubkey_id(apub)
-
-    // Import private key for decryption
-    this.prikey = await crypto.pkcs8_import(this.account.secret, 'RSA-OAEP')
 
     // Send login message
     this.sid    = util.urlbase64_encode(crypto.get_random(12))
     let payload = {time: new Date().toISOString(), session: this.sid}
-    let prikey  = await crypto.pkcs8_import(
-      this.account.secret, 'RSASSA-PKCS1-v1_5')
-    let signature = await crypto.rsa_sign(prikey, JSON.stringify(payload))
+    let signature = await crypto.rsa_sign(this.sigkey, JSON.stringify(payload))
 
     let msg = {
       type: 'login',
       payload,
-      pubkey: this.adata.pubkey,
+      pubkey: this.ctx.$adata.pubkey,
       signature: util.urlbase64_encode(signature),
     }
 
-    return this.send(msg)
+    this.send(msg)
   }
 
 
-  login() {
-    if (!this.adata.node) return
-    this.set_url('wss://' + this.adata.node + '/ws/account')
+  async login() {
+    if (!this.ctx.$adata.node) return
+    this.active = true
+
+    // Import private key for decryption and signing
+    let secret = this.ctx.$account.secret
+    this.deckey = await crypto.pkcs8_import(secret, 'RSA-OAEP')
+    this.sigkey = await crypto.pkcs8_import(secret, 'RSASSA-PKCS1-v1_5')
+
+    this.set_url('wss://' + this.ctx.$adata.node + '/ws/account')
     this.connect()
+  }
+
+
+  async logout() {
+    this.active = false
+    return this.close()
+  }
+
+
+  async broadcast(cmd, data = {}) {
+    if (!this.connected) throw 'Account not connected'
+
+    let payload   = Object.assign({cmd, time: new Date().toISOString()}, data)
+    let signature = await crypto.rsa_sign(this.sigkey, JSON.stringify(payload))
+    signature     = util.urlbase64_encode(signature)
+
+    console.debug('Broadcasting:', payload)
+    this.send({type: 'broadcast', payload, signature})
   }
 }
 

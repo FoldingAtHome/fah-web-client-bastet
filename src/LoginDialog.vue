@@ -34,7 +34,7 @@ export default {
       email: '',
       passphrase:  '',
       passphrase2:  '',
-      name: '',
+      user: '',
       team: 0,
       passkey: '',
       show: false
@@ -86,7 +86,7 @@ export default {
         data = {
           email:      this.email,
           passphrase: this.passphrase,
-          name:       this.name || 'Anonymous',
+          user:       this.user || 'Anonymous',
           team:       this.team,
           passkey:    this.passkey || undefined,
         }
@@ -117,15 +117,15 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
     template(v-else) Register a new Folding@home account
 
   template(v-slot:body)
-    .login-dialog
+    form.login-dialog
       fieldset.settings
         label {{login ? '' : '* '}}Email
-        input(v-model="email")
+        input(v-model="email", autocomplete="username")
         div
 
         label {{login ? '' : '* '}}Passphrase
         input(v-model="passphrase", :type="show ? 'text' : 'password'",
-          @keyup.enter="do_login")
+          @keyup.enter="do_login", autocomplete="current-password")
 
         div
           Button.button-icon(:icon="'eye' + (show ? '' : '-slash')",
@@ -143,7 +143,7 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
               title="Copy passphrase to clipboard.")
 
           label Username
-          input(v-model="name")
+          input(v-model="user")
           div
 
           label Team

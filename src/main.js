@@ -48,28 +48,23 @@ import DirectMachConn from './direct-mach-conn.js'
 
 
 async function main(url) {
-  const cache   = new Cache('fah')
-  const api     = new API(url, cache)
-  const account = new Account(api)
-  const adata   = await account.try_login()
-  const machs   = new Machines(api, account)
   const app     = createApp(App);
-  const global  = app.config.globalProperties
+  const ctx     = app.config.globalProperties
+  ctx.$util     = util
+  ctx.$crypto   = crypto
+  ctx.$cache    = new Cache('fah')
+  ctx.$api      = new API(ctx, url)
+  ctx.$account  = new Account(ctx)
+  ctx.$adata    = await ctx.$account.try_login()
+  ctx.$machs    = new Machines(ctx)
+  ctx.$node     = new Node(ctx)
+  ctx.$projects = new Projects(ctx)
+  ctx.$stats    = new Stats(ctx)
+  ctx.$news     = new News(ctx)
 
-  console.debug({account: Object.assign({}, adata)})
+  console.debug({account: Object.assign({}, ctx.$adata)})
 
-  global.$util     = util
-  global.$crypto   = crypto
-  global.$adata    = adata
-  global.$account  = account
-  global.$api      = api
-  global.$machs    = machs
-  global.$node     = new Node(account, machs)
-  global.$projects = new Projects(api, machs)
-  global.$stats    = new Stats(global)
-  global.$news     = new News(cache)
-
-  new DirectMachConn(machs, 'local', '127.0.0.1:7396')
+  new DirectMachConn(ctx, 'local', '127.0.0.1:7396')
 
   app.use(router)
   app.component('Button',        Button)

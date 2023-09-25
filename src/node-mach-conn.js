@@ -29,9 +29,9 @@ import MachConnection from './mach-connection.js'
 
 
 class NodeMachConn extends MachConnection {
-  constructor(mach, node, key) {
+  constructor(ctx, mach, key) {
     super(mach)
-    this.node = node
+    this.ctx  = ctx
     this.key  = key
     this.ivs  = {}
   }
@@ -40,7 +40,7 @@ class NodeMachConn extends MachConnection {
   async open() {
     await this._send({
       type:   'session-open',
-      session: this.node.sid,
+      session: this.ctx.$node.sid,
     })
 
     this.on_open()
@@ -57,14 +57,14 @@ class NodeMachConn extends MachConnection {
   async send(msg) {
     return this._send({
       type:    'message',
-      session: this.node.sid,
+      session: this.ctx.$node.sid,
       content: msg,
     })
   }
 
 
   async _send(msg) {
-    console.log('Sending:', msg)
+    console.debug('Sending:', msg)
 
     let iv = crypto.get_random(16)
 
@@ -75,7 +75,8 @@ class NodeMachConn extends MachConnection {
     iv = util.urlbase64_encode(iv)
     this.ivs[iv] = true
 
-    return this.node.send({type: 'message', id: this.get_id(), iv, payload})
+    msg = {type: 'message', id: this.get_id(), iv, payload}
+    return this.ctx.$node.send(msg)
   }
 
 
@@ -96,7 +97,8 @@ class NodeMachConn extends MachConnection {
 
     payload = JSON.parse(payload)
 
-    if (payload.session != this.node.sid) throw 'Message not for this session'
+    if (payload.session != this.ctx.$node.sid)
+      throw 'Message not for this session'
 
     // TODO find correct machine instance for payload.group
 

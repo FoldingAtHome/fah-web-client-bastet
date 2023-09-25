@@ -30,9 +30,8 @@ import util from './util.js'
 
 
 class Projects {
-  constructor(api, machs, timeout = 24 * 60 * 60 * 1000) {
-    this.api      = api
-    this.machs    = machs
+  constructor(ctx, timeout = 24 * 60 * 60 * 1000) {
+    this.ctx      = ctx
     this.loading  = {}
     this.projects = reactive({})
     this.timeout  = timeout
@@ -46,7 +45,7 @@ class Projects {
   _update() {
     let projects = {}
 
-    for (let mach of this.machs)
+    for (let mach of this.ctx.$machs)
       if (mach.get_data().units)
         for (let unit of mach.get_data().units)
           if (unit.assignment) projects[unit.assignment.project] = true
@@ -69,8 +68,8 @@ class Projects {
 
     this.loading[id] = true
     try {
-      let url = this.api.url + '/project/' + id
-      let data = await this.api.fetch({
+      let url = this.ctx.$api.url + '/project/' + id
+      let data = await this.ctx.$api.fetch({
         path: '/project/' + id, expire: 0,
         action: 'Downloading project description.',
         error_cb: () => false // Don't show error message

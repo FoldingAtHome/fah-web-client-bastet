@@ -27,15 +27,15 @@
 -->
 
 <script>
-import util        from './util'
-import AccountMach from './AccountMach.vue'
+import AccountMach    from './AccountMach.vue'
+import CommonSettings from './CommonSettings.vue'
 
 
 function copy_account(data) {
   let cause = (!data.cause || data.cause == 'unspecified') ? 'any' : data.cause
 
   return {
-    name:    data.name,
+    user:    data.user,
     team:    data.team    || 0,
     passkey: data.passkey || undefined,
     cause,
@@ -47,13 +47,12 @@ function copy_account(data) {
 
 export default {
   inheritAttrs: false,
-  components: {AccountMach},
+  components: {AccountMach, CommonSettings},
 
 
   data() {
     return {
       account_new: {},
-      causes:      [],
       confirmed:   false,
       show:        {},
 
@@ -73,8 +72,8 @@ export default {
 
   computed: {
     modified() {
-      return !util.isEqual(copy_account(this.account_new),
-                           copy_account(this.$adata))
+      return !this.$util.isEqual(copy_account(this.account_new),
+                                 copy_account(this.$adata))
     }
   },
 
@@ -86,10 +85,7 @@ export default {
   },
 
 
-  async mounted() {
-    this.init()
-    this.causes = await this.$api.get_causes()
-  },
+  async mounted() {this.init()},
 
 
   methods: {
@@ -97,10 +93,8 @@ export default {
 
 
     async logout() {
-      await this.$root.pacify(async () => {
-        await this.$account.logout()
-        this.close()
-      })
+      await this.$root.logout()
+      this.close()
     },
 
 
@@ -119,8 +113,16 @@ export default {
 
     async save() {
       return this.$root.pacify(async () => {
-        await this.$account.save(copy_account(this.account_new))
-        this.close()
+        try {
+          let config = copy_account(this.account_new)
+          await this.$account.save(config)
+          await this.$node.broadcast('config', {config})
+          this.close()
+
+        } catch (e) {
+          this.$root.message('error', 'Save Failed',
+                             'Failed to save account settings: ' + e)
+        }
       })
     },
 
@@ -152,6 +154,7 @@ export default {
       if (response == 'delete')
         return this.$root.pacify(async () => {
           await this.$account.delete()
+          if (this.$node.active) await this.$node.broadcast('reset')
           this.close()
         })
     }
@@ -186,54 +189,13 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
         HelpBalloon(name="Account").
           These settings affect all of the machines linked to your account.
 
-      HelpBalloon(name="Username").
-        Choose a display name for your Folding@home account.  This name
-        does not have to be unique.  It may contain any characters other
-        than #[tt &lt;], #[tt &gt;], #[tt &#59;], or #[tt &amp;] and must be
-        between 2 and 100 characters in length.  If you wish to remain
-        anonymous enter #[tt Anonymous].
-
-      input(v-model="account_new.name")
-      div
-
-      HelpBalloon(name="Team")
-        | You may wish to join a Folding@home team.  If you do not already have
-        | a team you can create a new one. Enter #[tt 0] for no team.
-        Button(text="Create a Team", icon="plus",
-          href="https://apps.foldingathome.org/team")
-
-      input(v-model.number="account_new.team", type="number")
-      div
-
-      HelpBalloon(name="Passkey")
-        | A passkey allows you to collect bonus points.  Enter a passkey if you
-        | have one.  You may leave this field blank.  Click the button to obtain
-        | a passkey.
-        Button(text="Get a Passkey", icon="key",
-          href="https://apps.foldingathome.org/getpasskey")
-
-
-      input(v-model="account_new.passkey", pattern="[\\da-fA-F]{31,32}",
-        :type="show.key ? 'text' : 'password'")
-
-      div
-        Button.button-icon(:icon="'eye' + (show.key ? '' : '-slash')",
-          @click="show.key = !show.key",
-          :title="(show.key ? 'Hide' : 'Show') + ' passkey'")
-
-      HelpBalloon(name="Cause").
-        You may choose a prefered cause to support.  Folding@home will try to
-        assign you more work supporting your prefered cause.
-
-      select(v-model="account_new.cause")
-        option(v-for="name in causes", :value="name") {{name}}
-      div
+      CommonSettings(:config="account_new")
 
       HelpBalloon(name="Node").
         A Folding@home node helps you connect to your remote clients.
         Unless otherwise instructed, it's best to leave the default value.
 
-      input(v-model="account_new.node", pattern="[\\w-]+(\.[\\w-]+)+")
+      input(v-model="account_new.node", pattern="[\\w\\-]+(\\.[\\w\\-]+)+")
       div
 
       HelpBalloon(name="Token")
@@ -255,8 +217,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
           your Folding@home account on, it will automatically be linked to your
           account.
 
-      input(v-model="$adata.token",
-        :type="show.token ? 'text' : 'password'", readonly)
+      input(v-model="$adata.token", :class="{password: !show.token}", readonly)
 
       div
         Button.button-icon(:icon="'eye' + (show.token ? '' : '-slash')",

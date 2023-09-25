@@ -27,9 +27,9 @@ import {reactive} from 'vue'
 
 
 class News {
-  constructor(cache, url = 'https://foldingathome.org/wp-json/wp/v2',
+  constructor(ctx, url = 'https://foldingathome.org/wp-json/wp/v2',
               timeout = 24 * 60 * 60 * 1000) {
-    this.cache   = cache
+    this.cache   = ctx.$cache
     this.url     = url
     this.timeout = timeout
     this.data    = reactive({

@@ -160,7 +160,7 @@ export default {
         'Are you sure you want to dump this Work Unit.  All progress on this ' +
         'Work Unit will be lost and no points will be awarded.')
 
-      if (result == 'dump') this.mach.dump(id)
+      if (result == 'ok') this.mach.dump(id)
     },
 
 

@@ -33,8 +33,8 @@ function get_redirect() {return location.href.replace(/\/?#.*$/, '')}
 
 
 class Account {
-  constructor(api) {
-    this.api      = api
+  constructor(ctx) {
+    this.api      = ctx.$api
     this.provider = util.retrieve('fah-provider', 0)
     this.data     = reactive({})
 
@@ -76,7 +76,7 @@ class Account {
 
 
   async register(config) {
-    const {name, team, passkey, avatar, node, email, passphrase} = config
+    const {user, team, passkey, avatar, node, email, passphrase} = config
     const salt = email.toLowerCase()
 
     const {pubkey, password, secret, key} =
@@ -84,7 +84,7 @@ class Account {
 
     const verify_url = location.origin + '/verify/'
     const data =
-        {name, team, passkey, avatar, node, email, password, pubkey, secret,
+        {user, team, passkey, avatar, node, email, password, pubkey, secret,
          verify_url}
 
     return this.api.put('/register', data)
@@ -253,7 +253,7 @@ class Account {
 
 
   async check(create_dialog, ok) {
-    if (!this.data.name) return
+    if (!this.data.user) return
 
     if (!this.data.created) {
       let account = await create_dialog()

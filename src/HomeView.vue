@@ -44,9 +44,9 @@ export default {
     units()     {return [...this.$machs.get_units()]},
     stats()     {return this.$stats.get_data()},
     is_anon()   {return this.$stats.is_anon()},
-    name()      {return this.$stats.get_name()},
+    user()      {return this.$stats.get_user()},
     team()      {return this.$stats.get_team()},
-    user_url()  {return this.$stats.user_url + this.name},
+    user_url()  {return this.$stats.user_url + this.user},
     team_url()  {return this.$stats.team_url + this.team},
     team_name() {return this.stats.team_name || this.team},
 
@@ -81,13 +81,13 @@ export default {
       .logo-block
         FAHLogo
 
-      .user-info(v-if="name")
+      .user-info(v-if="user")
         template(v-if="is_anon")
           label Folding anonymously
 
         template(v-else)
           label Folding as
-          .user #[a(:href="user_url", target="_blank") {{name}}]
+          .user #[a(:href="user_url", target="_blank") {{user}}]
 
         template(v-if="team")
           label for team
@@ -106,10 +106,10 @@ export default {
       .actions(:class="{'icon-buttons': $adata.avatar}")
         Button.button-image(v-if="$adata.avatar", route="/account",
           :image="$adata.avatar",
-          :title="$adata.name + ': Account Settings and Logout.'")
+          :title="$adata.user + ': Account Settings and Logout.'")
 
         Button(v-else-if="$adata.created", route="/account", icon="cog",
-          :title="$adata.name + ': Account Settings and Logout.'",
+          :title="$adata.user + ': Account Settings and Logout.'",
           name="account")
 
         Button(v-else, text="Login", icon="sign-in", @click="login",

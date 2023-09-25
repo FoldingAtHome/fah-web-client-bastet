@@ -32,11 +32,11 @@ import Sock           from './sock.js'
 
 
 class DirectMachConn extends MachConnection {
-  constructor(machs, name, address) {
-    let mach = machs.create('local')
+  constructor(ctx, name, address) {
+    let mach = ctx.$machs.create('local')
     super(mach)
 
-    this.machs = machs
+    this.ctx = ctx
     this.initialized = false
     mach.set_conn(this)
 
@@ -84,7 +84,7 @@ class DirectMachConn extends MachConnection {
   _on_close(event) {
     this._clear_ping()
     this.on_close()
-    this.sock.connect()
+    setTimeout(() => this.sock.connect(), 1000)
   }
 
 
@@ -101,14 +101,14 @@ class DirectMachConn extends MachConnection {
         // Prefer direct connection
         if (info.id) {
           this.mach.id = info.id
-          this.machs.set(info.id, this.mach)
+          this.ctx.$machs.set(info.id, this.mach)
         }
 
         // Update machine name
         if (info.mach_name) this.mach.set_name(info.mach_name)
 
         // Auto link local machine if not already linked to an account
-        let token = this.machs.account.data.token
+        let token = this.ctx.$account.data.token
         if (token && !info.account) this.mach.link(token)
       }
     }

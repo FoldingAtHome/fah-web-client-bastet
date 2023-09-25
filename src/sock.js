@@ -76,7 +76,7 @@ class Sock {
   _timeout() {this.close()}
 
 
-  close() {this.ws.close()}
+  close() {if (this.ws) this.ws.close()}
 
 
   connect() {

@@ -27,18 +27,19 @@
 -->
 
 <script>
-import util from './util'
+import CommonSettings from './CommonSettings.vue'
 
 
 export default {
   props: ['mach'],
+  components: {CommonSettings},
 
 
   data() {
     return {
+      initial_config:  undefined,
       config:          undefined,
-      causes:          [],
-      gpu_advanced:    '',
+      active_gpu:      undefined,
       show_key:        false,
       confirmed:       false,
 
@@ -61,7 +62,7 @@ export default {
 
 
     keys() {
-      let keys = ['on_idle', 'cpus', 'gpus', 'advanced']
+      let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key']
 
       if (!this.have_account)
         return Array.concat(keys, ['user', 'team', 'passkey', 'cause'])
@@ -76,26 +77,12 @@ export default {
 
     modified() {
       if (!this.config) return false
-      return !util.isEqual(this.data.config, this.config)
-    },
-
-
-    gpu_settings_valid() {
-      try {
-        if (!this.gpu_advanced) return true
-        return typeof JSON.parse(this.gpu_advanced) == 'object'
-      } catch (e) {}
-
-      return false
+      return !this.$util.isEqual(this.initial_config, this.config)
     },
 
 
     gpu_settings_dialog_buttons() {
-      return [
-        {name: 'Cancel', icon: 'times'},
-        {name: 'Ok',     icon: 'check', success: true,
-         disabled: !this.gpu_settings_valid}
-      ]
+      return [{name: 'ok', icon: 'check', success: true}]
     },
 
 
@@ -133,7 +120,7 @@ export default {
       }
 
       return gpus
-    },
+    }
   },
 
 
@@ -154,33 +141,53 @@ export default {
   },
 
 
-  async mounted() {
-    this.init(this.data.config)
-    this.causes = await this.$api.get_causes()
-  },
+  mounted() {this.init(this.data.config)},
 
 
   methods: {
     init(config) {
-      if (this.config || !config || util.isEmpty(config)) return
+      if (this.config || !config || this.$util.isEmpty(config)) return
 
-      this.config = util.deepCopy(config)
+      this.config = this.$util.deepCopy(config)
 
-      for (let name in this.available_gpus)
-        if (!this.config.gpus[name])
-          this.config.gpus[name] = {enabled: false}
+      this.config.gpus = {}
+      for (let id in this.available_gpus) {
+        const gpu = config.gpus[id] || {}
+
+        this.config.gpus[id] = {
+          enabled: gpu.enabled || false,
+          beta:    gpu.beta    || false,
+          key:     gpu.key     || 0,
+        }
+      }
 
       if (this.config.cpus < 0) this.config.cpus = 0
 
       if (this.config.cause)
         this.config.cause = this.config.cause.toLowerCase()
+
+      this.config.beta = !!this.config.beta
+      this.config.key  = this.config.key || 0
+
+      this.initial_config = this.$util.deepCopy(this.config)
     },
 
 
     save() {
       let config = {}
+
       for (const key of this.keys)
-        config[key] = this.config[key]
+        if (key == 'gpus') {
+          config.gpus = {}
+
+          for (const [id, gpu] of Object.entries(this.config.gpus)) {
+            let gconf = config.gpus[id] = {}
+
+            for (const gkey of ['enabled', 'beta', 'key'])
+              gconf[gkey] = gpu[gkey]
+          }
+
+        } else config[key] = this.config[key]
 
       this.mach.configure(config)
       this.close()
@@ -196,22 +203,15 @@ export default {
     },
 
 
-    gpu_enabled(id)  {return this.config.gpus[id].enabled},
-    gpu_play(id)     {this.config.gpus[id].enabled = true},
-    gpu_pause(id)    {this.config.gpus[id].enabled = false},
+    gpu_enabled(id) {return this.config.gpus[id].enabled},
+    gpu_play(id)    {this.config.gpus[id].enabled = true},
+    gpu_pause(id)   {this.config.gpus[id].enabled = false},
 
 
     async gpu_settings(id) {
-      let gpu = this.config.gpus[id]
-
-      this.gpu_advanced = ''
-
-      if (gpu.advanced)
-        try {this.gpu_advanced = JSON.stringify(gpu.advanced)} catch (e) {}
-
-      let result = await this.$refs.gpu_settings_dialog.exec()
-      if (result == 'Ok') gpu.advanced = JSON.parse(this.gpu_advanced)
-    },
+      this.active_gpu = id
+      await this.$refs.gpu_settings_dialog.exec()
+    }
   }
 }
 </script>
@@ -224,19 +224,34 @@ Dialog(ref="confirm_dialog", :buttons="confirm_dialog_buttons")
     changes, discard them or cancel and stay on this page?
 
 Dialog.gpu-settings-dialog(
-  ref="gpu_settings_dialog", :buttons="gpu_settings_dialog_buttons")
+  ref="gpu_settings_dialog", :buttons="gpu_settings_dialog_buttons",
+  :allowCancel="false")
   template(v-slot:header) GPU Settings
   template(v-slot:body)
-    HelpBalloon(name="Expert").
-      Advanced settings for expert users.  You can safely leave this blank.
-    input(v-model="gpu_advanced")
+    fieldset.settings(v-if="active_gpu")
+      HelpBalloon(name="Beta Projects").
+        Enable folding of beta projects.  Beta projects are in testing and may
+        fail and cause you to loose points.
+
+      input(v-model="config.gpus[active_gpu].beta", type="checkbox",
+        title="Enable beta projects.")
+      div
+
+      HelpBalloon(name="Project Key").
+        Project keys are used for internal testing of folding projects.
+        Unless you are specically instructed by a Folding@home researcher to use
+        a project key, leave this field set to zero.
+
+      input(v-model="config.gpus[active_gpu].key", type="number",
+        title="Project key.")
+      div
+
 
 .settings-view.page-view
   .view-header-container
     .view-header
       div
         FAHLogo
-        ClientVersion(:mach="mach")
 
       div
         h2 Client Settings
@@ -248,38 +263,15 @@ Dialog.gpu-settings-dialog(
           text="Save", icon="save")
 
   .view-body(v-if="config")
-    fieldset.settings.user-settings(v-if="!have_account")
-      legend Settings
+    fieldset.settings(v-if="!have_account")
+      legend Account Settings
 
-      label Username
-      input(v-model="config.user")
-      div
+      CommonSettings(:config="config")
 
-      label Team
-      input(v-model.number="config.team", type="number")
-      div
-
-      label Passkey
-      input(v-model="config.passkey", pattern="[\da-fA-F]{31,32}",
-        :type="show_key ? 'text' : 'password'")
-
-      Button.button-icon(:icon="'eye' + (show_key ? '' : '-slash')",
-        @click="show_key = !show_key",
-        :title="(show_key ? 'Hide' : 'Show') + ' passkey'")
-
-      label Cause
-      select(v-model="config.cause")
-        option(v-for="name in causes", :value="name") {{name}}
-      div
-
-    fieldset.settings.resources
-      HelpBalloon(name="Only When Idle").
-        Enable folding only when your machine is idle.  I.e. when the mouse
-        and keyboard are not being used.
-
-      input(v-model="config.on_idle", type="checkbox",
-        title="Only fold when computer is idle.")
-      div
+    fieldset.settings
+      legend
+        HelpBalloon(name="Resource Settings").
+          These settings control the usage of your machines compute resources.
 
       HelpBalloon(name="CPUs")
         p Choose how many CPU cores Folding@home should try to utilize.
@@ -331,9 +323,33 @@ Dialog.gpu-settings-dialog(
               title="Start folding on this GPU.", :disabled="!gpu.supported")
       div
 
-      HelpBalloon(name="Expert").
-        Advanced settings for expert users.  You can safely leave this blank.
-      input(v-model="config.advanced", title="Advanced settings")
+      HelpBalloon(name="Only When Idle").
+        Enable folding only when your machine is idle.  I.e. when the mouse
+        and keyboard are not being used.
+
+      input(v-model="config.on_idle", type="checkbox",
+        title="Only fold when computer is idle.")
+      div
+
+    fieldset.settings
+      legend
+        HelpBalloon(name="Expert Settings").
+          These settings are for testing Folding@home.
+
+      HelpBalloon(name="Beta Projects").
+        Enable folding of beta projects.  Beta projects are in testing and may
+        fail and cause you to loose points.
+
+      input(v-model="config.beta", type="checkbox",
+        title="Enable beta projects.")
+      div
+
+      HelpBalloon(name="Project Key").
+        Project keys are used for internal testing of folding projects.
+        Unless you are specically instructed by a Folding@home researcher to use
+        a project key, leave this field set to zero.
+
+      input(v-model="config.key", type="number", title="Project key.")
       div
 </template>
 
@@ -388,13 +404,4 @@ Dialog.gpu-settings-dialog(
       > a
         display inline-block
         margin 0.25em
-
-.gpu-settings-dialog .dialog-body
-  display grid
-  grid-template-columns 5em 1fr
-  gap 1em
-
-  label
-    font-weight bold
-    text-align right
 </style>

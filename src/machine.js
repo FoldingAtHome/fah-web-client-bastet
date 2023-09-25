@@ -90,10 +90,10 @@ function update_obj(data, update) {
 
 
 class Machine {
-  constructor(id, api, aid) {
+  constructor(id, ctx) {
     this.id       = id
-    this.api      = api
-    this.aid      = aid
+    this.api      = ctx.$api
+    this.aid      = ctx.$account.data.id
     this.cache    = this.api.cache
     this.name     = id
     this.state    = reactive({
@@ -172,20 +172,25 @@ class Machine {
   }
 
 
-  sendCommand(cmd, data = {}) {
-    this.send(Object.assign({}, data, {cmd, time: new Date().toISOString()}))
+  async sendCommand(cmd, data = {}) {
+    data = Object.assign({}, data, {cmd, time: new Date().toISOString()})
+    return this.send(data)
   }
 
 
-  setState(state)   {this.sendCommand('state', {state})}
-  fold()            {this.setState('unpause')}
-  finish()          {this.setState('finish')}
-  pause()           {this.setState('pause')}
+  async setState(state)   {return this.sendCommand('state', {state})}
+  async fold()            {return this.setState('fold')}
+  async finish()          {return this.setState('finish')}
+  async pause()           {return this.setState('pause')}
 
 
-  dump(unit)        {this.sendCommand('dump', {unit})}
-  configure(config) {this.sendCommand('config', {config})}
-  link(token)       {this.sendCommand('link', {token, name: this.name})}
+  async dump(unit)        {return this.sendCommand('dump', {unit})}
+  async configure(config) {return this.sendCommand('config', {config})}
+
+
+  async link(token)       {
+    return this.sendCommand('link', {token, name: this.name})
+  }
 
 
   async unlink() {
