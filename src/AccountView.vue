@@ -120,6 +120,7 @@ export default {
           this.close()
 
         } catch (e) {
+          if (e.error) e = e.error
           this.$root.message('error', 'Save Failed',
                              'Failed to save account settings: ' + e)
         }

@@ -96,16 +96,11 @@ class Account {
     const salt = await crypto.sha256(email.toLowerCase())
     const {hash, key} = await this.derive_password(passphrase, salt)
 
-    try {
-      let config = {email, password: hash}
-      let data = await this.api.get('/login', config, 'Signing in')
-      this.api.sid_save(data.id)
-      await this.retrieve_secret(hash, key, salt)
-      await this.update()
-
-    } catch (e) {
-      console.debug('api error:', e)
-    }
+    config = {email, password: hash}
+    let data = await this.api.get('/login', config, 'Signing in')
+    this.api.sid_save(data.id)
+    await this.retrieve_secret(hash, key, salt)
+    await this.update()
   }
 
 
