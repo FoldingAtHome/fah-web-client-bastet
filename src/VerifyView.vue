@@ -66,7 +66,7 @@ export default {
         A verification token can be used only once.  If you've already
         verified your email address, please try to login.
 
-    Button.button-success(icon="sign-in", text="Login in",
+    Button.button-success(icon="sign-in", text="Login",
       @click="$root.login()", title="Login to your Folding@home account.",
       v-if="success || failed")
 </template>

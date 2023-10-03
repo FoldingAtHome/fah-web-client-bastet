@@ -65,7 +65,7 @@ export default {
       let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key']
 
       if (!this.have_account)
-        return Array.concat(keys, ['user', 'team', 'passkey', 'cause'])
+        return keys.concat(['user', 'team', 'passkey', 'cause'])
 
       return keys
     },

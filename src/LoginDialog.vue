@@ -166,8 +166,8 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
           .text-bar Or
 
           .actions
-            Button(icon="sign-in", text="Login in with Google", @click="google",
-              title="Login in to Folding@home with your Google account.")
+            Button(icon="sign-in", text="Login with Google", @click="google",
+              title="Login to Folding@home with your Google account.")
 
         .bar
 
