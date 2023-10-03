@@ -1,6 +1,9 @@
 Folding@home Web Client Changelog
 =================================
 
+## v8.2.2
+ - Fixed bug when saving settings to local client when not logged in to account.
+
 ## v8.2.1
  - Added spinning wheel pacifier when waiting for actions.
  - Improved caching of downloaded resources.  Including 3D view frames.
