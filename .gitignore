@@ -3,6 +3,7 @@ node_modules
 /dist
 /dist.txt
 /*.tar.bz2
+/*.zip
 *~
 /package-lock.json
 /.sconsign.dblite
