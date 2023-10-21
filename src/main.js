@@ -64,7 +64,7 @@ async function main(url) {
 
   console.debug({account: Object.assign({}, ctx.$adata)})
 
-  new DirectMachConn(ctx, 'local', '127.0.0.1:7396')
+  new DirectMachConn(ctx, 'local', util.default_address())
 
   app.use(router)
   app.component('Button',        Button)
