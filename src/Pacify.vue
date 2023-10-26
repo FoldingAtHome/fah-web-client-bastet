@@ -55,7 +55,7 @@ export default {
 <template lang="pug">
 Teleport(to="body")
   .pacify-overlay(v-show="active")
-    img.pacify(src="/images/spinner.gif")
+    .fa.fa-spinner.fa-pulse
 </template>
 
 <style lang="stylus">
@@ -72,4 +72,6 @@ Teleport(to="body")
   overflow hidden
   align-items center
   justify-content center
+  color #aaaa
+  font-size 400%
 </style>
