@@ -145,7 +145,7 @@ class Account {
     //  2. J = RSA-OAEP.import(machine.pubkey)
     //  3. M = J.encrypt(E)
     //  4. N = K.sign(M)
-    //  5. Web client sends M and N to machine via the node.
+    //  5. Web control sends M and N to machine via the node.
     //  6. Machine checks signature N is valid for M.
     //  7. Machine computes E = RSA-OAEP.import(machine.prikey).decrypt(M)
     //  8. Communication proceeds with messages encrypted with E.

@@ -1,4 +1,4 @@
-Folding@home Web Client Changelog
+Folding@home Web Control Changelog
 =================================
 
 ## v8.2.2
