@@ -1,5 +1,5 @@
-Folding@home Bastet Web Client
-==============================
+Folding@home Bastet Web Control
+===============================
 
 This is the frontend Web app for the Folding@home v8 client, codenamed Bastet.
 See Also: https://github.com/FoldingAtHome/fah-client-bastet
