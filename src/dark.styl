@@ -26,69 +26,42 @@
 
 \******************************************************************************/
 
-html .dark
-  --body-bg            #222
+body.dark
+  --highlight-color    #ffbe42
+  --secondary-color    #82cdb1
+
+  --body-bg            #0b121d
   --body-fg            #fff
-  --input-bg           #444
+
+  --header-fg          #fff
+  --header-bg          #0d0d0f
+
+  --input-bg           #0b121d
   --input-border-color #666
 
-  a.button
-    &.button-icon:not(:hover)
-      background transparent
-      color #eee
+  --panel-bg           #0d0d0f
 
-    &.button-disabled
-      color #666
+  --code-bg            #888
+  --code-fg            #eee
 
-      &:hover, .fa
-        color #666
+  --border-color       #223c5f
 
-  .page-view, .view-body, .dialog, .help-balloon .help-content
-    color #ddd
-    background-color #222
+  --button-icon-fg     #eee
+  --button-disabled-fg #666
 
-    h1, h2, h3, h4, h5
-      color #ddd
+  --title-color        #8cb5f1
 
-  .page-view
-    .news-feed article, fieldset, .projects .project
-      background-color #111
+  --log-fg             #7f7f7f
+  --log-bg             #000
 
-    .units th, .units td, .news-feed article, .machines th,
-    .machines td, fieldset, .projects .project
-      border 1px solid #444
+  --overlay-bg         rgba(64, 64, 64, 0.6)
 
-  .page-view .view-header-container .view-header .actions a.button:disabled .fa
-    color #666
+  --shadow-color       #000
 
-  .home-view .units, .home-view .machines, .details-dialog table,
-  .machine-details-dialog
-     tr:nth-child(odd)
-        background #111
+  --table-border-color var(--border-color)
+  --table-header-bg    #13202c
+  --table-header-fg    #f1f1f1
+  --table-even         #101215
+  --table-odd          #161616
 
-     tr:nth-child(even)
-      background #222
-
-     .actions > a.button .fa:not(:hover)
-       color #eee
-
-     .actions > a.button.button-disabled .fa
-       color #666
-
-  .dialog-overlay
-    background rgba(64, 64, 64, 0.8)
-
-    .dialog
-      background-color #222
-      box-shadow 3px 3px 12px #000
-
-      .dialog-header
-        border-bottom 1px solid #666
-
-    .dialog-body fieldset
-      background-color #111
-      border 1px solid #444
-
-  .help-balloon .help-content
-    box-shadow 3px 3px 12px #000
-    border 1px solid #444
+  --border-radius      4px

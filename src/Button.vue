@@ -38,6 +38,25 @@ export default {
 
 
   computed: {
+    _icon() {
+      if (this.icon) return this.icon
+
+      let text = (this.text || this.name).toLowerCase()
+      switch (text) {
+      case 'ok':     case 'yes': return 'check'
+      case 'cancel': case 'no':  return 'times'
+      case 'save':               return 'floppy-o'
+      case 'open':               return 'folder-open'
+      case 'discard':            return 'trash'
+      case 'add': case 'create': return 'plus'
+      case 'edit':               return 'pencil'
+      case 'login':              return 'sign-in'
+      case 'logout':             return 'sign-out'
+      default: return text
+      }
+    },
+
+
     link() {
       if (!this.disabled) {
         if (this.href) return this.href
@@ -68,14 +87,12 @@ export default {
 <template lang="pug">
 a.button(@click="click", :href="link", :target="href ? '_blank' : ''",
   :class="{'button-disabled': disabled, 'button-success': success}")
-  .fa(v-if="icon", :class="'fa-' + icon")
+  .fa(v-if="_icon", :class="'fa-' + _icon")
   img(v-if="image", :src="image")
-  | {{content}}
+  span.button-content(v-if="content") {{content}}
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
-
 a.button
   cursor pointer
   margin 0.5em 0
@@ -85,10 +102,14 @@ a.button
   color var(--button-fg)
   background var(--button-bg)
   white-space nowrap
-  display flex
+  display inline-flex
   gap 0.5em
   flex-direction row
+  justify-content center
+  align-items center
   text-decoration none
+  border-radius var(--border-radius)
+  font-size 85%
 
   &.button-success
     background var(--button-success)
@@ -104,19 +125,21 @@ a.button
     background transparent
 
   &.button-icon
-    color black
+    background transparent
+    color var(--button-icon-fg)
     font-size 110%
+    justify-content center
 
     &:hover
       color var(--link-color)
 
   &.button-image
     border 1px solid transparent
-    border-radius 4px
+    border-radius var(--border-radius)
     overflow hidden
 
     &:hover
-      var(--border-color) var(--link-color)
+      border-color var(--link-color)
 
   img
     margin 0
@@ -137,4 +160,9 @@ a.button
 
       &:hover
         background transparent
+
+@media (max-width 800px)
+  a.button
+    font-size 80%
+    padding 0.5em 0.75em
 </style>

@@ -35,36 +35,26 @@ function addTime(t, offset) {
 
 
 export default {
-  props: ['unit'],
-
-
-  data() {
-    return {
-      buttons: [{name: 'Ok', icon: 'check'}]
-    }
-  },
+  props: ['mach', 'unitID'],
 
 
   computed: {
+    unit()     {return this.mach.get_unit(this.unitID) || {}},
     assign()   {return this.unit.assignment || {}},
     core()     {return this.assign.core.type},
     timeout()  {return addTime(this.assign.time, this.assign.timeout)},
     deadline() {return addTime(this.assign.time, this.assign.deadline)},
-  },
-
-
-  methods: {
-    exec() {return this.$refs.dialog.exec()}
+    cs()       {return (this.unit.wu.cs || []).join(', ')},
   }
 }
 </script>
 
 <template lang="pug">
-Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
-  class="details-dialog", width="40em")
-  template(v-slot:header) Work Unit Details
-  template(v-slot:body)
-    table(v-if="unit.wu")
+.unit-details-view.page-view
+  ViewHeader(title="Work Unit Details")
+
+  .view-body
+    table.view-table(v-if="unit.wu")
       tr
         th Project
         td {{assign.project}}
@@ -95,15 +85,15 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
 
       tr
         th Runtime
-        td {{unit.run_time}}s
+        td {{unit.run_time.toLocaleString()}}s
 
       tr
         th Base Credit
-        td {{assign.credit}}
+        td {{assign.credit.toLocaleString()}}
 
       tr
         th PPD
-        td {{unit.ppd}}
+        td {{unit.ppd.toLocaleString()}}
 
       tr
         th CPUs
@@ -127,7 +117,7 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
 
       tr
         th Collection Servers
-        td {{unit.wu.cs}}
+        td {{cs}}
 
       tr
         th Assign Time
@@ -135,25 +125,8 @@ Dialog(ref="dialog", :zIndex="2000", :buttons="[]", :allowClickAway="true",
 </template>
 
 <style lang="stylus">
-.details-dialog
-  table
-    border-collapse collapse
-
-    tr:nth-child(odd)
-      background #f3f3f3
-
-    tr:nth-child(even)
-      background #fff
-
-    th, td
-      border 1px solid #666
-      padding 0.125em 0.25em
-
-    th
-      vertical-align top
-      text-align right
-      white-space nowrap
-
-  .dialog-footer
-    display none !important
+.unit-details-view
+  table.view-table
+    td, th
+      white-space normal
 </style>

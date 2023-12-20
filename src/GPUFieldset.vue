@@ -51,16 +51,16 @@ export default {
 </script>
 
 <template lang="pug">
-fieldset
+fieldset.view-panel
   legend {{id}}
-  table
+  table.view-table
     tr
       th Description
       td {{gpu.description}}
 
     tr
       th Supported
-      td {{gpu.supported ? 'True' : 'False'}}
+      td {{gpu.supported ? 'true' : 'false'}}
 
     tr
       th Vendor
@@ -78,9 +78,9 @@ fieldset
       th PCI Vendor ID
       td 0x{{gpu.vendor.toString(16)}}
 
-  fieldset(v-for="dev of devs")
+  fieldset.view-panel(v-for="dev of devs")
     legend: img.gpu-icon(:src="dev.image")
-    table
+    table.view-table
       tr
         th Supported
         td {{dev.supported ? 'true' : 'false'}}

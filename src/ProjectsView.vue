@@ -37,10 +37,23 @@ export default {
 </script>
 
 <template lang="pug">
-.projects(v-if="projects.length")
-  h2 Projects
-  ProjectView(v-for="project in projects", :project="project")
+.projects-view.page-view
+  MainHeader
+
+  .view-body
+    template(v-if="!projects.length")
+      p No active projects.
+      p While you are folding active projects will display here.
+
+    ProjectView(v-for="project in projects", :project="project")
 </template>
 
 <style lang="stylus">
+.projects-view .view-body
+  display flex
+  gap 1em
+
+  > p
+    text-align center
+    margin 0
 </style>

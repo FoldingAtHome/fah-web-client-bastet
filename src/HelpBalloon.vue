@@ -29,43 +29,49 @@
 <script>
 export default {
   props: ['name'],
-  data() {return {hover: false}},
+  data() {return {active: false}},
 
-  methods: {
-    enter() {
-      if (this.$root._help_balloon) this.$root._help_balloon.hover = false
-      this.$root._help_balloon = this
-      clearTimeout(this.timer)
-      this.hover = true
-    },
-
-
-    leave() {
-      this.timer = setTimeout(() => {
-        this.hover = false
-
-        if (this.$root._help_balloon == this)
-          delete this.$root._help_balloon
-      }, 500)
+  watch: {
+    active() {
+      if (this.active) this.$util.lock_scrolling()
+      else this.$util.unlock_scrolling()
     }
   }
 }
 </script>
 
 <template lang="pug">
-label.help-balloon(@mouseenter="enter", @mouseleave="leave")
-  | {{name}}
-  |
+label.help-balloon(@click="active = !active")
+  .help-overlay(v-show="active", @click.stop="active = false")
+  .help-name {{name}}
   span
-    .fa(:class="hover ? 'fa-caret-left' : 'fa-question'")
-    .help-content(v-if="hover"): slot
+    .fa(:class="active ? 'fa-caret-left' : 'fa'")
+    .help-content.view-panel(v-if="active", @click.stop="true")
+      .help-header
+        h2.help-title {{name}} Help
+        Button.button-icon(icon="times", @click="active=false")
+      slot
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
-
 .help-balloon
   display inline-block
+
+  .help-overlay
+    position absolute
+    top 0
+    left 0
+    width 100vw
+    height 100vh
+    background var(--overlay-bg)
+
+  .help-name
+    display inline
+    margin-right 0.25em
+    cursor help
+
+    &:hover
+      opacity 0.5
 
   > span
     display inline-block
@@ -76,7 +82,6 @@ label.help-balloon(@mouseenter="enter", @mouseleave="leave")
       height 1em
       vertical-align unset
       font-size 100%
-      color var(--border-color)
 
   > span > .fa-caret-left
     transform scale(2.5)
@@ -92,16 +97,31 @@ label.help-balloon(@mouseenter="enter", @mouseleave="leave")
     width 30em
     max-width 80vw
     font-weight normal
-    background #fff
-    border 1px solid var(--border-color)
-    border-radius 4px
     padding 1em
-    box-shadow 4px 4px 8px #666
-    color initial
+    box-shadow var(--shadow)
+
+    .help-header
+      display flex
+      gap 1em
+
+      .help-title
+        flex 1
+        margin 0
+
+      .button
+        margin 0
 
     p:first-child
       margin-top 0
 
     p:last-child
       margin-bottom 0
+
+@media (max-width 800px)
+  .help-balloon .help-content
+    position fixed
+    top 8px
+    left 0
+    width auto
+    max-width calc(100vw - 6px)
 </style>

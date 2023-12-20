@@ -47,15 +47,15 @@ export default {
 
 <template lang="pug">
 .verify-view.page-view
-  .view-header-container
-    .view-header
-      FAHLogo
-      div
-        h2 Verifying Account Email
+  ViewHeader(title="Verifying Account Email")
+    template(v-slot:actions)
+      Button.button-success(icon="sign-in", text="Login",
+        @click="$root.login()", title="Login to your Folding@home account.",
+        :disabled="!success && !failed")
 
   .view-body
     div(v-if="!success && !failed")
-      p Loading...
+      p Verifying...
 
     div(v-if="success")
       p Email verification successful.
@@ -66,12 +66,9 @@ export default {
         A verification token can be used only once.  If you've already
         verified your email address, please try to login.
 
-    Button.button-success(icon="sign-in", text="Login",
-      @click="$root.login()", title="Login to your Folding@home account.",
-      v-if="success || failed")
 </template>
 
 <style lang="stylus">
-  .verify-view .button
-    width 9em
+  .verify-view .view-body
+    padding 1em
 </style>

@@ -31,9 +31,13 @@ import App            from './App.vue'
 import router         from './router'
 import Button         from './Button.vue'
 import Dialog         from './Dialog.vue'
+import ProgressBar    from './ProgressBar.vue'
+import Award          from './Award.vue'
 import HelpBalloon    from './HelpBalloon.vue'
 import FAHLogo        from './FAHLogo.vue'
 import ClientVersion  from './ClientVersion.vue'
+import ViewHeader     from './ViewHeader.vue'
+import MainHeader     from './MainHeader.vue'
 import Cache          from './cache.js'
 import API            from './api.js'
 import Account        from './account.js'
@@ -69,13 +73,15 @@ async function main(url) {
   app.use(router)
   app.component('Button',        Button)
   app.component('Dialog',        Dialog)
+  app.component('ProgressBar',   ProgressBar)
+  app.component('Award',         Award)
   app.component('HelpBalloon',   HelpBalloon)
   app.component('FAHLogo',       FAHLogo)
   app.component('ClientVersion', ClientVersion)
+  app.component('ViewHeader',    ViewHeader)
+  app.component('MainHeader',    MainHeader)
   app.mount('#app')
 }
 
 
-if (false && fah_build_mode == 'development')
-  main('http://localhost:7000')
-else main('https://api.foldingathome.org')
+main(import.meta.env.VITE_API_URL || 'https://api.foldingathome.org')

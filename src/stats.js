@@ -26,7 +26,7 @@
 
 \******************************************************************************/
 
-import {watchEffect, reactive} from 'vue'
+import {watch, watchEffect, reactive} from 'vue'
 import util   from './util.js'
 import crypto from './crypto.js'
 
@@ -36,18 +36,26 @@ class Stats {
     this.api      = app.$api
     this.adata    = app.$account.data
     this.machs    = app.$machs
-    this.data     = reactive({stats: {}})
+    this.data     = reactive({user: undefined, team: undefined, stats: {}})
     this.timeout  = timeout
-    this.team_url = 'https://stats.foldingathome.org/team/'
-    this.user_url = 'https://stats.foldingathome.org/donor/'
+    this.url      = 'https://stats.foldingathome.org'
 
-    watchEffect(() => this._get_stats())
+    watch([() => this.data.user, () => this.data.team], () => this._get_stats())
+    watchEffect(() => this._update_config())
+    this._update()
   }
 
 
   get_data() {return this.data.stats}
-  get_user() {return this.data.user}
-  get_team() {return this.data.team}
+
+
+  get_team() {
+    for (let team of this.data.stats.teams || [])
+      if (team.team == this.data.team)
+        return team
+
+    return {}
+  }
 
 
   is_anon() {
@@ -72,22 +80,24 @@ class Stats {
   }
 
 
-  _get_stats() {
-    let {user, team, passkey} = this._get_config()
+  _update_config() {
+    let {user, team} = this._get_config()
 
-    this.data.user    = user
-    this.data.team    = team
-    this.data.passkey = passkey
+    this.data.user = user
+    this.data.team = team
+  }
+
+
+  async _get_stats() {
+    let {user, team} = this.data
 
     if (this.is_anon() && !team) return this.data.stats = {}
 
-    let path = `/user/${user}/stats`
-    let data = {team}
-    if (passkey) data.passkey = passkey
+    let path = `/user/${user}`
+    let data = team == undefined ? {} : {team}
 
-    this.api.fetch({
+    this.data.stats = await this.api.fetch({
       path, data, action: 'Getting user stats', expire: this.timeout})
-      .then(stats => this.data.stats = stats)
   }
 }
 

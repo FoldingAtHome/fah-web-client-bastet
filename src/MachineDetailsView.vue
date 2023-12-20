@@ -31,25 +31,25 @@ import GPUFieldset from './GPUFieldset.vue'
 
 
 export default {
-  props: ['info'],
+  props: ['mach'],
   components: {GPUFieldset},
 
 
-  methods: {
-    exec() {return this.$refs.dialog.exec()}
+  computed: {
+    info() {return this.mach.get_info()}
   }
 }
 </script>
 
 <template lang="pug">
-Dialog(ref="dialog", :zIndex="2000", :allowClickAway="true",
-  class="machine-details-dialog", width="40em")
-  template(v-slot:header) Machine Details
-  template(v-slot:body)
-    fieldset
+.machine-details-view.page-view
+  ViewHeader(title="Machine Details", :subtitle="mach.get_name()")
+
+  .view-body
+    fieldset.view-panel
       legend Machine
 
-      table(v-if="info")
+      table.view-table(v-if="info")
         tr
           th Hostname
           td {{info.hostname}}
@@ -66,10 +66,10 @@ Dialog(ref="dialog", :zIndex="2000", :allowClickAway="true",
           th OS Version
           td {{info.os_version}}
 
-    fieldset
+    fieldset.view-panel
       legend CPU
 
-      table(v-if="info")
+      table.view-table(v-if="info")
         tr
           th Description
           td {{info.cpu_brand}}
@@ -86,36 +86,25 @@ Dialog(ref="dialog", :zIndex="2000", :allowClickAway="true",
 </template>
 
 <style lang="stylus">
-.machine-details-dialog
+.machine-details-view
   .gpu-icon
     max-height 32px
 
   fieldset
+    display flex
+    flex-direction column
     padding 0.5em
+    width 100%
 
     > fieldset
       margin-top 1em
 
-  table
+  table.view-table
     width 100%
-    border-collapse collapse
 
-    tr:nth-child(odd)
-      background #f3f3f3
-
-    tr:nth-child(even)
-      background #fff
-
-    th, td
-      border 1px solid #666
-      padding 0.125em 0.25em
+    td, th
+      white-space normal
 
     th
-      vertical-align top
-      text-align right
-      white-space nowrap
-      width 8em
-
-  .dialog-footer
-    display none !important
+      width 8.5em
 </style>

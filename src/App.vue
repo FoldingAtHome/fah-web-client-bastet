@@ -117,10 +117,10 @@ export default {
         case 'register':
           await this.$account.register(result.data)
           return this.message(
-            'info', 'Account registered', 'Your Folding@home account has ' +
-            'been registered.<br/>You have been sent an email verification ' +
+            'info', 'Account registered', '<p>Your Folding@home account has ' +
+            'been registered.</p><p>You have been sent an email verification ' +
             'message.  Please follow the link in the email to activate your ' +
-            'account.')
+            'account.</p>')
 
         case 'cancel': return
 
@@ -138,23 +138,14 @@ export default {
     },
 
 
-    async fold() {
-      try {
-        await this.$machs.fold()
-      } catch (e) {
-        this.message('error', 'Folding failed',
-                     'Failed to start folding on all machines: ' + e)
-      }
-    },
+    async fold() {return this.$machs.set_state('fold')},
+    async confirm_pause() {return this.$refs.pause_dialog.exec()},
 
 
-    async pause(machs) {
-      try {
-        await this.$machs.pause(this.$refs.pause_dialog.exec, machs)
-      } catch (e) {
-        this.message('error', 'Pause failed',
-                     'Failed to pause folding on all machines: ' + e)
-      }
+    async pause() {
+      let state = await this.confirm_pause()
+      if (state == 'pause' || state == 'finish')
+        this.$machs.set_state(state)
     }
   }
 }
@@ -162,8 +153,7 @@ export default {
 
 <template lang="pug">
 router-view(v-slot="{Component}")
-  keep-alive(include="HomeView")
-    component(:is="Component")
+  component(:is="Component")
 
 Pacify(ref="pacify")
 PauseDialog(ref="pause_dialog")

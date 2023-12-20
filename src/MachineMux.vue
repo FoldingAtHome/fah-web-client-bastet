@@ -1,4 +1,4 @@
-/******************************************************************************\
+<!--
 
                   This file is part of the Folding@home Client.
 
@@ -24,30 +24,25 @@
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
-\******************************************************************************/
+-->
 
-:root
-  --body-bg            #e7e7e7
-  --body-fg            #000
-  --input-bg           #fff
-  --input-border-color #eee
-  --link-color         #fe6215
-  --link-alt           #55aaff
-  --button-bg          #0b5ed7
-  --button-fg          #fff
-  --button-success     #4caf50
-  --button-caution     #b51100
-  --button-disabled-bg #aaa
-  --button-disabled-fg #ddd
-  --header-fg          #fff
-  --header-bg          #383838
-  --pacify-bg          rgba(0, 0, 0, 0.6)
-  --overlay-bg         rgba(0, 0, 0, 0.4)
-  --overlay-fg         #fff
-  --border-color       #888
-  --table-even         #fff
-  --table-odd          #f3f3f3
-  --panel-bg           #fff
-  --error-color        #b00
-  --success-color      #0b0
-  --warn-color         #fb0
+<script>
+export default {
+  props: ['machID'],
+
+
+  computed: {
+    mach() {
+      if (this.$machs.has(this.machID))
+        return this.$machs.get(this.machID)
+    }
+  }
+}
+</script>
+
+<template lang="pug">
+router-view(v-if="mach", :mach="mach")
+</template>
+
+<style lang="stylus">
+</style>

@@ -27,23 +27,140 @@
 -->
 
 <script>
+import UnitView from './UnitView.vue'
+
 export default {
-  props: ['machID'],
+  name: 'MachView',
+  props: ['mach'],
+  components: {UnitView},
 
 
   computed: {
-    mach() {
-      if (this.$machs.has(this.machID))
-        return this.$machs.get(this.machID)
-    }
+    one_group() {return this.mach.get_groups().length == 1},
+    connected() {return this.mach.is_connected()},
+    groups()    {return this.mach.get_groups()},
+    config()    {return this.mach.get_config()},
+    info()      {return this.mach.get_info()}
+  },
+
+
+  methods: {
+    async pause(group) {
+      let state = await this.$root.confirm_pause()
+
+      if (state == 'pause' || state == 'finish')
+        this.mach.set_state(state, group)
+    },
+
+
+    async fold(group) {return this.mach.set_state('fold', group)}
   }
 }
 </script>
 
 <template lang="pug">
-.mach-view
-  router-view(v-if="mach", :mach="mach")
+.machine-view.view-panel(
+  :class="{connected: connected, disconnected: !connected}",
+  :title="connected ? undefined : 'Disconnected'")
+  .machine-header
+    .machine-name.header-title(:title="'Machine id ' + mach.get_id()")
+      | {{mach.get_name()}}
+
+    ClientVersion(:mach="mach")
+
+    .machine-resources.header-subtitle(v-if="one_group")
+      | {{mach.get_resources()}}
+
+    .machine-actions
+      Button.button-icon(:route="mach.get_url('/settings')",
+        title="Edit machine settings.", icon="cog", :disabled="!connected")
+
+      Button.button-icon(:route="mach.get_url('/log')",
+        title="View machine log.", icon="list-alt", :disabled="!connected")
+
+      Button.button-icon(:route="mach.get_url('/details')", icon="info-circle",
+        :disabled="!info.version", title="View Machine details.")
+
+      template(v-if="one_group")
+        Button.button-icon(v-if="mach.is_paused()", @click="fold",
+          icon="play", title="Start folding on this machine.",
+          :disabled="!connected")
+
+        Button.button-icon(v-else, @click="pause", icon="pause",
+        title="Pause folding on this machine.", :disabled="!connected")
+
+  table.machine-units.view-table
+    tr
+      th.project Project
+      th.cpus CPUs
+      th.gpus GPUs
+      th.status Status
+      th.progress Progress
+      th.ppd PPD
+      th.eta ETA
+      th.actions Actions
+
+    template(v-for="group in groups")
+      tr.machine-group-row(v-if="!one_group")
+        td(colspan="7")
+          .group-header
+            .group-name {{group ? group : 'default'}} Group
+            .group-resources.header-subtitle {{mach.get_resources(group)}}
+
+        td.machine-actions
+          Button.button-icon(v-if="mach.is_paused(group)", @click="fold(group)",
+            icon="play", title="Start folding in this group.",
+            :disabled="!connected")
+
+          Button.button-icon(v-else, @click="pause(group)", icon="pause",
+            title="Pause folding in this group.", :disabled="!connected")
+
+      template(v-for="unit in mach")
+        UnitView(v-if="unit.group == group", :unit="unit", :mach="mach")
+
+  .no-data(v-if="mach.is_empty()")
+    p No work units.
+    p Start folding to download work units.
 </template>
 
 <style lang="stylus">
+.machine-view
+  display flex
+  flex-direction column
+  gap 0.5em
+
+  &.disconnected
+    color #666
+    background #aaa !important
+
+  .machine-header
+    display flex
+    flex-direction row
+    gap 1em
+    align-items baseline
+    width 100%
+
+  .group-header
+    display flex
+    flex-direction row
+    gap 1em
+
+    .group-name
+      text-transform capitalize
+
+  .machine-actions
+    flex 1
+    display flex
+    gap 0.5em
+    flex-direction row
+    justify-content end
+
+@media (max-width 800px)
+  .machine-view .machine-resources
+    display none
+
+  .machine-units
+    td, th
+      &.eta, &.resources, &.ppd, .status-text
+        display none
 </style>

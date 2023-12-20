@@ -28,39 +28,39 @@
 
 <script>
 export default {
-  name: 'ClientVersion',
-  props: ['mach'],
-
-
-  computed: {
-    latest()       {return this.$api.get_latest_version()},
-    version()      {return this.mach.get_version()},
-    outdated()     {return this.mach.is_outdated(this.latest)},
-    download_url() {return this.$api.get_download_url()}
-  }
+  props: ['progress']
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
-      | #[.fa.fa-exclamation-triangle] v{{version}}
-      |
-      | #[.fa.fa-exclamation-triangle]
-
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
-    | v{{version}}
+.progress-bar
+  div(:style="{width: progress + '%'}")
+    span {{progress}}%
 </template>
 
 <style lang="stylus">
-.client-version
-  .outdated
-    text-decoration none
+.progress-bar
+  position relative
+  width 100%
+  border-radius var(--border-radius)
+  overflow hidden
+  background var(--progress-bg)
+  color var(--progress-fg)
 
-    &:not(:hover)
-      color var(--warn-color)
+  > div
+    height 100%
+    display flex
+    text-align center
+    white-space nowrap
+    transition width .6s ease
+    background-color var(--progress-bar)
+    background-image var(--progress-img)
+    background-size 1rem 1rem
 
-    .fa
-      font-size 10pt
+    > span
+      position absolute
+      top 0
+      width 100%
+      text-align center
+      z-index 2
 </style>

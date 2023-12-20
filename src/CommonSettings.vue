@@ -41,48 +41,57 @@ export default {
 </script>
 
 <template lang="pug">
-HelpBalloon(name="Username").
-  Choose a display name for your Folding@home account.  This name
-  does not have to be unique.  It may contain any characters other
-  than #[tt &lt;], #[tt &gt;], #[tt &#59;], or #[tt &amp;] and must be
-  between 2 and 100 characters in length.  If you wish to remain
-  anonymous enter #[tt Anonymous].
+.setting
+  HelpBalloon(name="Username")
+    p Choose a display name for your Folding@home account.
+    p.
+      The name does not have to be unique.  It may contain any characters other
+      than #[tt &lt;], #[tt &gt;], #[tt &#59;], or #[tt &amp;] and must be
+      between 2 and 100 characters in length.
 
-input(v-model="config.user")
-div
+    p If you wish to remain anonymous enter #[tt Anonymous].
 
-HelpBalloon(name="Team")
-  | You may wish to join a Folding@home team.  If you do not already have
-  | a team you can create a new one. Enter #[tt 0] for no team.
-  Button(text="Create a Team", icon="plus",
-    href="https://apps.foldingathome.org/team")
+  input(v-model="config.user")
 
-input(v-model.number="config.team", type="number")
-div
+.setting
+  HelpBalloon(name="Team")
+    p.
+      You may wish to join a Folding@home team.  If you do not already have
+      a team you can create a new one.
 
-HelpBalloon(name="Passkey")
-  | A passkey allows you to collect bonus points.  Enter a passkey if you
-  | have one.  You may leave this field blank.  Click the button to obtain
-  | a passkey.
-  Button(text="Get a Passkey", icon="key",
-    href="https://apps.foldingathome.org/getpasskey")
+    p Enter #[tt 0] for no team.
+
+    Button(text="Create a Team", icon="plus",
+      href="https://apps.foldingathome.org/team")
+
+  input(v-model.number="config.team", type="number")
+
+.setting
+  HelpBalloon(name="Passkey")
+    p.
+      A passkey allows you to collect bonus points.  Enter a passkey if you
+      have one.  You may leave this field blank.  Click the button to obtain
+      a passkey.
+
+    Button(text="Get a Passkey", icon="key",
+      href="https://apps.foldingathome.org/getpasskey")
 
 
-input(v-model="config.passkey", pattern="[\\da-fA-F]{31,32}",
-  :class="{password: !show_key}")
+  input(v-model="config.passkey", pattern="[\\da-fA-F]{31,32}",
+    :class="{password: !show_key}")
 
-div
-  Button.button-icon(:icon="'eye' + (show_key ? '' : '-slash')",
-    @click="show_key = !show_key",
-    :title="(show_key ? 'Hide' : 'Show') + ' passkey'")
+  .setting-actions
+    Button.button-icon(:icon="'eye' + (show_key ? '' : '-slash')",
+      @click="show_key = !show_key",
+      :title="(show_key ? 'Hide' : 'Show') + ' passkey'")
 
-HelpBalloon(name="Cause").
-  You may choose a prefered cause to support.  Folding@home will try to
-  assign you more work supporting your prefered cause.
+.setting
+  HelpBalloon(name="Cause"): p.
+    You may choose a prefered cause to support.  Folding@home will try to
+    assign you more work supporting your prefered cause.
 
-select(v-model="config.cause")
-  option(v-for="name in causes", :value="name") {{name}}
-div
+  select(v-model="config.cause")
+    option(v-for="name in causes", :value="name") {{name}}
 </template>
 
 <style lang="stylus">

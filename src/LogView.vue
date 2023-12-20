@@ -27,9 +27,6 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
   name: 'LogView',
   props: ['mach', 'query'],
@@ -46,14 +43,23 @@ export default {
 
 
   watch: {
-    'data.log.length'() {
+    'lines.length'() {
       if (this.follow) this.$nextTick(this.scroll_to_end)
     }
   },
 
 
   computed: {
-    data() {return this.mach.get_data()},
+    lines() {
+      let data  = this.mach.get_data()
+      let lines = []
+
+      for (let line of (data.log || []))
+        if (!this.match_exp || line.match(this.match_exp))
+            lines.push(line)
+
+      return lines
+    },
 
 
     match_exp() {
@@ -83,12 +89,6 @@ export default {
 
 
   methods: {
-    match(s) {
-      if (this.match_exp) return s.match(this.match_exp)
-      return true
-    },
-
-
     reset() {
       this.search = ''
       this.errors = this.warnings = false
@@ -105,19 +105,10 @@ export default {
 
 <template lang="pug">
 .log-view.page-view
-  .view-header-container
-    .view-header
-      FAHLogo
+  ViewHeader(title="Machine Log", :subtitle="mach.get_name()")
 
-      div
-        h2 Work Unit Log
-        h3 Machine {{mach.get_name()}}
-
-      .actions
-        Button(text="Close", icon="times", route="/")
-
-  .view-body(v-if="data.log")
-    .log-controls
+  .view-body
+    .log-controls.view-panel
       label Search
       input(v-model="search", type="text")
       label(title="Filter log for error messages.").
@@ -128,61 +119,41 @@ export default {
       label(title="Automatically scroll to the bottom of the log.").
         #[input(v-model="follow", type="checkbox")] Follow
 
-    .log-container
-      .log(ref="log")
-        .log-line(v-for="line in this.data.log", v-show="match(line)",
-          v-html="$util.ansi2html(line)")
+    .log.view-panel(v-if="!lines.length") No matching log lines
+    .log.view-panel(v-else ref="log")
+      .log-line(v-for="line in lines" v-html="$util.ansi2html(line)")
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
-
 .log-view
-  position fixed
-  top 0
-  left 0
-  width 100vw
   height 100vh
-  margin-left 0
-  display flex
-  flex-direction column
-
-  .view-header-container .view-header
-    padding 1em
-    max-width 100vw
+  overflow hidden
 
   .view-body
-    width 100%
-    height 100%
-    max-width 100%
-    padding 0
-    flex 1
-    align-self stretch
     display flex
     flex-direction column
+    flex 1
+    gap 1em
+    overflow hidden
 
     .log-controls
-      padding 0.5em
       display flex
+      flex-wrap wrap
       gap 0.5em
       align-items center
+      padding 0 1em
 
       input[type=text]
         flex 1
 
-    .log-container
+    .log
       flex 1
-      position relative
+      color var(--log-fg)
+      background var(--log-bg)
+      padding 1em
+      overflow scroll
+      font-family courier
 
-      .log
-        position absolute
-        height 100%
-        width 100%
-        color #7f7f7f
-        background #000
-        padding 1em
-        overflow scroll
-
-        .log-line
-          white-space nowrap
+      .log-line
+        white-space nowrap
 </style>

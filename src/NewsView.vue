@@ -28,6 +28,9 @@
 
 <script>
 export default {
+  name: 'NewsView',
+
+
   computed: {
     feed() {return this.$news.get_feed()}
   },
@@ -35,49 +38,55 @@ export default {
 </script>
 
 <template lang="pug">
-.news-feed
-  h2 Folding@home News
-  h3(v-if="!feed.length") Loading...
+.news-view.page-view
+  MainHeader
 
-  article(v-for="item in feed")
-    a(:href="item.url", target="_blank"): img.image(:src="item.image")
-    a.title(:href="item.url", target="_blank"): h3(v-html="item.title")
-    .byline By #[span.author {{item.author}}] on #[span.date {{item.date}}].
-    p(v-html="item.description")
-    .clear
+  .view-body
+    .header-title(v-if="!feed.length") Loading...
+
+    article.view-panel(v-for="item in feed")
+      .article-image
+        a(:href="item.url", target="_blank"): img(:src="item.image")
+
+      .article-content
+        .article-title
+          a(:href="item.url", target="_blank")
+            .header-title(v-html="item.title")
+
+        .article-byline
+          | By #[span.author {{item.author}}] on #[span.date {{item.date}}].
+
+        .article-body(v-html="item.description")
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
+.news-view .view-body
+  display flex
+  flex-direction column
+  gap 1em
 
-.news-feed
   article
-    background var(--panel-bg)
-    border 1px solid var(--border-color)
-    padding 0 1em
-    margin 1em auto
-    max-width 60em
+    display flex
+    flex-direction row-reverse
+    gap 0.5em
 
-    > .title
-      color var(--body-fg)
+    .article-content
+      display flex
+      flex-direction column
+      gap 0.5em
 
-      &:hover
-        color var(--link-color)
+    .article-title .header-title:hover
+      color var(--link-color)
 
-    > .byline
+    .article-byline
       font-size 80%
-      margin-bottom 1em
 
-    > a .image
-      float right
+    .article-image img
       max-width 20em
       max-height 10em
-      margin 1em 0 1em 1em
-
-    > .clear
-      clear both
+      border-radius var(--border-radius)
 
 @media (max-width 650px)
-  .news-feed article > a .image
-    max-width 10em
+  .news-view .view-body article
+    flex-direction column
 </style>

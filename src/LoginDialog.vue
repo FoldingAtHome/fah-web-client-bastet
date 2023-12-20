@@ -37,7 +37,8 @@ export default {
       user: '',
       team: 0,
       passkey: '',
-      show: false
+      show: false,
+      show_passkey: false
     }
   },
 
@@ -111,48 +112,62 @@ export default {
 </script>
 
 <template lang="pug">
-Dialog(:buttons="buttons", ref="dialog", width="35em")
+Dialog(:buttons="buttons", ref="dialog", width="40em")
   template(v-slot:header)
     template(v-if="login") Login to Folding@home
     template(v-else) Register a new Folding@home account
 
   template(v-slot:body)
     form.login-dialog
+      template(v-if="login")
+        .actions
+          Button(icon="plus", text="Register New Account",
+             @click="login = false",
+             title="Create a new account with Folding@home.")
+
+        .text-bar Or Login
+
       fieldset.settings
-        label {{login ? '' : '* '}}Email
-        input(v-model="email", autocomplete="username")
-        div
+        .setting
+          label {{login ? '' : '* '}}Email
+          input(v-model="email", autocomplete="username")
 
-        label {{login ? '' : '* '}}Passphrase
-        input(v-model="passphrase", :type="show ? 'text' : 'password'",
-          @keyup.enter="do_login", autocomplete="current-password")
+        .setting
+          label {{login ? '' : '* '}}Passphrase
+          input(v-model="passphrase", :class="{password: !show}",
+            @keyup.enter="do_login", autocomplete="current-password")
 
-        div
-          Button.button-icon(:icon="'eye' + (show ? '' : '-slash')",
-            @click="show = !show",
-            :title="(show ? 'Hide' : 'Show') + ' passphrase'")
+          .setting-actions
+            Button.button-icon(:icon="'eye' + (show ? '' : '-slash')",
+              @click="show = !show",
+              :title="(show ? 'Hide' : 'Show') + ' passphrase'")
 
         template(v-if="!login")
-          label * Confirm Passphrase
-          input(v-model="passphrase2", :type="show ? 'text' : 'password'")
-          div
-            Button.button-icon(icon="refresh", @click="generate_passphrase",
-              title="Generate a memorable and strong random passphrase.")
+          .setting
+            label * Confirm Passphrase
+            input(v-model="passphrase2", :class="{password: !show}")
+            .setting-actions
+              Button.button-icon(icon="refresh", @click="generate_passphrase",
+                title="Generate a memorable and strong random passphrase.")
 
-            Button.button-icon(icon="copy", @click="copy_passphrase",
-              title="Copy passphrase to clipboard.")
+              Button.button-icon(icon="copy", @click="copy_passphrase",
+                title="Copy passphrase to clipboard.")
 
-          label Username
-          input(v-model="user")
-          div
+          .setting
+            label Username
+            input(v-model="user")
 
-          label Team
-          input(v-model="team", type="number")
-          div
+          .setting
+            label Team
+            input(v-model="team", type="number")
 
-          label Passkey
-          input(v-model="passkey")
-          div
+          .setting
+            label Passkey
+            input(v-model="passkey", :class="{password: !show_passkey}")
+            .setting-actions
+              Button.button-icon(:icon="'eye' + (show_passkey ? '' : '-slash')",
+                @click="show_passkey = !show_passkey",
+                :title="(show ? 'Hide' : 'Show') + ' passkey'")
 
       template(v-if="login")
         .actions
@@ -161,22 +176,6 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
 
           Button.button-success(icon="sign-in", text="Login", @click="do_login",
             :disabled="!valid", title="Login to your Folding@home account.")
-
-        template(v-if="false")
-          .text-bar Or
-
-          .actions
-            Button(icon="sign-in", text="Login with Google", @click="google",
-              title="Login to Folding@home with your Google account.")
-
-        .bar
-
-        center.
-          Don't already have a Folding@home account?
-
-        .actions
-          Button(icon="plus", text="New Account", @click="login = false",
-             title="Create a new account with Folding@home.")
 
       template(v-else)
         p.required * Required
@@ -189,10 +188,15 @@ Dialog(:buttons="buttons", ref="dialog", width="35em")
   flex-direction column
   gap 1em
 
-  fieldset
+  fieldset.settings
     border none
     margin-bottom 0
     padding 0.5em
+    width 100%
+
+    > .setting
+      label
+        width 10em
 
   .bar
     border-bottom 1px solid

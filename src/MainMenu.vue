@@ -27,67 +27,44 @@
 -->
 
 <script>
-
-
 export default {
-  props: ['modelValue'],
-  emits: ['update:modelValue'],
-
-
-  computed: {
-    value: {
-      get() {return this.modelValue},
-      set(value) {this.$emit('update:modelValue', value)}
-    }
-  }
+  name: 'MainMenu',
 }
 </script>
 
 <template lang="pug">
-.slider-switch
-  input(type="checkbox", v-model="value")
-  .slider-handle: .fa(:class="'fa-' + (modelValue ? 'moon-o' : 'sun-o')")
+.view-menu
+  router-link(to="/machines") Machines
+  router-link(to="/stats") Stats
+  router-link(to="/projects") Projects
+  router-link(to="/news") News
 </template>
 
 <style lang="stylus">
-handle-size = 1.75em
-
-.slider-switch
-  position relative
+.view-menu
   display flex
-  flex-direction column
-  background-color #666
-  height handle-size
+  justify-content space-between
+  background var(--header-bg)
+  font-size 12pt
+  padding 0 1em
 
-  .fa
-    font-size 14pt
-
-  input
-    position absolute
+  > a
     display block
-    width 100%
-    height 100%
-    top 0
-    bottom 0
-    left 0
-    right 0
-    opacity 0
-    z-index 100
-    cursor pointer
+    padding 0 0.5em 0.3em 0.5em
+    border-bottom 3px solid var(--header-bg)
+    white-space nowrap
+    color var(--header-fg)
 
-  .slider-handle
-    position absolute
-    left 0
-    transition .4s
-    display flex
-    background-color #999
-    transition .4s
-    align-items center
-    justify-content center
-    width handle-size
-    height 100%
+    &:hover, &.router-link-active
+      text-decoration none
 
-  input:checked + .slider-handle
-    background-color #000
-    left "calc(100% - %s)" % handle-size
+    &:hover
+      border-color var(--link-alt)
+
+    &.router-link-active
+      border-color var(--link-color)
+
+@media (max-width 800px)
+  .view-menu
+    font-size 10pt
 </style>

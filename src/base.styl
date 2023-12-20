@@ -26,14 +26,19 @@
 
 \******************************************************************************/
 
-@import('colors.styl')
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap')
+
+@import('dark.styl')
+@import('light.styl')
+
+body
+  font-family Raleway, sans-serif
 
 *
   box-sizing border-box
 
 .fa
   font-size 130%
-  vertical-align middle
 
 a
   text-decoration none
@@ -52,14 +57,29 @@ a.fa
   &:hover
     text-decoration none
 
+.header-title
+  font-size 16pt
+  color var(--title-color)
+
+.header-subtitle
+  font-size 13pt
+  color var(--subtitle-color)
+
 tt
-  background rgba(0, 0, 0, 0.05)
+  color var(--code-fg)
+  background-color var(--code-bg)
   padding 0 0.25em
+  font-family mono
+
+input
+  line-height 1.5em
+  padding 0 0 0 0.5em
 
 input, select
   color var(--body-fg)
   background-color var(--input-bg)
-  border 2px inset var(--input-border-color)
+  border var(--input-border)
+  border-radius var(--border-radius)
 
 input:invalid
   outline none
@@ -67,7 +87,7 @@ input:invalid
 
 @font-face
   font-family password
-  src url('/fonts/password.ttf')
+  src url('/fonts/password.woff2')
 
 .password
   font-family password
@@ -81,103 +101,118 @@ body
   #app
     display flex
     flex-direction column
+    align-items center
 
 .page-view
-  .view-header-container
-    color var(--header-fg)
-    background var(--header-bg)
-    min-height 8em
-    padding 0 1em
-
-    .view-header
-      padding 1em
-      display flex
-      flex-wrap wrap
-      gap 4em
-      align-items flex-start
-      max-width 60em
-      margin auto
-
-      a:hover
-        text-decoration none
-
-      .fah-logo
-        a:visited, a:link
-          color var(--header-fg)
-
-        a:hover
-          text-decoration none
-          color var(--link-color)
-
-      a.button, h1, h2
-        margin 0
-
-      .actions
-        flex 1
-        align-items end
-        display flex
-        gap 0.25em
-        flex-direction column
-
-        .fa:not(:hover)
-          color var(--header-fg)
-
-        a.button
-          width 8em
+  max-width 60em
+  width calc(100% - 4px)
+  display flex
+  flex-direction column
 
   .view-body
-    margin auto
-    max-width 60em
-    padding 1em
+    color var(--body-fg)
+    padding 1em 0
 
 fieldset
-  background var(--panel-bg)
-  border-radius 4px
-  max-width 60em
   margin 0 auto 1em auto
   padding 2em 1em
+  align-items start
+  border-radius var(--border-radius)
 
   &:last-child
     margin-bottom 0
 
   &.settings
-    background var(--panel-bg)
-    border-radius 4px
-    display grid
+    display flex
+    flex-direction column
     gap 1em
-    align-items center
-    grid-template-columns 10em 1fr 10em
 
-    > a.button
-      margin 0
+    .setting
       width 100%
-      text-align left
+      display flex
+      flex-direction row
+      flex-wrap wrap
+      gap 0.5em
 
-  legend
-    font-size 125%
-    font-weight bold
+      label
+        @extends .header-subtitle
+
+      > :first-child
+        width 6em
+        text-align right
+
+      > :nth-child(2):not(input[type=checkbox])
+        max-width 600px
+        flex 1
+
+      > input[type=checkbox]
+        width 1em
+
+      .setting-actions
+        display flex
+        flex-direction row
+        gap 0.5em
+
+        .button
+          margin 0
 
   label
-    font-weight bold
-    text-align right
     white-space nowrap
 
-  > div
-    display flex
-    gap 1em
-    align-items center
-
-  input, select
-    width 100%
-    max-width 45em
-
-  input[type=checkbox]
-    width 1em
+  legend
+    @extends .header-title
 
   select, option
     text-transform capitalize
 
-.dialog-body fieldset.settings
-    grid-template-columns auto 1fr auto
+.dialog-body fieldset.settings .setting
+  > :nth-child(2):not(input[type="checkbox"])
+    width 20em
+    flex none
 
-@import('dark.styl')
+.view-panel
+  padding 0.5em 1em
+  background var(--panel-bg)
+  color var(--panel-fg)
+  border var(--border)
+  border-radius var(--border-radius)
+
+.view-table
+  border-collapse collapse
+
+  tr:nth-child(odd)
+    background var(--table-odd)
+
+  tr:nth-child(even)
+    background var(--table-even)
+
+  th
+    color var(--table-header-fg)
+    background var(--table-header-bg)
+    vertical-align top
+
+  td, th
+    text-align left
+    border var(--table-border)
+    padding 0.25em 0.5em
+    white-space nowrap
+
+    &.actions > div
+      display flex
+      gap 0.5em
+
+      .button
+        text-align center
+
+  .no-data
+    p
+      text-align center
+      margin 0.5em
+
+@media (max-width 800px)
+  fieldset.settings .setting
+    flex-direction column
+
+    > :first-child
+      width auto !important
+      text-align left

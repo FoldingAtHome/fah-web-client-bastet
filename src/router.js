@@ -27,28 +27,39 @@
 \******************************************************************************/
 
 import {createRouter, createWebHistory} from 'vue-router'
-import HomeView      from './HomeView.vue'
-import SettingsView  from './SettingsView.vue'
-import Visualization from './Visualization.vue'
-import LogView       from './LogView.vue'
-import MachineView   from './MachineView.vue'
-import AccountView   from './AccountView.vue'
-import VerifyView    from './VerifyView.vue'
+import StatsView          from './StatsView.vue'
+import MachinesView       from './MachinesView.vue'
+import NewsView           from './NewsView.vue'
+import ProjectsView       from './ProjectsView.vue'
+import SettingsView       from './SettingsView.vue'
+import Visualization      from './Visualization.vue'
+import LogView            from './LogView.vue'
+import MachineMux         from './MachineMux.vue'
+import MachineDetailsView from './MachineDetailsView.vue'
+import UnitDetailsView    from './UnitDetailsView.vue'
+import AccountView        from './AccountView.vue'
+import VerifyView         from './VerifyView.vue'
 
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
-    {path: '/',              component: HomeView},
+    {path: '/',              redirect: '/machines'},
+    {path: '/stats',         component: StatsView},
+    {path: '/machines',      component: MachinesView},
+    {path: '/projects',      component: ProjectsView},
+    {path: '/news',          component: NewsView},
     {path: '/account',       component: AccountView, props: true},
     {path: '/verify/:token', component: VerifyView,  props: true},
     {
       path: '/:machID?',
       props: true,
-      component: MachineView,
+      component: MachineMux,
       children: [
         {path: 'settings',     component: SettingsView},
-        {path: 'view/:unitID', component: Visualization, props: true},
+        {path: 'details',      component: MachineDetailsView},
+        {path: 'unit/:unitID', component: UnitDetailsView, props: true},
+        {path: 'view/:unitID', component: Visualization,   props: true},
         {
           path: 'log',
           component: LogView,

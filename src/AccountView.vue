@@ -133,7 +133,7 @@ export default {
 
     close() {
       this.confirmed = true
-      this.$router.replace('/')
+      this.$router.back()
     },
 
 
@@ -171,68 +171,65 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
     changes, discard them or cancel and stay on this page?
 
 .account-view.page-view
-  .view-header-container
-    .view-header
-      FAHLogo
-      div
-        h2 Account Settings
+  ViewHeader(title="Account Settings")
+    template(v-slot:actions)
+      Button(@click="cancel", text="Cancel", icon="times",
+        title="Leave Account Settings with out making changes.")
 
-      .actions
-        Button(@click="cancel", text="Cancel", icon="times",
-          title="Leave Account Settings with out making changes.")
-        Button.button-success(:disabled="!modified", @click="save", text="Save",
-          icon="save", title="Save your changes and go back to the main page.")
-        Button(@click="logout", text="Logout", icon="sign-out")
+      Button.button-success(:disabled="!modified", @click="save", text="Save",
+        icon="save", title="Save your changes and go back to the main page.")
 
   .view-body(v-if="$adata")
-    fieldset.settings.account-settings
+    fieldset.settings.view-panel
       legend
-        HelpBalloon(name="Account").
+        HelpBalloon(name="Account"): p.
           These settings affect all of the machines linked to your account.
 
       CommonSettings(:config="account_new")
 
-      HelpBalloon(name="Node").
-        A Folding@home node helps you connect to your remote clients.
-        Unless otherwise instructed, it's best to leave the default value.
+      .setting
+        HelpBalloon(name="Node"): p.
+          A Folding@home node helps you connect to your remote clients.
+          Unless otherwise instructed, it's best to leave the default value.
 
-      input(v-model="account_new.node", pattern="[\\w\\-]+(\\.[\\w\\-]+)+")
-      div
+        input(v-model="account_new.node", pattern="[\\w\\-]+(\\.[\\w\\-]+)+")
 
-      HelpBalloon(name="Token")
-        p.
-          A token is used to connect your remote clients to your account.  You
-          can pass your account token to a client to cause it to link to your
-          account.  Once a machine is linked it will show up as one of your
-          machines in your account.
+      .setting
+        HelpBalloon(name="Token")
+          p.
+            A token is used to connect your remote clients to your account.  You
+            can pass your account token to a client to cause it to link to your
+            account.  Once a machine is linked it will show up as one of your
+            machines in your account.
 
-        p.
-          Anyone with your account token can link machines to your
-          account.  Once you've used an account token it's a good idea to
-          generate a new one.  Anytime you generate a new account token the
-          previous account tokens are no longer valid.  But any machines which
-          are already linked to you account will remain linked.
+          p.
+            Anyone with your account token can link machines to your
+            account.  Once you've used an account token it's a good idea to
+            generate a new one.  Anytime you generate a new account token the
+            previous account tokens are no longer valid.  But any machines which
+            are already linked to you account will remain linked.
 
-        p.
-          If a client is running localy on the same machine you've logged in to
-          your Folding@home account on, it will automatically be linked to your
-          account.
+          p.
+            If a client is running localy on the same machine you've logged in
+            to your Folding@home account on, it will automatically be linked to
+            your account.
 
-      input(v-model="$adata.token", :class="{password: !show.token}", readonly)
+        input(v-model="$adata.token", :class="{password: !show.token}",
+          readonly)
 
-      div
-        Button.button-icon(:icon="'eye' + (show.token ? '' : '-slash')",
-          @click="show.token = !show.token",
-          :title="(show.token ? 'Hide' : 'Show') + ' account token'")
+        .setting-actions
+          Button.button-icon(:icon="'eye' + (show.token ? '' : '-slash')",
+            @click="show.token = !show.token",
+            :title="(show.token ? 'Hide' : 'Show') + ' account token'")
 
-        Button.button-icon(icon="refresh", @click="reset_token",
-          title="Generate a new account token.")
+          Button.button-icon(icon="refresh", @click="reset_token",
+            title="Generate a new account token.")
 
-        Button.button-icon(icon="copy", @click="copy_token",
-          title="Copy account token to clipboard.")
+          Button.button-icon(icon="copy", @click="copy_token",
+            title="Copy account token to clipboard.")
 
 
-    fieldset.settings.machines
+    fieldset.settings.view-panel
       legend
         HelpBalloon(name="Machines")
           p The machines linked to your account will display here.
@@ -245,14 +242,14 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       AccountMach(v-for="mach in $machs", :mach="mach")
 
     .actions
+      Button(@click="logout", text="Logout", icon="sign-out")
+
       Button.button-caution(@click="confirm_delete", text="Delete Account",
         icon="trash", title="Permanently delete this account.")
 
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
-
 .account-view
   .view-body > .actions
     display flex
@@ -260,15 +257,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
   legend > a
     display inline
 
-  fieldset.locked
-    background #bbb
-    padding 0.5em
-    cursor pointer
-
-    &:hover
-      background #ddd
-
-    > *
-      font-size 120%
-      font-weight bold
+  .actions
+    display flex
+    gap 1em
 </style>

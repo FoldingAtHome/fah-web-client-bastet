@@ -75,25 +75,26 @@ Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
   template(v-slot:header) Create New Folding@home Account
   template(v-slot:body)
     .new-account
-      fieldset
+      fieldset.view-panel
         legend Required
 
-        label Username
-        input(ref="user", v-model="account.user", minLength="2",
-          maxLength="100", required)
-        div
+        .setting
+          label Username
+          input(ref="user", v-model="account.user", minLength="2",
+            maxLength="100", required)
 
-      fieldset
+      fieldset.view-panel
         legend Optional
 
-        label Team
-        input(ref="team", v-model.number="account.team", type="number", min="0")
-        div
+        .setting
+          label Team
+          input(ref="team", v-model.number="account.team", type="number",
+            min="0")
 
-        label Passkey
-        input(ref="passkey", v-model="account.passkey",
-          pattern="[\\da-fA-F]{31,32}")
-        div
+        .setting
+          label Passkey
+          input(ref="passkey", v-model="account.passkey",
+            pattern="[\\da-fA-F]{31,32}")
 </template>
 
 <style lang="stylus">
@@ -103,15 +104,12 @@ Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
   gap 1em
 
   fieldset
-    background var(--panel-bg)
-    border-radius 3px
     display grid
     gap 1em
     align-items center
     grid-template-columns 6em 1fr 1.5em
 
     label
-      font-weight bold
       text-align right
       white-space nowrap
 

@@ -58,13 +58,12 @@ export default {
 
 
   computed: {
-    data()   {return this.mach.get_data()},
     target() {return this.$refs.canvas},
 
 
     viz() {
-      return (this.data.viz && this.data.viz[this.unitID]) ?
-        this.data.viz[this.unitID] : undefined
+      let data = this.mach.get_data()
+      return data.viz ? data.viz[this.unitID] : undefined
     },
 
     topology()  {if (this.viz) return this.viz.topology},
@@ -98,6 +97,9 @@ export default {
 
 
   methods: {
+    close() {this.$router.back()},
+
+
     load() {
       this.draw()
       this.update_view()
@@ -453,10 +455,13 @@ export default {
         let bbox     = this.compute_bounds(0)
         let dims     = bbox.getSize(new THREE.Vector3())
         let maxDim   = Math.max(dims.x, dims.y, dims.z)
-        let initialZ = maxDim / 2.5 / Math.tan(Math.PI * this.camera.fov / 360)
+        let initialZ = maxDim / Math.tan(Math.PI * this.camera.fov / 360)
+        let wDims    = this.get_dims()
 
-        this.zoom_min = maxDim / 4
-        this.zoom_max = initialZ * 2
+        initialZ *= wDims.height / wDims.width / 1.5
+
+        this.zoom_min = maxDim / 2.
+        this.zoom_max = initialZ * 4
 
         this.camera.position.z = initialZ
       }
@@ -542,7 +547,7 @@ export default {
   .canvas(ref="canvas")
     .message
 
-  .controls
+  .controls.view-panel
     .control
       label View:
       each type in [1, 2, 3]
@@ -556,7 +561,7 @@ export default {
       Button(@click="next_frame", icon="chevron-right")
 
     .control
-      Button(text="Close", icon="times", :route="{path: '/', replace: true}")
+      Button(text="Close", icon="times", @click="close")
 </template>
 
 <style lang="stylus">
@@ -570,7 +575,6 @@ export default {
   display flex
   flex-direction column
   height 100%
-  background #000
 
   .canvas
     flex 1
@@ -583,16 +587,12 @@ export default {
     text-align center
     font-size 200%
 
-  .controls, .details-view
-    position absolute
-    background rgba(0, 0, 0, 0.5)
-    padding 1em
-    border-radius 1em
-
   .controls
+    position absolute
+    opacity 0.9
+    padding 1em
     top 1em
     right 1em
-    color #fff
     display flex
     gap 2em
 
@@ -605,8 +605,10 @@ export default {
       a.button
         margin 0
 
-   .details-view
-     left 1em
-     top 1em
-     color #ccc
+@media (max-width 800px)
+  .visualization .controls
+    gap 1em
+
+    .fa-times + .button-content, label
+      display none
 </style>

@@ -90,33 +90,22 @@ class Machines {
   }
 
 
-  get_local_config() {
+  get_local_config(group) {
     let local = this.get_local()
-    return local ? local.get_config() : {}
+    return local ? local.get_config(group) : {}
   }
 
 
   *get_units() {for (let mach of this) yield* mach}
 
 
-  async fold() {
+  async set_state(state) {
     if (this.ctx.$node.active)
-      return this.ctx.$node.broadcast('state', {state: 'fold'})
+      await this.ctx.$node.broadcast('state', {state})
 
     for (let mach of this)
-      mach.fold()
-  }
-
-
-  async pause(confirm, machs) {
-    let state = await confirm()
-    if (state != 'pause' && state != 'finish') return
-
-    if (machs || !this.ctx.$node.active)
-      for (let mach of (machs || this))
-        mach[state]()
-
-    else return this.ctx.$node.broadcast('state', {state})
+      if (mach.is_direct())
+        await mach.set_state(state)
   }
 }
 

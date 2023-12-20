@@ -27,40 +27,33 @@
 -->
 
 <script>
+import MachineView from './MachineView.vue'
+
+
 export default {
-  name: 'ClientVersion',
-  props: ['mach'],
-
-
-  computed: {
-    latest()       {return this.$api.get_latest_version()},
-    version()      {return this.mach.get_version()},
-    outdated()     {return this.mach.is_outdated(this.latest)},
-    download_url() {return this.$api.get_download_url()}
-  }
+  name: 'MachinesView',
+  components: {MachineView},
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
-      | #[.fa.fa-exclamation-triangle] v{{version}}
-      |
-      | #[.fa.fa-exclamation-triangle]
+.machines-view.page-view
+  MainHeader
+    template(v-slot:center)
+      Button.button-success(text="Fold", @click="$root.fold()",
+        icon="play", :disabled="$machs.is_empty()")
 
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
-    | v{{version}}
+      Button(text="Pause", @click="$root.pause()", icon="pause",
+        :disabled="$machs.is_empty()")
+
+  .view-body
+    MachineView(v-for="mach in $machs", :mach="mach")
+
+    .no-data(v-if="$machs.is_empty()")
+      td(colspan="100")
+        p No folding machines found.
+        p Login or install the Folding@home client software.
 </template>
 
 <style lang="stylus">
-.client-version
-  .outdated
-    text-decoration none
-
-    &:not(:hover)
-      color var(--warn-color)
-
-    .fa
-      font-size 10pt
 </style>

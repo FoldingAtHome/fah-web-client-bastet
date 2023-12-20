@@ -28,13 +28,66 @@
 
 <script>
 export default {
-  props: ['href']
+  name: 'Award',
+
+
+  props: {
+    title: String,
+    wus:   Boolean,
+    team:  Number,
+    user:  Number,
+  },
+
+
+  data() {return {active: false}},
+
+
+  computed: {
+    url() {
+      let props = []
+
+      if (this.user) props.push('user=' + this.user)
+      if (this.team) props.push('team=' + this.team)
+      if (this.wus)  props.push('type=wus')
+
+      return 'https://apps.foldingathome.org/awards?' + props.join('&')
+    }
+  },
+
+
+  methods: {
+    async open() {
+      this.active = true
+      try {
+        await this.$refs.dialog.exec()
+      } finally {
+        this.active = false
+      }
+    }
+  }
 }
 </script>
 
 <template lang="pug">
-a(:href="href", target="_blank"): slot
+.award
+  Button(@click="open()", icon="trophy", :text="title")
+
+  Dialog.award-dialog(ref="dialog", :buttons="[]", :header="title",
+    width="auto", allowClickAway)
+    template(v-slot:body)
+      a(:href="url"): img(v-if="active", :src="url")
 </template>
 
 <style lang="stylus">
+.dialog-overlay .award-dialog
+  .dialog-body
+    padding 0
+
+    img
+      max-width 100vw
+      max-height 100vh
+      display block
+
+  .dialog-footer
+    display none
 </style>

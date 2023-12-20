@@ -50,7 +50,7 @@ export default {
 
 
   methods: {
-    exec(type, title, body, buttons) {
+    async exec(type, title, body, buttons) {
       this.title = title
       this.body  = body
       this.icon  = get_icon(type)

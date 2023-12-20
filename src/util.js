@@ -337,6 +337,8 @@ export default {
 
 
   default_address() {
+    if (import.meta.env.VITE_WEBSOCKET) return import.meta.env.VITE_WEBSOCKET
+
     let hostname = window.location.hostname
     let host     = hostname.endsWith('.local') ? hostname : '127.0.0.1'
     let local    = hostname.endsWith('.local') || hostname == 'localhost'

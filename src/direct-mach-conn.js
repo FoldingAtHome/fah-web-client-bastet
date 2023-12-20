@@ -93,9 +93,9 @@ class DirectMachConn extends MachConnection {
     this.on_message(msg)
 
     if (!this.initialized) {
-      let info = this.mach.get_data().info
+      let info = this.mach.get_info()
 
-      if (info) {
+      if (info.version) {
         this.initialized = true
 
         // Prefer direct connection

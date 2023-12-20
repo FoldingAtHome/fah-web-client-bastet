@@ -39,15 +39,22 @@
   font-weight bold
   line-height 0.8em
   font-family mono
-  font-size 28pt
+  font-size 18pt
+
+  &:visited, &:link
+    color var(--logo-color)
+
+  &:hover
+    text-decoration none
+    color var(--link-color)
 
   > div:nth-child(1)
-    font-size calc(28pt * 5/7)
+    font-size calc(18pt * 5/7)
     transform scaleY(calc(7/5))
 
   > div
     display flex
 
     > span
-      margin-top -4px
+      margin-top -2px
 </style>

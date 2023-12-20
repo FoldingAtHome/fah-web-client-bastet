@@ -36,79 +36,86 @@ export default {
       img_url: 'data:image/png;base64,',
       more: false
     }
+  },
+
+
+  mounted() {
+    for (let e of this.$el.querySelectorAll('.project-body a'))
+      e.setAttribute('target', '_blank')
+  },
+
+
+  methods: {
+    toggle(e) {
+      if (e.target.nodeName != 'A') this.more = !this.more
+    }
   }
 }
 </script>
 
 <template lang="pug">
-.project(v-if="project.description")
-  .project-header
-    .project-title
-      | Project {{project.id}}
-      .project-cause(v-if="project.cause && project.cause != 'unspecified'")
-        | {{project.cause}}
-      .project-institution {{project.institution}}
-      .project-manager {{project.manager}}
+article.project.view-panel(v-if="project.description", @click="toggle")
+  .project-title
+    .project-id.header-title Project {{project.id}}
+    .project-cause.header-subtitle Target: {{project.cause}}
+
+  .project-byline By {{project.manager}}, {{project.institution}}
 
   .project-body(:class="{'read-less': !more}")
     .project-details
+      .project-image
+        img(v-if="project.thumb", :src="img_url + project.thumb")
       .project-description(v-html="project.description")
-      img(v-if="project.thumb", :src="img_url + project.thumb")
 
-    p.project-manager
+    .project-manager
+      .project-manager-image
+        img(v-if="project.mthumb", :src="img_url + project.mthumb")
       .project-manager-description(v-html="project.mdescription")
-      img(v-if="project.mthumb", :src="img_url + project.mthumb")
 
   .project-footer
-    .read-more(@click="more = !more") Read {{more ? 'less' : 'more'}}
+    .read-more(@click.stop="more = !more") {{more ? '- Collapse' : '+ Expand'}}
 </template>
 
 <style lang="stylus">
-@import('colors.styl')
+.projects-view .view-body
+  display flex
+  flex-direction column
+  gap 1em
 
-.projects > .project
-  border 1px solid var(--border-color)
-  padding 1em
-  margin 0.5em 0
-  background var(--panel-bg)
+  .project
+    .project-title
+      display flex
+      justify-content space-between
+      margin-bottom 0.5em
 
-  .project-body
-    overflow hidden
-
-    &.read-less
-      max-height 5em
-
-  .project-title
-    font-size 120%
-    font-weight bold
-    margin-bottom 0.5em
-    display flex
-    gap 0.5em
-    text-transform capitalize
-    align-items end
+    .project-byline
+      font-size 80%
+      margin-bottom 1em
 
     .project-cause
-      flex 1
+      text-transform capitalize
 
-    .project-cause, .project-institution
-      color #888
-      font-size 90%
+    .project-body
+      overflow hidden
 
-  .project-details, .project-manager
-    display flex
-    flex-direction row
-    align-items top
-    gap 0.5em
+      &.read-less
+        mask-image linear-gradient(to bottom, black 50%, transparent 100%)
+        max-height 10em
 
-    .project-description, .project-manager-description
-      p
-        margin 0
+    .project-details, .project-manager
+      display flex
+      flex-direction column
+      gap 0.5em
 
-  .read-more
-    color var(--link-color)
-    cursor pointer
-    padding 0.5em 0
+      .project-description, .project-manager-description
+        p
+          margin 0.25em 0 1em 0
 
-  img
-    max-height 200px
+    .read-more
+      color var(--link-color)
+      cursor pointer
+      padding 0.25em 0
+
+    img
+      max-height 200px
 </style>

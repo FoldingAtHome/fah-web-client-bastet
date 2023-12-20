@@ -27,49 +27,87 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
-  name: 'Pacify',
-  data() {return {active: false}},
+  name: 'ViewHeader',
+  props: ['title', 'subtitle'],
 
 
   methods: {
-    open()  {
-      if (this.active) return
-      util.lock_scrolling()
-      this.active = true
-    },
-
-
     close() {
-      if (!this.active) return
-      util.unlock_scrolling()
-      this.active = false
+      this.$router.back()
     }
   }
 }
 </script>
 
 <template lang="pug">
-Teleport(to="body")
-  .pacify-overlay(v-show="active")
-    .fa.fa-spinner.fa-pulse
+.view-header
+  .header-top
+    FAHLogo
+
+    .header-center
+      slot(name="center")
+        .header-title(v-if="title") {{title}}
+        .header-subtitle(v-if="subtitle") {{subtitle}}
+
+    .header-actions
+      slot(name="actions")
+        Button(text="Close", icon="times", @click="close")
+
+  .header-menu
+    slot(name="menu")
 </template>
 
 <style lang="stylus">
-.pacify-overlay
-  position absolute
-  top 0
-  left 0
-  width 100vw
-  height 100vh
-  background var(--pacify-bg)
+.page-view .view-header
   display flex
+  flex-direction column
+  color var(--header-fg)
+  background var(--header-bg)
+  border var(--header-border)
+  margin-top 4px
+  border-radius var(--border-radius)
   overflow hidden
-  align-items center
-  justify-content center
-  color #aaaa
-  font-size 400%
+
+  .header-top
+    display flex
+    justify-content space-between
+    align-items center
+    gap 1em
+    padding 1em
+
+    a:hover
+      text-decoration none
+
+    a.button
+      margin 0
+
+    .header-center
+      display flex
+      flex-direction column
+      gap 0.25em
+
+    .header-actions
+      align-items end
+      display flex
+      flex-direction row
+      justify-content right
+      gap 0.5em
+
+      .button-icon
+        width 1.25em
+        font-size 130%
+
+        &:not(:hover)
+          &:not(.button-disabled)
+            color var(--header-fg)
+
+        &:hover
+          &:not(.button-disabled)
+            color var(--link-color)
+
+@media (max-width 800px)
+  .page-view .view-header
+    .control .button-content
+      display none
 </style>

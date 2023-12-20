@@ -28,7 +28,6 @@
 
 <script>
 import util from './util.js'
-import UnitDetailsDialog from './UnitDetailsDialog.vue'
 
 
 const status = {
@@ -58,7 +57,6 @@ const icons = {
 
 export default {
   props: ['unit', 'mach'],
-  components: {UnitDetailsDialog},
 
 
   data() {
@@ -94,23 +92,21 @@ export default {
     },
 
 
-    resources() {
-      let l = []
-
-      if (this.unit.cpus) l.push('cpu:' + this.unit.cpus)
+    gpus() {
+      let gpus = 0
 
       if (this.unit.gpus && this.info.gpus)
         for (let i = 0; i < this.unit.gpus.length; i++) {
           let id = this.unit.gpus[i]
-          if (this.info.gpus[id]) l.push(id)
+          if (this.info.gpus[id]) gpus++
         }
 
-      return l.join(' ')
+      return gpus
     },
 
 
     paused() {return !!this.unit.pause_reason},
-    config() {return this.mach.get_data().config || {}},
+    config() {return this.mach.get_config()},
 
 
     state() {
@@ -122,6 +118,7 @@ export default {
 
 
     icon() {return icons[this.state]},
+    ppd() {return (this.unit.ppd || 0).toLocaleString()},
 
 
     eta() {
@@ -175,45 +172,39 @@ export default {
         this.wait_progress = 1 - (t - now) / 1000 / this.unit.delay
         setTimeout(this.update_wait, 250)
       }
-    },
-
-
-    show_details() {this.$refs.details_dialog.exec()}
+    }
   }
 }
 </script>
 
 <template lang="pug">
-UnitDetailsDialog(ref="details_dialog", :unit="unit")
-
-tr.unit(:class="{disabled: disabled}", :title="disabled ? 'Disconnected' : ''")
-  td.name {{mach.get_name()}}
+tr.unit-view(:class="{disabled: disabled}")
   td.project
     a(v-if="project", :href="project_url + project", target="_blank",
       :title="unit_id") {{project}}
 
-  td.resources {{resources}}
+  td.cpus {{unit.cpus}}
+  td.gpus {{gpus}}
 
-  td.status(:class="state.toLowerCase()")
-    | #[.fa(:class="'fa-' + icon")] {{status}}
+  td.status(:class="state.toLowerCase()", :title="status")
+    | #[.fa(:class="'fa-' + icon")] #[span.status-text {{status}}]
 
   td.progress-cell(:title="'ETA ' + eta")
-    .progress
-      .progress-bar(:style="{width: progress + '%'}")
-      span {{progress}}%
+    ProgressBar(:progress="progress")
 
-  td.eta {{eta}}
+  td.ppd(title="Points Per Day") {{ppd}}
+  td.eta(title="Esitmated time Work Unit completion.") {{eta}}
 
-  td.actions
+  td.actions: div
     Button.button-icon(:disabled="!can_dump", @click="dump(unit.id)",
       icon="trash", title="Dump this Work Unit.")
 
-    Button.button-icon(:disabled="disabled",
+    Button.button-icon(v-if="false", :disabled="disabled",
       :route="mach.get_url('/log?q=:WU' + unit.number + ':')",
       icon="list-alt", title="View Work Unit log.")
 
-    Button.button-icon(@click="show_details", icon="info-circle",
-      :disabled="!unit.wu", title="View Work Unit details.")
+    Button.button-icon(:route="mach.get_url('/unit/' + unit.id)",
+      icon="info-circle", :disabled="!unit.wu", title="View Work Unit details.")
 
     Button.button-icon(
       :route="mach.get_url('/view/' + unit.id)", icon="eye",
@@ -221,12 +212,17 @@ tr.unit(:class="{disabled: disabled}", :title="disabled ? 'Disconnected' : ''")
 </template>
 
 <style lang="stylus">
-@import('./colors.styl')
-
-.unit
+.unit-view
   &.disabled
     color #666
     background #aaa !important
+
+  td
+    font-family mono
+    text-align right
+
+    &.status
+      text-align center
 
   .status.run, .status.finish
     .fa
@@ -240,33 +236,6 @@ tr.unit(:class="{disabled: disabled}", :title="disabled ? 'Disconnected' : ''")
   .progress-cell
     width 100%
 
-  .progress
-    position relative
-    height 1.3rem
-    width 100%
-    border-radius .25rem
-    overflow hidden
-    font-size 1.1rem
-    background #aaa
-    color #fff
-
     .progress-bar
-      height 100%
-      display flex
-      color #fff
-      text-align center
-      white-space nowrap
-      background-color green
-      transition width .6s ease
-      background-image linear-gradient(45deg, rgba(255,255,255,.15) 25%,
-        transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%,
-        rgba(255,255,255,.15) 75%, transparent 75%, transparent)
-      background-size 1rem 1rem
-
-    > span
-      position absolute
-      top 0
-      width 100%
-      text-align center
-      z-index 2
+      height 1.3rem
 </style>

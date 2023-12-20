@@ -64,17 +64,19 @@ export default {
 </script>
 
 <template lang="pug">
-label(:title="'Machine id ' + mach.get_id()") Name
-input(v-model="name", pattern="[\\w\\-]+")
-div
-  Button.button-icon(v-if="linked", @click="save", icon="save",
-    :disabled="!valid || !modified", title="Save machine name.")
+.setting
+  label(:title="'Machine id ' + mach.get_id()") Name
+  input(v-model="name", pattern="[\\w\\-]+")
 
-  Button.button-icon(v-if="linked", @click="unlink",
-    icon="unlink", title="Unlink machine from this account.")
+  .setting-actions
+    Button.button-icon(v-if="linked", @click="save", icon="save",
+      :disabled="!valid || !modified", title="Save machine name.")
 
-  Button.button-icon(v-if="!linked", @click="link", icon="link",
-    :disabled="!valid", title="Link machine to this account.")
+    Button.button-icon(v-if="linked", @click="unlink",
+      icon="unlink", title="Unlink machine from this account.")
+
+    Button.button-icon(v-if="!linked", @click="link", icon="link",
+      :disabled="!valid", title="Link machine to this account.")
 </template>
 
 <style lang="stylus">

@@ -46,9 +46,9 @@ class Projects {
     let projects = {}
 
     for (let mach of this.ctx.$machs)
-      if (mach.get_data().units)
-        for (let unit of mach.get_data().units)
-          if (unit.assignment) projects[unit.assignment.project] = true
+      for (let unit of mach)
+        if (unit.assignment)
+          projects[unit.assignment.project] = true
 
     this._load_all(Object.keys(projects))
 

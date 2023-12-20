@@ -27,40 +27,39 @@
 -->
 
 <script>
+import MainMenu from './MainMenu.vue'
+
+
 export default {
-  name: 'ClientVersion',
-  props: ['mach'],
-
-
-  computed: {
-    latest()       {return this.$api.get_latest_version()},
-    version()      {return this.mach.get_version()},
-    outdated()     {return this.mach.is_outdated(this.latest)},
-    download_url() {return this.$api.get_download_url()}
-  }
+  name: 'MainHeader',
+  components: {MainMenu},
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
-      | #[.fa.fa-exclamation-triangle] v{{version}}
-      |
-      | #[.fa.fa-exclamation-triangle]
+ViewHeader.main-header
+  template(v-slot:center): slot(name="center")
 
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
-    | v{{version}}
+  template(v-slot:actions)
+    Button.button-icon(:icon="$root.dark_mode ? 'moon-o' : 'sun-o'",
+      @click="$root.dark_mode = !$root.dark_mode", title="Toggle dark mode.")
+
+    Button.button-image(v-if="$adata.avatar", route="/account",
+      :image="$adata.avatar",
+      :title="$adata.user + ': Account Settings and Logout.'")
+
+    Button.button-icon(v-else-if="$adata.created", route="/account",
+      icon="user", :title="$adata.user + ': Account Settings and Logout.'")
+
+    Button.button-icon(v-else, icon="sign-in", @click="$root.login()",
+      title="Login to Folding@home or register a new account.")
+
+  template(v-slot:menu)
+    MainMenu
 </template>
 
 <style lang="stylus">
-.client-version
-  .outdated
-    text-decoration none
-
-    &:not(:hover)
-      color var(--warn-color)
-
-    .fa
-      font-size 10pt
+.page-view .main-header
+  .header-top .header-center
+    flex-direction row
 </style>

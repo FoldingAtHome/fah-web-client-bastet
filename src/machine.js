@@ -59,32 +59,27 @@ function clean_keys(data) {
 }
 
 
-function update_obj(data, update) {
+function update_obj(obj, update) {
   let i = 0
 
   while (i < update.length - 2) {
     let key = clean_key(update[i++])
 
-    if (data[key] == undefined) {
-      let isList = i == update.length - 1 || Number.isInteger(update[i])
-      data[key] = isList ? [] : {}
-    }
+    if (obj[key] == undefined)
+      obj[key] = Number.isInteger(update[i]) ? [] : {}
 
-    data = data[key]
+    obj = obj[key]
   }
 
-  let key   = clean_key(update[i++])
-  let value = update[i]
+  let is_array = Array.isArray(obj)
+  let key      = clean_key(update[i++])
+  let value    = update[i]
 
-  if (Array.isArray(data) && key < 0) {
-    if (key === -1) data.push(value)
-    else data.splice(data.length, 0, ...value)
-
-  } else if (value === null) {
-    if (Array.isArray(data)) data.splice(key, 1)
-    else delete data[key]
-
-  } else data[key] = value
+  if      (is_array && key   === -1)   obj.push(value)
+  else if (is_array && key   === -2)   obj.splice(obj.length, 0, ...value)
+  else if (is_array && value === null) obj.splice(key, 1)
+  else if (value === null)             delete obj[key]
+  else                                 obj[key] = value
 }
 
 
@@ -98,7 +93,7 @@ class Machine {
     this.name     = id
     this.state    = reactive({
       connected: false,
-      data:      {config: {}, info: {}}
+      data:      {info: {}, groups: {}}
     })
   }
 
@@ -107,9 +102,35 @@ class Machine {
   get_name()    {return this.name}
   get_data()    {return this.state.data}
   get_url(path) {return this.get_id() + path}
-  get_config()  {return this.state.data.config || {}}
-  get_info()    {return this.state.data.info   || {}}
+  get_info()    {return this.get_data().info || {}}
   get_version() {return this.get_info().version}
+  get_groups()  {return Object.keys(this.get_data().groups)}
+
+
+  get_group(name = '') {
+    let data = this.get_data()
+
+    if (data.groups && name in data.groups)
+      return data.groups[name]
+
+    return {}
+  }
+
+
+  get_config(group = '') {return this.get_group(group).config || {}}
+
+
+  get_resources(group = '') {
+    let l = []
+    let config = this.get_config(group)
+
+    if (config.cpus) l.push(config.cpus + ' CPUs')
+
+    for (let gpu of this.get_gpus(group))
+      l.push(gpu.description)
+
+    return l.length ? l.join(', ') : 'No resources'
+  }
 
 
   get_conn()     {return this.conn}
@@ -120,11 +141,20 @@ class Machine {
 
 
   *[Symbol.iterator]() {
-    let data = this.get_data()
+    for (let unit of (this.get_data().units || []))
+      yield unit
+  }
 
-    if (data.units)
-      for (let unit of data.units)
-        yield unit
+
+  is_empty() {
+    for (let unit of this) return false
+    return true
+  }
+
+
+  get_unit(id) {
+    for (let unit of this)
+      if (unit.id == id) return unit
   }
 
 
@@ -144,22 +174,14 @@ class Machine {
 
 
   is_connected() {return this.state.connected}
-
-
-  is_paused() {
-    if (!this.state.data.config) return false
-    return this.state.data.config.paused
-  }
+  is_paused(group) {return this.get_config(group).paused}
 
 
   is_active() {
     if (!this.is_connected()) return false
 
-    let units = this.state.data.units
-
-    if (units && units.length)
-      for (let unit of units)
-        if (!unit.paused) return true
+    for (let unit of this)
+      if (!unit.paused) return true
 
     return false
   }
@@ -172,29 +194,44 @@ class Machine {
   }
 
 
-  async sendCommand(cmd, data = {}) {
+  get_gpus(group = '') {
+    let info   = this.get_info()
+    let config = this.get_config(group)
+    let gpus   = []
+
+    if (config.gpus && info.gpus)
+      for (let id in config.gpus)
+        if (info.gpus[id] && config.gpus[id].enabled)
+          gpus.push(info.gpus[id])
+
+    return gpus
+  }
+
+
+  async send_command(cmd, data = {}) {
     data = Object.assign({}, data, {cmd, time: new Date().toISOString()})
     return this.send(data)
   }
 
 
-  async setState(state)   {return this.sendCommand('state', {state})}
-  async fold()            {return this.setState('fold')}
-  async finish()          {return this.setState('finish')}
-  async pause()           {return this.setState('pause')}
+  async set_state(state, group) {
+    let data = {state}
+    if (group != undefined) data.group = group
+    return this.send_command('state', data)
+  }
 
 
-  async dump(unit)        {return this.sendCommand('dump', {unit})}
-  async configure(config) {return this.sendCommand('config', {config})}
+  async dump(unit)        {return this.send_command('dump',   {unit})}
+  async configure(config) {return this.send_command('config', {config})}
 
 
   async link(token)       {
-    return this.sendCommand('link', {token, name: this.name})
+    return this.send_command('link', {token, name: this.name})
   }
 
 
   async unlink() {
-    if (this.is_connected()) this.sendCommand('reset')
+    if (this.is_connected()) this.send_command('reset')
     return this.api.delete('/account/machines/' + this.id)
   }
 
@@ -265,8 +302,9 @@ class Machine {
       for (let i = 0; i < 1000; i++) {
         if (viz.frames[i]) break
         let key = 'viz/' + unit + '/frames/' + i
-        viz.frames[i] = await this.cache.get(key, 0)
-        if (!viz.frames[i]) break
+        let frame = await this.cache.get(key, 0)
+        if (!frame) break
+        viz.frames[i] = frame
       }
 
       data.viz[unit] = viz
@@ -280,12 +318,12 @@ class Machine {
     if (!this.is_connected()) return
     const unit  = this.vizUnit
     const frame = await this._viz_get_frames(unit)
-    this.sendCommand('viz', {unit, frame})
+    this.send_command('viz', {unit, frame})
   }
 
 
   _send_log_enable() {
-    if (this.is_connected()) this.sendCommand('log', {enable: this.logEnabled})
+    if (this.is_connected()) this.send_command('log', {enable: this.logEnabled})
   }
 
 

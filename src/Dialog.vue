@@ -33,8 +33,7 @@ export default {
 
   props: {
     buttons: {
-      type: Object,
-      default(rawProps) {
+      default() {
         return [
           {name: 'Cancel', icon: 'times'},
           {name: 'Ok',     icon: 'check', success: true}
@@ -46,7 +45,8 @@ export default {
     allowClickAway: {type: Boolean, default: false},
     zIndex:         {type: Number,  default: 100},
     class:          {},
-    width:          {default: '30em'}
+    width:          {default: '30em'},
+    header:         {},
   },
 
 
@@ -56,6 +56,19 @@ export default {
 
 
   computed: {
+    _buttons() {
+      let buttons = this.$util.deepCopy(this.buttons)
+
+      if (typeof buttons == 'string') buttons = buttons.split(' ')
+
+      for (let i = 0; i < buttons.length; i++)
+        if (typeof buttons[i] == 'string')
+          buttons[i] = {name: buttons[i]}
+
+      return buttons
+    },
+
+
     style() {
       return {
         'z-index': this.zIndex,
@@ -69,9 +82,10 @@ export default {
     click_away() {if (this.allowClickAway) this.close('cancel')},
 
 
-    exec()  {
+    async exec()  {
       if (this.active) return
       this.$util.lock_scrolling()
+      this.focus()
       this.active = true
       return new Promise(resolve => this.resolve = resolve)
     },
@@ -82,9 +96,16 @@ export default {
       this.$util.unlock_scrolling()
       this.active = false
 
+      if (result) result = result.toLowerCase()
       if (result) this.$emit('close', result)
       if (this.resolve) this.resolve(result)
       this.resolve = undefined
+    },
+
+
+    focus() {
+      let e = this.$refs.dialog.querySelector('[focused]')
+      if (e) this.$nextTick(() => this.$nextTick(() => {e.focus()}))
     }
   }
 }
@@ -92,10 +113,11 @@ export default {
 
 <template lang="pug">
 Teleport(to="body")
-  .dialog-overlay(v-show="active", @click="click_away", :style="style")
+  .dialog-overlay(ref="dialog" v-show="active", @click="click_away",
+    :style="style")
     .dialog(:class="class", @click.stop="true")
       .dialog-header
-        .dialog-header-slot: slot(name="header")
+        .dialog-header-slot.header-title: slot(name="header") {{header}}
         .dialog-close(v-if="allowCancel", @click="close('cancel')")
           .fa.fa-times
 
@@ -103,12 +125,10 @@ Teleport(to="body")
         slot(name="body")
 
       .dialog-footer
-        Button(v-for="b in buttons", @click="close(b.name)", v-bind="b")
+        Button(v-for="b in _buttons", @click="close(b.name)", v-bind="b")
 </template>
 
 <style lang="stylus">
-@import('./colors.styl')
-
 .dialog-overlay
   position absolute
   top 0
@@ -117,19 +137,21 @@ Teleport(to="body")
   height 100vh
   background var(--overlay-bg)
   display grid
-  grid-template-rows 0.5fr min-content 1fr
+  grid-template-rows 0.25fr min-content 1fr
   grid-template-columns 1fr 30em 1fr
 
   .dialog
-    max-width 95vw
-    max-height 95vh
+    max-width 100vw
+    max-height 100vh
     overflow hidden
     grid-column 2
     grid-row 2
-    background var(--panel-bg)
-    box-shadow 3px 3px 12px #222
+    color var(--body-fg)
+    background var(--body-bg)
+    box-shadow var(--shadow)
     display flex
     flex-direction column
+    border-radius var(--border-radius)
 
     > *
       padding 1em
@@ -140,8 +162,6 @@ Teleport(to="body")
       border-bottom 1px solid var(--border-color)
       display flex
       gap 0.5em
-      font-size 120%
-      font-weight bold
 
       > :first-child
         flex 1
