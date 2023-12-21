@@ -1,6 +1,11 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.3.0
+ - Proper support for mobile devices.
+ - Return of resource groups.
+ - User and team stats.
+
 ## v8.2.2
  - Fixed bug when saving settings to local client when not logged in to account.
 
