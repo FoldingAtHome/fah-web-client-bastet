@@ -104,7 +104,7 @@ class Machine {
   get_url(path) {return this.get_id() + path}
   get_info()    {return this.get_data().info || {}}
   get_version() {return this.get_info().version}
-  get_groups()  {return Object.keys(this.get_data().groups)}
+  get_groups()  {return Object.keys(this.get_data().groups || {'': null})}
 
 
   get_group(name = '') {
