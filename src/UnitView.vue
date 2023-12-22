@@ -106,7 +106,7 @@ export default {
 
 
     paused() {return !!this.unit.pause_reason},
-    config() {return this.mach.get_config()},
+    config() {return this.mach.get_config(this.unit.group)},
 
 
     state() {
