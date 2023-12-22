@@ -106,7 +106,8 @@ export default {
       tr.machine-group-row(v-if="!one_group")
         td(colspan="7")
           .group-header
-            .group-name {{group ? group : 'default'}} Group
+            .group-name(v-if="group") Group {{group}}
+            .group-name(v-else) Default Group
             .group-resources.header-subtitle {{mach.get_resources(group)}}
 
         td
@@ -150,9 +151,6 @@ export default {
     display flex
     flex-direction row
     gap 1em
-
-    .group-name
-      text-transform capitalize
 
   .machine-actions
     flex 1
