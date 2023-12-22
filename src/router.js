@@ -56,6 +56,7 @@ export default createRouter({
       props: true,
       component: MachineMux,
       children: [
+        {path: '',             redirect: '/'},
         {path: 'settings',     component: SettingsView},
         {path: 'details',      component: MachineDetailsView},
         {path: 'unit/:unitID', component: UnitDetailsView, props: true},
@@ -64,8 +65,9 @@ export default createRouter({
           path: 'log',
           component: LogView,
           props: route => ({query: route.query.q})
-        }
+        },
+        {path: ':pathMatch(.*)*', redirect: '/'},
       ]
-    }
+    },
   ]
 })
