@@ -109,13 +109,14 @@ export default {
             .group-name {{group ? group : 'default'}} Group
             .group-resources.header-subtitle {{mach.get_resources(group)}}
 
-        td.machine-actions
-          Button.button-icon(v-if="mach.is_paused(group)", @click="fold(group)",
-            icon="play", title="Start folding in this group.",
-            :disabled="!connected")
+        td
+          .machine-actions
+            Button.button-icon(v-if="mach.is_paused(group)", icon="play",
+              @click="fold(group)", :disabled="!connected",
+              title="Start folding in this group.")
 
-          Button.button-icon(v-else, @click="pause(group)", icon="pause",
-            title="Pause folding in this group.", :disabled="!connected")
+            Button.button-icon(v-else, @click="pause(group)", icon="pause",
+              title="Pause folding in this group.", :disabled="!connected")
 
       template(v-for="unit in mach")
         UnitView(v-if="unit.group == group", :unit="unit", :mach="mach")
