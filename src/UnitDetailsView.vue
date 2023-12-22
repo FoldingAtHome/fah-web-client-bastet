@@ -40,11 +40,17 @@ export default {
 
   computed: {
     unit()     {return this.mach.get_unit(this.unitID) || {}},
+    wu()       {return this.unit.wu || {}},
     assign()   {return this.unit.assignment || {}},
     core()     {return this.assign.core.type},
     timeout()  {return addTime(this.assign.time, this.assign.timeout)},
     deadline() {return addTime(this.assign.time, this.assign.deadline)},
-    cs()       {return (this.unit.wu.cs || []).join(', ')},
+    cs()       {return (this.wu.cs || []).join(', ')},
+    progress() {return ((this.unit.progress || 0) * 100).toFixed(1) + '%'},
+    run_time() {return (this.unit.run_time || 0).toLocaleString() + 's'},
+    credit()   {return (this.assign.credit || 0).toLocaleString()},
+    ppd()      {return (this.unit.ppd || 0).toLocaleString()},
+    gpus()     {return this.assign.gpus ? this.assign.gpus.join(' ') : 'None'},
   }
 }
 </script>
@@ -54,22 +60,22 @@ export default {
   ViewHeader(title="Work Unit Details")
 
   .view-body
-    table.view-table(v-if="unit.wu")
+    table.view-table
       tr
         th Project
         td {{assign.project}}
 
       tr
         th Run
-        td {{unit.wu.run}}
+        td {{wu.run}}
 
       tr
         th Clone
-        td {{unit.wu.clone}}
+        td {{wu.clone}}
 
       tr
         th Generation
-        td {{unit.wu.gen}}
+        td {{wu.gen}}
 
       tr
         th Core
@@ -77,23 +83,23 @@ export default {
 
       tr
         th Progress
-        td {{(unit.progress * 100).toFixed(1)}}%
+        td {{progress}}
 
       tr
         th ETA
         td {{unit.eta}}
 
       tr
-        th Runtime
-        td {{unit.run_time.toLocaleString()}}s
+        th Run Time
+        td {{run_time}}
 
       tr
         th Base Credit
-        td {{assign.credit.toLocaleString()}}
+        td {{credit}}
 
       tr
         th PPD
-        td {{unit.ppd.toLocaleString()}}
+        td {{ppd}}
 
       tr
         th CPUs
@@ -101,7 +107,7 @@ export default {
 
       tr
         th GPUs
-        td {{assign.gpus ? assign.gpus.join(' ') : ''}}
+        td {{gpus}}
 
       tr
         th Deadline
