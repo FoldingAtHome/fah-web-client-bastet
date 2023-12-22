@@ -10,3 +10,4 @@ node_modules
 /.sconf_temp
 /config.log
 /.env.local
+/.env.*.local
