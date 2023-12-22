@@ -68,6 +68,8 @@ export default {
 
     ClientVersion(:mach="mach")
 
+    .machine-disconnected(v-if="!connected") DISCONNECTED
+
     .machine-resources.header-subtitle(v-if="one_group")
       | {{mach.get_resources()}}
 
@@ -130,8 +132,7 @@ export default {
   gap 0.5em
 
   &.disconnected
-    color #666
-    background #aaa !important
+    filter contrast(0.6) brightness(0.4)
 
   .machine-header
     display flex
@@ -139,6 +140,10 @@ export default {
     gap 1em
     align-items baseline
     width 100%
+
+  .machine-disconnected
+    font-weight bold
+    font-size 150%
 
   .group-header
     display flex

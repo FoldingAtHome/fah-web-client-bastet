@@ -213,10 +213,6 @@ tr.unit-view(:class="{disabled: disabled}")
 
 <style lang="stylus">
 .unit-view
-  &.disabled
-    color #666
-    background #aaa !important
-
   td
     font-family mono
     text-align right
