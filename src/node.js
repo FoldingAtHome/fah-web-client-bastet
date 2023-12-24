@@ -107,7 +107,7 @@ class Node extends Sock {
   }
 
 
-  on_open(event)  {this._login()}
+  on_open(event) {this._login()}
 
 
   on_close(event) {
@@ -165,7 +165,15 @@ class Node extends Sock {
 
   async logout() {
     this.active = false
-    return this.close()
+
+    let machs = Array.from(this.ctx.$machs)
+    for (let mach of machs)
+      if (!mach.is_direct()) {
+        mach.close()
+        this.ctx.$machs.del(mach.get_id())
+      }
+
+    await this.close()
   }
 
 

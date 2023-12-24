@@ -258,7 +258,7 @@ class Machine {
 
   on_open()  {this.first = true}
   on_close() {this.state.connected = false}
-  close() {if (this.get_conn()) this.get_conn().close()}
+  close()    {if (this.get_conn()) this.get_conn().close()}
 
 
   async on_message(msg) {
