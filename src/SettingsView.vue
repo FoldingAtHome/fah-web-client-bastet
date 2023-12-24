@@ -224,10 +224,11 @@ export default {
       let result = await this.$refs.new_group_dialog.exec()
       if (result != 'create') return
 
-      let gpus = this.available_gpus
-      let config = get_group_config({}, gpus)
-      this.config.groups[this.new_group] = config
-      this.group = this.new_group
+      let name = this.new_group.trim()
+      if (!(name in this.config.groups))
+        this.config.groups[name] = get_group_config({}, this.available_gpus)
+
+      this.group = name
     },
 
 
