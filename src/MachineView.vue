@@ -120,7 +120,8 @@ export default {
               title="Pause folding in this group.", :disabled="!connected")
 
       template(v-for="unit in mach")
-        UnitView(v-if="unit.group == group", :unit="unit", :mach="mach")
+        UnitView(v-if="unit.group == group || one_group", :unit="unit",
+          :mach="mach")
 
   .no-data(v-if="mach.is_empty()")
     p No work units.
