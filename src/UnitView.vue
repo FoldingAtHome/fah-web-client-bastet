@@ -223,7 +223,6 @@ tr.unit-view(:class="{disabled: disabled}")
   .status.run, .status.finish
     .fa
       color green
-      animation spin 4s linear infinite
 
   .status.finish .fa
     color orange
@@ -235,6 +234,8 @@ tr.unit-view(:class="{disabled: disabled}")
   .progress-cell
     width 100%
 
-    .progress-bar
-      height 1.3rem
+.mouse-active .unit-view
+  .status.run, .status.finish
+    .fa
+      animation spin 4s linear infinite
 </style>

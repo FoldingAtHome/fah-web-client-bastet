@@ -28,7 +28,7 @@
 
 <script>
 export default {
-  props: ['project'],
+  props: ['project', 'full'],
 
 
   data() {
@@ -40,6 +40,8 @@ export default {
 
 
   mounted() {
+    this.more = this.full
+
     for (let e of this.$el.querySelectorAll('.project-body a'))
       e.setAttribute('target', '_blank')
   },
@@ -47,6 +49,7 @@ export default {
 
   methods: {
     toggle(e) {
+      if (this.full) return
       if (e.target.nodeName != 'A') this.more = !this.more
     }
   }
@@ -72,50 +75,45 @@ article.project.view-panel(v-if="project.description", @click="toggle")
         img(v-if="project.mthumb", :src="img_url + project.mthumb")
       .project-manager-description(v-html="project.mdescription")
 
-  .project-footer
+  .project-footer(v-if="!full")
     .read-more(@click.stop="more = !more") {{more ? '- Collapse' : '+ Expand'}}
 </template>
 
 <style lang="stylus">
-.projects-view .view-body
-  display flex
-  flex-direction column
-  gap 1em
+.project
+  .project-title
+    display flex
+    justify-content space-between
+    margin-bottom 0.5em
 
-  .project
-    .project-title
-      display flex
-      justify-content space-between
-      margin-bottom 0.5em
+  .project-byline
+    font-size 80%
+    margin-bottom 1em
 
-    .project-byline
-      font-size 80%
-      margin-bottom 1em
+  .project-cause
+    text-transform capitalize
 
-    .project-cause
-      text-transform capitalize
+  .project-body
+    overflow hidden
 
-    .project-body
-      overflow hidden
+    &.read-less
+      mask-image linear-gradient(to bottom, black 50%, transparent 100%)
+      max-height 10em
 
-      &.read-less
-        mask-image linear-gradient(to bottom, black 50%, transparent 100%)
-        max-height 10em
+  .project-details, .project-manager
+    display flex
+    flex-direction column
+    gap 0.5em
 
-    .project-details, .project-manager
-      display flex
-      flex-direction column
-      gap 0.5em
+    .project-description, .project-manager-description
+      p
+        margin 0.25em 0 1em 0
 
-      .project-description, .project-manager-description
-        p
-          margin 0.25em 0 1em 0
+  .read-more
+    color var(--link-color)
+    cursor pointer
+    padding 0.25em 0
 
-    .read-more
-      color var(--link-color)
-      cursor pointer
-      padding 0.25em 0
-
-    img
-      max-height 200px
+  img
+    max-height 200px
 </style>

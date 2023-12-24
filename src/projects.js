@@ -39,7 +39,10 @@ class Projects {
   }
 
 
-  get() {return Object.values(this.projects)}
+  get(id) {
+    if (id) return this.projects[id]
+    return Object.values(this.projects)
+  }
 
 
   _update() {

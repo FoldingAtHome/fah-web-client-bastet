@@ -38,6 +38,7 @@ import FAHLogo        from './FAHLogo.vue'
 import ClientVersion  from './ClientVersion.vue'
 import ViewHeader     from './ViewHeader.vue'
 import MainHeader     from './MainHeader.vue'
+import ProjectView    from './ProjectView.vue'
 import Cache          from './cache.js'
 import API            from './api.js'
 import Account        from './account.js'
@@ -49,6 +50,12 @@ import Stats          from './stats.js'
 import Projects       from './projects.js'
 import News           from './news.js'
 import DirectMachConn from './direct-mach-conn.js'
+
+
+function add_components(app, components) {
+  for (let [name, component] of Object.entries(components))
+    app.component(name, component)
+}
 
 
 async function main(url) {
@@ -71,15 +78,11 @@ async function main(url) {
   new DirectMachConn(ctx, 'local', util.default_address())
 
   app.use(router)
-  app.component('Button',        Button)
-  app.component('Dialog',        Dialog)
-  app.component('ProgressBar',   ProgressBar)
-  app.component('Award',         Award)
-  app.component('HelpBalloon',   HelpBalloon)
-  app.component('FAHLogo',       FAHLogo)
-  app.component('ClientVersion', ClientVersion)
-  app.component('ViewHeader',    ViewHeader)
-  app.component('MainHeader',    MainHeader)
+  add_components(app, {
+    Button, Dialog, ProgressBar, Award, HelpBalloon, FAHLogo, ClientVersion,
+    ViewHeader, MainHeader, ProjectView
+  })
+
   app.mount('#app')
 }
 

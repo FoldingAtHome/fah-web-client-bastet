@@ -27,11 +27,7 @@
 -->
 
 <script>
-import ProjectView from './ProjectView.vue'
-
-
 export default {
-  components: {ProjectView},
   computed: {projects() {return this.$projects.get()}}
 }
 </script>
@@ -51,6 +47,7 @@ export default {
 <style lang="stylus">
 .projects-view .view-body
   display flex
+  flex-direction column
   gap 1em
 
   > p

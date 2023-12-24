@@ -49,38 +49,40 @@ export default {
     fieldset.view-panel
       legend Machine
 
-      table.view-table(v-if="info")
-        tr
-          th Hostname
-          td {{info.hostname}}
+      .info-group(v-if="info")
+        .info-item
+          label Hostname
+          span {{info.hostname}}
 
-        tr
-          th Client Version
-          td {{info.version}}
+        .info-item
+          label OS
+          span {{info.os}}
 
-        tr
-          th OS
-          td {{info.os}}
+      .info-group(v-if="info")
+        .info-item
+          label Client Version
+          span {{info.version}}
 
-        tr
-          th OS Version
-          td {{info.os_version}}
+        .info-item
+          label OS Version
+          span {{info.os_version}}
 
     fieldset.view-panel
       legend CPU
 
-      table.view-table(v-if="info")
-        tr
-          th Description
-          td {{info.cpu_brand}}
+      .info-group(v-if="info")
+        .info-item
+          label Description
+          span {{info.cpu_brand}}
 
-        tr
-          th Type
-          td {{info.cpu}}
+      .info-group(v-if="info")
+        .info-item
+          label Cores
+          span {{info.cpus}}
 
-        tr
-          th Cores
-          td {{info.cpus}}
+        .info-item
+          label Type
+          span {{info.cpu}}
 
     GPUFieldset(v-for="(gpu, id) in info.gpus", :gpu="gpu", :id="id")
 </template>
@@ -95,16 +97,5 @@ export default {
     flex-direction column
     padding 0.5em
     width 100%
-
-    > fieldset
-      margin-top 1em
-
-  table.view-table
-    width 100%
-
-    td, th
-      white-space normal
-
-    th
-      width 8.5em
+    gap 0.5em
 </style>

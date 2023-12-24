@@ -42,15 +42,16 @@ export default {
     unit()     {return this.mach.get_unit(this.unitID) || {}},
     wu()       {return this.unit.wu || {}},
     assign()   {return this.unit.assignment || {}},
-    core()     {return this.assign.core.type},
+    core()     {return (this.assign.core || {}).type},
     timeout()  {return addTime(this.assign.time, this.assign.timeout)},
     deadline() {return addTime(this.assign.time, this.assign.deadline)},
     cs()       {return (this.wu.cs || []).join(', ')},
-    progress() {return ((this.unit.progress || 0) * 100).toFixed(1) + '%'},
+    progress() {return ((this.unit.progress || 0) * 100).toFixed(1)},
     run_time() {return (this.unit.run_time || 0).toLocaleString() + 's'},
     credit()   {return (this.assign.credit || 0).toLocaleString()},
     ppd()      {return (this.unit.ppd || 0).toLocaleString()},
     gpus()     {return this.assign.gpus ? this.assign.gpus.join(' ') : 'None'},
+    project()  {return this.$projects.get(this.assign.project)},
   }
 }
 </script>
@@ -59,80 +60,82 @@ export default {
 .unit-details-view.page-view
   ViewHeader(title="Work Unit Details")
 
-  .view-body
-    table.view-table
-      tr
-        th Project
-        td {{assign.project}}
+  .view-body(v-if="unit.wu")
+    .info-group
+      .info-item
+        label PPD
+        span {{ppd}}
 
-      tr
-        th Run
-        td {{wu.run}}
+      .info-item
+        label Base Credit
+        span {{credit}}
 
-      tr
-        th Clone
-        td {{wu.clone}}
+    .info-group
+      .info-item
+        label CPUs
+        span {{assign.cpus}}
 
-      tr
-        th Generation
-        td {{wu.gen}}
+      .info-item
+        label GPUs
+        span {{gpus}}
 
-      tr
-        th Core
-        td {{core}}
+    .info-group
+      .info-item
+        label Progress
+        span: progress-bar(:progress="progress")
 
-      tr
-        th Progress
-        td {{progress}}
+    .info-group
+      .info-item
+        label ETA
+        span {{unit.eta}}
 
-      tr
-        th ETA
-        td {{unit.eta}}
+      .info-item
+        label Run Time
+        span {{run_time}}
 
-      tr
-        th Run Time
-        td {{run_time}}
+    .info-group
+      .info-item
+        label Assign Time
+        span {{assign.time}}
 
-      tr
-        th Base Credit
-        td {{credit}}
+      .info-item
+        label Deadline
+        span {{deadline}}
 
-      tr
-        th PPD
-        td {{ppd}}
+      .info-item
+        label Timeout
+        span {{timeout}}
 
-      tr
-        th CPUs
-        td {{assign.cpus}}
+    .info-group
+      .info-item
+        label Work Server
+        span {{assign.ws}}
 
-      tr
-        th GPUs
-        td {{gpus}}
+    .info-group
+      .info-item
+        label Core
+        span {{core}}
 
-      tr
-        th Deadline
-        td {{deadline}}
+    .info-group
+      .info-item
+        label Run
+        span {{wu.run}}
 
-      tr
-        th Timeout
-        td {{timeout}}
+      .info-item
+        label Clone
+        span {{wu.clone}}
 
-      tr
-        th Work Server
-        td {{assign.ws}}
+      .info-item
+        label Generation
+        span {{wu.gen}}
 
-      tr
-        th Collection Servers
-        td {{cs}}
-
-      tr
-        th Assign Time
-        td {{assign.time}}
+    ProjectView(v-if="project", :project="project", :full="true")
 </template>
 
 <style lang="stylus">
 .unit-details-view
-  table.view-table
-    td, th
-      white-space normal
+  .view-body
+    display flex
+    flex-direction column
+    gap 1em
 </style>

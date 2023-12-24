@@ -42,6 +42,7 @@ export default {
 .progress-bar
   position relative
   width 100%
+  height 1.3rem
   border-radius var(--border-radius)
   overflow hidden
   background var(--progress-bg)

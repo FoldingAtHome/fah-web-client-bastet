@@ -35,11 +35,13 @@ export default {
     devs() {
       let devs = []
 
-      for (const type of ['opencl', 'cuda']) {
+      for (const name of ['OpenCL', 'CUDA']) {
+        let type  = name.toLowerCase()
         let cinfo = Object.assign({}, this.gpu[type] || {})
 
+        cinfo.name      = name
         cinfo.supported = cinfo.compute
-        cinfo.image = `/images/${cinfo.supported ? '' : 'no-'}${type}.png`
+        cinfo.image     = `/images/${cinfo.supported ? '' : 'no-'}${type}.png`
 
         devs.push(cinfo)
       }
@@ -51,48 +53,50 @@ export default {
 </script>
 
 <template lang="pug">
-fieldset.view-panel
+fieldset.view-panel.gpu-fieldset
   legend {{id}}
-  table.view-table
-    tr
-      th Description
-      td {{gpu.description}}
+  .info-group
+    .info-item
+      label Description
+      span {{gpu.description}}
 
-    tr
-      th Supported
-      td {{gpu.supported ? 'true' : 'false'}}
+    .info-item
+      label Vendor
+      span {{gpu.type}}
 
-    tr
-      th Vendor
-      td {{gpu.type}}
+  .info-group
+    .info-item
+      label Supported
+      span {{gpu.supported ? 'true' : 'false'}}
 
-    tr
-      th UUID
-      td {{gpu.uuid}}
+    .info-item
+      label UUID
+      span {{gpu.uuid}}
 
-    tr
-      th PCI Device ID
-      td 0x{{gpu.device.toString(16)}}
+  .info-group
+    .info-item
+      label PCI Device ID
+      span 0x{{gpu.device.toString(16)}}
 
-    tr
-      th PCI Vendor ID
-      td 0x{{gpu.vendor.toString(16)}}
+    .info-item
+      label PCI Vendor ID
+      span 0x{{gpu.vendor.toString(16)}}
 
   fieldset.view-panel(v-for="dev of devs")
-    legend: img.gpu-icon(:src="dev.image")
-    table.view-table
-      tr
-        th Supported
-        td {{dev.supported ? 'true' : 'false'}}
+    legend: img.gpu-icon(:src="dev.image", :alt="dev.name", :title="dev.name")
+    .info-group
+      .info-item
+        label Supported
+        span {{dev.supported ? 'true' : 'false'}}
 
       template(v-if="dev.compute")
-        tr
-          th Compute
-          td {{dev.compute}}
+        .info-item
+          label Compute
+          span {{dev.compute}}
 
-        tr
-          th Driver
-          td {{dev.driver}}
+        .info-item
+          label Driver
+          span {{dev.driver}}
 </template>
 
 <style lang="stylus">
