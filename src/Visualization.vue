@@ -48,11 +48,13 @@ export default {
 
   data() {
     return {
-      message: 'Loading...',
-      pause: false,
-      dragging: false,
+      message:   'Loading...',
+      pause:     false,
+      dragging:  false,
       draw_type: 1,
-      frame: 0,
+      wiggle:    false,
+      frame:     0,
+      last:      0,
     }
   },
 
@@ -244,8 +246,18 @@ export default {
       this.animate = window.requestAnimationFrame(this.render)
       if (this.scene == undefined) return
 
-      if (!this.dragging && !this.pause)
-        this.rotate(-this.clock.getDelta() / 5, 0)
+      if (!this.dragging && !this.pause) {
+        let delta = this.clock.getDelta()
+        this.rotate(-delta / 5, 0)
+
+        if (this.wiggle) {
+          this.last += delta
+          if (0.1 < this.last) {
+            this.last = 0
+            this.next_frame()
+          }
+        }
+      }
 
       this.renderer.render(this.scene, this.camera)
     },
@@ -490,6 +502,8 @@ export default {
       case 'ArrowUp':    this.zoom_in();    break
       case 'ArrowDown':  this.zoom_out();   break
 
+      case 'w': this.wiggle = !this.wiggle; break
+
       case '1': case '2': case '3':
         this.set_draw_type(parseInt(e.key))
         break
@@ -557,7 +571,7 @@ export default {
     .control
       label Frame:
       Button(@click="prev_frame", icon="chevron-left")
-      span {{frames ? frame + 1 : 0}} of {{frames}}
+      span.frames {{frames ? frame + 1 : 0}} of {{frames}}
       Button(@click="next_frame", icon="chevron-right")
 
     .control
@@ -604,6 +618,10 @@ export default {
 
       a.button
         margin 0
+
+      .frames
+        font-family mono
+
 
 @media (max-width 800px)
   .visualization .controls
