@@ -225,6 +225,9 @@ tr.unit-view(:class="{disabled: disabled}")
       color green
       animation spin 4s linear infinite
 
+  .status.finish .fa
+    color orange
+
   @keyframes spin
     100%
       transform rotate(360deg)
