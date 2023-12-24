@@ -39,7 +39,7 @@ export default {
   },
 
 
-  data() {return {active: false}},
+  data() {return {active: false, loaded: false}},
 
 
   computed: {
@@ -75,13 +75,18 @@ export default {
   Dialog.award-dialog(ref="dialog", :buttons="[]", :header="title",
     width="auto", allowClickAway)
     template(v-slot:body)
-      a(:href="url"): img(v-if="active", :src="url")
+      h2(v-if="!loaded") Loading...
+      a(:href="url"): img(v-if="active", :src="url", @load="loaded = true")
 </template>
 
 <style lang="stylus">
 .dialog-overlay .award-dialog
   .dialog-body
     padding 0
+
+    h2
+      padding 1em
+      text-align center
 
     img
       max-width 100vw

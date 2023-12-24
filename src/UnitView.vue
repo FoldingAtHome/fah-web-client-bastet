@@ -192,8 +192,8 @@ tr.unit-view(:class="{disabled: disabled}")
   td.progress-cell(:title="'ETA ' + eta")
     ProgressBar(:progress="progress")
 
-  td.ppd(title="Points Per Day") {{ppd}}
-  td.eta(title="Esitmated time Work Unit completion.") {{eta}}
+  td.ppd(title="Estimated Points Per Day") {{ppd}}
+  td.eta(title="Esitmated time to Work Unit completion.") {{eta}}
 
   td.actions: div
     Button.button-icon(:disabled="!can_dump", @click="dump(unit.id)",
