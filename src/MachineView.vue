@@ -103,21 +103,21 @@ export default {
       th.actions Actions
 
     template(v-for="group in groups")
-      tr.machine-group-row(v-if="!one_group")
-        td(colspan="7")
-          .group-header
-            .group-name(v-if="group") Group {{group}}
-            .group-name(v-else) Default Group
-            .group-resources.header-subtitle {{mach.get_resources(group)}}
+      tr(v-if="!one_group")
+        td(colspan="99")
+          .machine-group-header
+            .group-header
+              .group-name(v-if="group") Group {{group}}
+              .group-name(v-else) Default Group
+              .group-resources.header-subtitle {{mach.get_resources(group)}}
 
-        td
-          .machine-actions
-            Button.button-icon(v-if="mach.is_paused(group)", icon="play",
-              @click="fold(group)", :disabled="!connected",
-              title="Start folding in this group.")
+            .machine-actions
+              Button.button-icon(v-if="mach.is_paused(group)", icon="play",
+                @click="fold(group)", :disabled="!connected",
+                title="Start folding in this group.")
 
-            Button.button-icon(v-else, @click="pause(group)", icon="pause",
-              title="Pause folding in this group.", :disabled="!connected")
+              Button.button-icon(v-else, @click="pause(group)", icon="pause",
+                title="Pause folding in this group.", :disabled="!connected")
 
       template(v-for="unit in mach")
         UnitView(v-if="unit.group == group || one_group", :unit="unit",
@@ -137,7 +137,7 @@ export default {
   &.disconnected
     filter contrast(0.6) brightness(0.4)
 
-  .machine-header
+  .machine-header, .machine-group-header
     display flex
     flex-direction row
     gap 1em
@@ -161,11 +161,11 @@ export default {
     justify-content end
 
 @media (max-width 800px)
-  .machine-view .machine-resources
+  .machine-view .group-resources
     display none
 
   .machine-units
     td, th
-      &.eta, &.resources, &.ppd, .status-text
+      &.eta, &.cpus, &.gpus, &.ppd, .status-text
         display none
 </style>
