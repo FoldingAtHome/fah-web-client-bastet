@@ -30,9 +30,22 @@
 import MachineView from './MachineView.vue'
 
 
+function mach_cmp(a, b) {
+  let cmp = b.is_connected() - a.is_connected()
+  if (cmp) return cmp
+
+  return a.get_name().localeCompare(b.get_name())
+}
+
+
 export default {
   name: 'MachinesView',
   components: {MachineView},
+
+
+  computed: {
+    machs() {return Array.from(this.$machs).sort(mach_cmp)}
+  }
 }
 </script>
 
@@ -47,7 +60,7 @@ export default {
         :disabled="$machs.is_empty()")
 
   .view-body
-    MachineView(v-for="mach in $machs", :mach="mach")
+    MachineView(v-for="mach in machs", :mach="mach")
 
     .no-data(v-if="$machs.is_empty()")
       td(colspan="100")
