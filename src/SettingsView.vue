@@ -197,8 +197,6 @@ export default {
           config.groups[name] = get_group_config(group.config, gpus)
       }
 
-      console.log('CONFIG', config)
-
       this.config = config
       this.initial_config = this.$util.deepCopy(this.config)
     },

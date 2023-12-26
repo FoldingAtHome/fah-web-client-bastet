@@ -83,9 +83,9 @@ class Account {
           await this.create_secret(passphrase, salt)
 
     const verify_url = location.origin + '/verify/'
-    const data =
-        {user, team, passkey, avatar, node, email, password, pubkey, secret,
-         verify_url}
+    const data = {
+      user, team, passkey, avatar, node, email, password, pubkey, secret,
+      verify_url}
 
     return this.api.put('/register', data)
   }

@@ -31,7 +31,10 @@ import MachineView from './MachineView.vue'
 
 
 function mach_cmp(a, b) {
-  let cmp = b.is_connected() - a.is_connected()
+  let cmp = b.is_direct() - a.is_direct()
+  if (cmp) return cmp
+
+  cmp = b.is_connected() - a.is_connected()
   if (cmp) return cmp
 
   return a.get_name().localeCompare(b.get_name())
