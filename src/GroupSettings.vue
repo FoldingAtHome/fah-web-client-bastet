@@ -47,7 +47,7 @@ fieldset.settings.view-panel
       and keyboard are not being used.
 
     input(v-model="config.on_idle", type="checkbox",
-      title="Only fold when computer is idle.")
+      title="Only fold when computer is idle")
 
 fieldset.settings.view-panel
   legend
@@ -90,7 +90,7 @@ fieldset.settings.view-panel
 
       tr.gpu-row(v-for="gpu in gpus",
         :class="{unsupported: !gpu.supported}",
-        :title="!gpu.supported ? 'Unsupported GPU.' : ''")
+        :title="!gpu.supported ? 'Unsupported GPU' : ''")
         td.gpu-id {{gpu.id.substr(4)}}
         td.gpu-description {{gpu.description}}
 
@@ -109,7 +109,7 @@ fieldset.settings.view-panel(v-if="advanced")
       fail and cause you to loose points.
 
     input(v-model="config.beta", type="checkbox",
-      title="Enable beta projects.")
+      title="Enable beta projects")
 
   .setting
     HelpBalloon(name="Project Key"): p.
@@ -117,7 +117,7 @@ fieldset.settings.view-panel(v-if="advanced")
       Unless you are specically instructed by a Folding@home researcher to
       use a project key, leave this field set to zero.
 
-    input(v-model="config.key", type="number", title="Project key.")
+    input(v-model="config.key", type="number", title="Project key")
 </template>
 
 <style lang="stylus">

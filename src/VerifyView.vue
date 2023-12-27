@@ -50,7 +50,7 @@ export default {
   ViewHeader(title="Verifying Account Email")
     template(v-slot:actions)
       Button.button-success(icon="sign-in", text="Login",
-        @click="$root.login()", title="Login to your Folding@home account.",
+        @click="$root.login()", title="Login to your Folding@home account",
         :disabled="!success && !failed")
 
   .view-body

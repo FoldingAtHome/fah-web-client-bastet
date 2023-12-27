@@ -123,7 +123,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
         .actions
           Button(icon="plus", text="Register New Account",
              @click="login = false",
-             title="Create a new account with Folding@home.")
+             title="Create a new account with Folding@home")
 
         .text-bar Or Login
 
@@ -148,10 +148,10 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
             input(v-model="passphrase2", :class="{password: !show}")
             .setting-actions
               Button.button-icon(icon="refresh", @click="generate_passphrase",
-                title="Generate a memorable and strong random passphrase.")
+                title="Generate a memorable and strong random passphrase")
 
               Button.button-icon(icon="copy", @click="copy_passphrase",
-                title="Copy passphrase to clipboard.")
+                title="Copy passphrase to clipboard")
 
           .setting
             label Username
@@ -172,10 +172,10 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
       template(v-if="login")
         .actions
           Button(icon="times", text="Cancel", @click="cancel",
-            title="Cancel login.")
+            title="Cancel login")
 
           Button.button-success(icon="sign-in", text="Login", @click="do_login",
-            :disabled="!valid", title="Login to your Folding@home account.")
+            :disabled="!valid", title="Login to your Folding@home account")
 
       template(v-else)
         p.required * Required

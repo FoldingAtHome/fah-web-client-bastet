@@ -174,10 +174,10 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
   ViewHeader(title="Account Settings")
     template(v-slot:actions)
       Button(@click="cancel", text="Cancel", icon="times",
-        title="Leave Account Settings with out making changes.")
+        title="Leave Account Settings with out making changes")
 
       Button.button-success(:disabled="!modified", @click="save", text="Save",
-        icon="save", title="Save your changes and go back to the main page.")
+        icon="save", title="Save your changes and go back to the main page")
 
   .view-body(v-if="$adata")
     fieldset.settings.view-panel
@@ -223,10 +223,10 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
             :title="(show.token ? 'Hide' : 'Show') + ' account token'")
 
           Button.button-icon(icon="refresh", @click="reset_token",
-            title="Generate a new account token.")
+            title="Generate a new account token")
 
           Button.button-icon(icon="copy", @click="copy_token",
-            title="Copy account token to clipboard.")
+            title="Copy account token to clipboard")
 
 
     fieldset.settings.view-panel
@@ -245,7 +245,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       Button(@click="logout", text="Logout", icon="sign-out")
 
       Button.button-caution(@click="confirm_delete", text="Delete Account",
-        icon="trash", title="Permanently delete this account.")
+        icon="trash", title="Permanently delete this account")
 
 </template>
 

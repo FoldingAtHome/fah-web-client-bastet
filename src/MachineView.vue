@@ -75,21 +75,21 @@ export default {
 
     .machine-actions
       Button.button-icon(:route="mach.get_url('/settings')",
-        title="Edit machine settings.", icon="cog", :disabled="!connected")
+        title="Edit machine settings", icon="cog", :disabled="!connected")
 
       Button.button-icon(:route="mach.get_url('/log')",
-        title="View machine log.", icon="list-alt", :disabled="!connected")
+        title="View machine log", icon="list-alt", :disabled="!connected")
 
       Button.button-icon(:route="mach.get_url('/details')", icon="info-circle",
-        :disabled="!info.version", title="View Machine details.")
+        :disabled="!info.version", title="View Machine details")
 
       template(v-if="one_group")
         Button.button-icon(v-if="mach.is_paused()", @click="fold",
-          icon="play", title="Start folding on this machine.",
+          icon="play", title="Start folding on this machine",
           :disabled="!connected")
 
         Button.button-icon(v-else, @click="pause", icon="pause",
-        title="Pause folding on this machine.", :disabled="!connected")
+        title="Pause folding on this machine", :disabled="!connected")
 
   table.machine-units.view-table
     tr
@@ -114,10 +114,10 @@ export default {
             .machine-actions
               Button.button-icon(v-if="mach.is_paused(group)", icon="play",
                 @click="fold(group)", :disabled="!connected",
-                title="Start folding in this group.")
+                title="Start folding in this group")
 
               Button.button-icon(v-else, @click="pause(group)", icon="pause",
-                title="Pause folding in this group.", :disabled="!connected")
+                title="Pause folding in this group", :disabled="!connected")
 
       template(v-for="unit in mach")
         UnitView(v-if="unit.group == group || one_group", :unit="unit",

@@ -42,17 +42,17 @@ ViewHeader.main-header
 
   template(v-slot:actions)
     Button.button-icon(:icon="$root.dark_mode ? 'moon-o' : 'sun-o'",
-      @click="$root.dark_mode = !$root.dark_mode", title="Toggle dark mode.")
+      @click="$root.dark_mode = !$root.dark_mode", title="Toggle dark mode")
 
     Button.button-image(v-if="$adata.avatar", route="/account",
       :image="$adata.avatar",
-      :title="$adata.user + ': Account Settings and Logout.'")
+      :title="$adata.user + ': Account Settings and Logout'")
 
     Button.button-icon(v-else-if="$adata.created", route="/account",
-      icon="user", :title="$adata.user + ': Account Settings and Logout.'")
+      icon="user", :title="$adata.user + ': Account Settings and Logout'")
 
     Button.button-icon(v-else, icon="sign-in", @click="$root.login()",
-      title="Login to Folding@home or register a new account.")
+      title="Login to Folding@home or register a new account")
 
   template(v-slot:menu)
     MainMenu

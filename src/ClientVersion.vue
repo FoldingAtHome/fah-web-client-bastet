@@ -44,12 +44,12 @@ export default {
 <template lang="pug">
 .client-version(v-if="version")
   a.outdated(v-if="outdated", :href="download_url", target="_blank",
-    title="Client version outdated.  Click to open download page.")
+    title="Client version outdated.  Click to open download page")
       | #[.fa.fa-exclamation-triangle] v{{version}}
       |
       | #[.fa.fa-exclamation-triangle]
 
-  span(v-else, :title="'Folding@home client version ' + version + '.'")
+  span(v-else, :title="'Folding@home client version ' + version")
     | v{{version}}
 </template>
 

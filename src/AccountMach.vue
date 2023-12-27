@@ -70,13 +70,13 @@ export default {
 
   .setting-actions
     Button.button-icon(v-if="linked", @click="save", icon="save",
-      :disabled="!valid || !modified", title="Save machine name.")
+      :disabled="!valid || !modified", title="Save machine name")
 
     Button.button-icon(v-if="linked", @click="unlink",
-      icon="unlink", title="Unlink machine from this account.")
+      icon="unlink", title="Unlink machine from this account")
 
     Button.button-icon(v-if="!linked", @click="link", icon="link",
-      :disabled="!valid", title="Link machine to this account.")
+      :disabled="!valid", title="Link machine to this account")
 </template>
 
 <style lang="stylus">

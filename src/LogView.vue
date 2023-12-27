@@ -111,12 +111,12 @@ export default {
     .log-controls.view-panel
       label Search
       input(v-model="search", type="text")
-      label(title="Filter log for error messages.").
+      label(title="Filter log for error messages").
         #[input(v-model="errors", type="checkbox")] Errors
-      label(title="Filter log for warning messages.").
+      label(title="Filter log for warning messages").
         #[input(v-model="warnings", type="checkbox")] Warnings
       Button(text="Reset", icon="repeat", @click="reset")
-      label(title="Automatically scroll to the bottom of the log.").
+      label(title="Automatically scroll to the bottom of the log").
         #[input(v-model="follow", type="checkbox")] Follow
 
     .log.view-panel(v-if="!lines.length") No matching log lines

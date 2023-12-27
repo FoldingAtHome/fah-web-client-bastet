@@ -193,22 +193,22 @@ tr.unit-view(:class="{disabled: disabled}")
     ProgressBar(:progress="progress")
 
   td.ppd(title="Estimated Points Per Day") {{ppd}}
-  td.eta(title="Esitmated time to Work Unit completion.") {{eta}}
+  td.eta(title="Esitmated time to Work Unit completion") {{eta}}
 
   td.actions: div
     Button.button-icon(:disabled="!can_dump", @click="dump(unit.id)",
-      icon="trash", title="Dump this Work Unit.")
+      icon="trash", title="Dump this Work Unit")
 
     Button.button-icon(v-if="false", :disabled="disabled",
       :route="mach.get_url('/log?q=:WU' + unit.number + ':')",
-      icon="list-alt", title="View Work Unit log.")
+      icon="list-alt", title="View Work Unit log")
 
     Button.button-icon(:route="mach.get_url('/unit/' + unit.id)",
-      icon="info-circle", :disabled="!unit.wu", title="View Work Unit details.")
+      icon="info-circle", :disabled="!unit.wu", title="View Work Unit details")
 
     Button.button-icon(
       :route="mach.get_url('/view/' + unit.id)", icon="eye",
-      :disabled="!unit.wu || disabled", title="View 3D protein.")
+      :disabled="!unit.wu || disabled", title="View 3D protein")
 </template>
 
 <style lang="stylus">
