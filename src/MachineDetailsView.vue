@@ -89,13 +89,9 @@ export default {
 
 <style lang="stylus">
 .machine-details-view
-  .gpu-icon
-    max-height 32px
-
   fieldset
     display flex
     flex-direction column
     padding 0.5em
     width 100%
-    gap 0.5em
 </style>

@@ -61,73 +61,74 @@ export default {
   ViewHeader(title="Work Unit Details")
 
   .view-body(v-if="unit.wu")
-    .info-group
-      .info-item
-        label PPD
-        span {{ppd}}
+    .view-panel
+      .info-group
+        .info-item
+          label PPD
+          span {{ppd}}
 
-      .info-item
-        label Base Credit
-        span {{credit}}
+        .info-item
+          label Base Credit
+          span {{credit}}
 
-    .info-group
-      .info-item
-        label CPUs
-        span {{assign.cpus}}
+      .info-group
+        .info-item
+          label CPUs
+          span {{assign.cpus}}
 
-      .info-item
-        label GPUs
-        span {{gpus}}
+        .info-item
+          label GPUs
+          span {{gpus}}
 
-    .info-group
-      .info-item
-        label Progress
-        span: progress-bar(:progress="progress")
+      .info-group
+        .info-item
+          label Progress
+          span: progress-bar(:progress="progress")
 
-    .info-group
-      .info-item
-        label ETA
-        span {{unit.eta}}
+      .info-group
+        .info-item
+          label ETA
+          span {{unit.eta}}
 
-      .info-item
-        label Run Time
-        span {{run_time}}
+        .info-item
+          label Run Time
+          span {{run_time}}
 
-    .info-group
-      .info-item
-        label Assign Time
-        span {{assign.time}}
+      .info-group
+        .info-item
+          label Assign Time
+          span {{assign.time}}
 
-      .info-item
-        label Deadline
-        span {{deadline}}
+        .info-item
+          label Deadline
+          span {{deadline}}
 
-      .info-item
-        label Timeout
-        span {{timeout}}
+        .info-item
+          label Timeout
+          span {{timeout}}
 
-    .info-group
-      .info-item
-        label Work Server
-        span {{assign.ws}}
+      .info-group
+        .info-item
+          label Work Server
+          span {{assign.ws}}
 
-    .info-group
-      .info-item
-        label Core
-        span {{core}}
+      .info-group
+        .info-item
+          label Core
+          span {{core}}
 
-    .info-group
-      .info-item
-        label Run
-        span {{wu.run}}
+      .info-group
+        .info-item
+          label Run
+          span {{wu.run}}
 
-      .info-item
-        label Clone
-        span {{wu.clone}}
+        .info-item
+          label Clone
+          span {{wu.clone}}
 
-      .info-item
-        label Generation
-        span {{wu.gen}}
+        .info-item
+          label Generation
+          span {{wu.gen}}
 
     ProjectView(v-if="project", :project="project", :full="true")
 </template>

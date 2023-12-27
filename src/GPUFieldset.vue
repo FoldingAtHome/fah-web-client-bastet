@@ -82,21 +82,19 @@ fieldset.view-panel.gpu-fieldset
       label PCI Vendor ID
       span 0x{{gpu.vendor.toString(16)}}
 
-  fieldset.view-panel(v-for="dev of devs")
-    legend: img.gpu-icon(:src="dev.image", :alt="dev.name", :title="dev.name")
-    .info-group
+  .info-group(v-for="dev of devs")
+    .info-item
+      label {{dev.name}}
+      span {{(dev.supported ? '' : 'un') + 'supported'}}
+
+    template(v-if="dev.compute")
       .info-item
-        label Supported
-        span {{dev.supported ? 'true' : 'false'}}
+        label Compute
+        span {{dev.compute}}
 
-      template(v-if="dev.compute")
-        .info-item
-          label Compute
-          span {{dev.compute}}
-
-        .info-item
-          label Driver
-          span {{dev.driver}}
+      .info-item
+        label Driver
+        span {{dev.driver}}
 </template>
 
 <style lang="stylus">

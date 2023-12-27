@@ -227,15 +227,6 @@ tr.unit-view(:class="{disabled: disabled}")
   .status.finish .fa
     color orange
 
-  @keyframes spin
-    100%
-      transform rotate(360deg)
-
   .progress-cell
     width 100%
-
-.mouse-active .unit-view
-  .status.run, .status.finish
-    .fa
-      animation spin 4s linear infinite
 </style>
