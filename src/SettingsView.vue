@@ -141,17 +141,8 @@ export default {
     gpus() {
       let gpus = []
 
-      if (this.data.config && this.data.config.gpus)
-        for (const id in this.available_gpus) {
-          let config = this.data.config.gpus[id]
-          let info   = this.available_gpus[id]
-
-          if (info) {
-            let gpu = Object.assign({id}, info)
-            if (gpu.supported == undefined) gpu.supported = true
-            gpus.push(gpu)
-          }
-        }
+      for (const [id, info] of Object.entries(this.available_gpus))
+        gpus.push(Object.assign({id, supported: true}, info))
 
       return gpus
     }
