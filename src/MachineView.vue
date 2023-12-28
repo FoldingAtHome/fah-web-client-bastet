@@ -39,7 +39,6 @@ export default {
     one_group() {return this.mach.get_groups().length == 1},
     connected() {return this.mach.is_connected()},
     groups()    {return this.mach.get_groups()},
-    config()    {return this.mach.get_config()},
     info()      {return this.mach.get_info()},
     units()     {return Array.from(this.mach)},
   },

@@ -117,7 +117,10 @@ class Machine {
   }
 
 
-  get_config(group = '') {return this.get_group(group).config || {}}
+  get_config(group) {
+    if (group == undefined) return this.get_data().config || {}
+    return this.get_group(group).config || {}
+  }
 
 
   get_resources(group = '') {
