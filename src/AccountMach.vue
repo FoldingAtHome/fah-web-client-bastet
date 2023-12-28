@@ -65,7 +65,7 @@ export default {
 
 <template lang="pug">
 .setting
-  label(:title="'Machine id ' + mach.get_id()") Name
+  label(:title="'F@H ID ' + mach.get_id()") Name
   input(v-model="name", pattern="[\\w\\-]+")
 
   .setting-actions

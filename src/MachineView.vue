@@ -63,7 +63,7 @@ export default {
   :class="{connected: connected, disconnected: !connected}",
   :title="connected ? undefined : 'Disconnected'")
   .machine-header
-    .machine-name.header-title(:title="'Machine id ' + mach.get_id()")
+    .machine-name.header-title(:title="'F@H ID ' + mach.get_id()")
       | {{mach.get_name()}}
 
     ClientVersion(:mach="mach")
