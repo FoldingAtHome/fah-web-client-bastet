@@ -40,7 +40,8 @@ export default {
     connected() {return this.mach.is_connected()},
     groups()    {return this.mach.get_groups()},
     config()    {return this.mach.get_config()},
-    info()      {return this.mach.get_info()}
+    info()      {return this.mach.get_info()},
+    units()     {return Array.from(this.mach)},
   },
 
 
@@ -69,6 +70,7 @@ export default {
     ClientVersion(:mach="mach")
 
     .machine-disconnected(v-if="!connected") DISCONNECTED
+    .machine-no-wus(v-else-if="!units.length") NO WORK UNITS
 
     .machine-resources.header-subtitle(v-if="one_group")
       | {{mach.get_resources()}}
@@ -91,7 +93,7 @@ export default {
         Button.button-icon(v-else, @click="pause", icon="pause",
         title="Pause folding on this machine", :disabled="!connected")
 
-  table.machine-units.view-table
+  table.machine-units.view-table(v-if="units.length")
     tr
       th.project Project
       th.cpus CPUs
@@ -119,13 +121,9 @@ export default {
               Button.button-icon(v-else, @click="pause(group)", icon="pause",
                 title="Pause folding in this group", :disabled="!connected")
 
-      template(v-for="unit in mach")
+      template(v-for="unit in units")
         UnitView(v-if="unit.group == group || one_group", :unit="unit",
           :mach="mach")
-
-  .no-data(v-if="mach.is_empty()")
-    p No work units.
-    p Start folding to download work units.
 </template>
 
 <style lang="stylus">
