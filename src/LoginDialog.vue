@@ -135,7 +135,8 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
         .setting
           label {{login ? '' : '* '}}Passphrase
           input(v-model="passphrase", :class="{password: !show}",
-            @keyup.enter="do_login", autocomplete="current-password")
+            @keyup.enter="do_login", name="password",
+            autocomplete="current-password")
 
           .setting-actions
             Button.button-icon(:icon="'eye' + (show ? '' : '-slash')",
