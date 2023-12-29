@@ -177,7 +177,17 @@ class Machine {
 
 
   is_connected() {return this.state.connected}
-  is_paused(group) {return this.get_config(group).paused}
+
+
+  is_paused(group) {
+    if (group != undefined) return this.get_config(group).paused
+
+    for (let group of this.get_groups())
+      if (!this.get_config(group).paused)
+        return false
+
+    return true
+  }
 
 
   is_active() {
