@@ -92,7 +92,7 @@ export default {
         Button.button-icon(v-else, @click="pause", icon="pause",
         title="Pause folding on this machine", :disabled="!connected")
 
-  table.machine-units.view-table(v-if="units.length")
+  table.machine-units.view-table(v-if="units.length || !one_group")
     tr
       th.project Project
       th.cpus CPUs
