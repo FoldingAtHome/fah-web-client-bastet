@@ -86,12 +86,12 @@ function update_obj(obj, update) {
 
 class Machine {
   constructor(id, ctx) {
-    this.id       = id
-    this.api      = ctx.$api
-    this.aid      = ctx.$account.data.id
-    this.cache    = this.api.cache
-    this.name     = id
-    this.state    = reactive({
+    this.id    = id
+    this.api   = ctx.$api
+    this.aid   = ctx.$account.data.id
+    this.cache = this.api.cache
+    this.name  = id
+    this.state = reactive({
       connected: false,
       data:      {info: {}, groups: {}}
     })

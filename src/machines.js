@@ -78,7 +78,7 @@ class Machines {
   }
 
 
-  has(id) {return this.machines[id] != undefined}
+  has(id) {return id in this.machines}
   get(id) {return this.machines[id]}
   add(id) {this.set(id, this.create(id)); return this.get(id)}
   del(id) {delete this.machines[id]}

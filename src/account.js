@@ -238,6 +238,7 @@ class Account {
     delete this.data.avatar
     delete this.data.email
     delete this.data.created
+    this.data.machines = []
   }
 
 

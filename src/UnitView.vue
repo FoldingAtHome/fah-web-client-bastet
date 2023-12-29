@@ -51,7 +51,7 @@ const icons = {
   'UPLOAD':   'upload',
   'CLEAN':    'eraser',
   'WAIT':     'clock-o',
-  'PAUSE':    'pause'
+  'PAUSE':    'hourglass-o'
 }
 
 
@@ -218,11 +218,14 @@ tr.unit-view(:class="{disabled: disabled}")
     text-align right
 
     &.status
-      text-align center
+      text-align left
 
   .status.run, .status.finish
     .fa
       color green
+
+  .status.pause .fa
+    color #e8cf01
 
   .status.finish .fa
     color orange
