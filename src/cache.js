@@ -35,21 +35,37 @@ class Cache {
 
 
   async set(key, value) {
-    if (!this.cache) this.cache = await caches.open(this.name)
     let data = {ts: new Date().toISOString(), value}
-    await this.cache.put(key, new Response(JSON.stringify(data)))
+
+    try {
+      if (!this.cache) this.cache = await caches.open(this.name)
+      await this.cache.put(key, new Response(JSON.stringify(data)))
+
+    } catch (e) {
+      if (!this._cache) this._cache = {}
+      this._cache[key] = data
+    }
   }
 
 
   async get(key, timeout) {
-    if (!this.cache) this.cache = await caches.open(this.name)
+    let data
     if (timeout == undefined) timeout = this.timeout
 
-    let res = await this.cache.match(key)
-    if (!res) return
-    let data = await res.json()
+    try {
+      if (!this.cache) this.cache = await caches.open(this.name)
 
-    if (!timeout || Date.now() - new Date(data.ts).getTime() < timeout)
+      let res = await this.cache.match(key)
+      if (!res) return
+      data = await res.json()
+
+    } catch (e) {
+      if (!this._cache) this._cache = {}
+      data = this._cache[key]
+    }
+
+    if (data &&
+        (!timeout || Date.now() - new Date(data.ts).getTime() < timeout))
       return data.value
   }
 }

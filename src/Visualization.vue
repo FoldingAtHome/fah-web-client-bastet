@@ -83,6 +83,7 @@ export default {
 
 
   mounted() {
+    console.debug('Visualize', this.unitID)
     this.graphics()
     this.mach.visualize_unit(this.unitID)
     this.load()

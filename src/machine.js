@@ -251,7 +251,7 @@ class Machine {
 
   visualize_unit(unit) {
     if (this.vizUnit == unit) return
-    this.vizUnit = unit || undefined
+    this.vizUnit = unit
     this._send_viz_enable()
   }
 

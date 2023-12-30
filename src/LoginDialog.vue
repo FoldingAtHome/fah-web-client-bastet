@@ -130,7 +130,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
       fieldset.settings
         .setting
           label {{login ? '' : '* '}}Email
-          input(v-model="email", autocomplete="username")
+          input(v-model="email", name="email", autocomplete="username")
 
         .setting
           label {{login ? '' : '* '}}Passphrase
