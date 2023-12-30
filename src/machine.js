@@ -101,6 +101,7 @@ class Machine {
   get_id()      {return this.id}
   get_name()    {return this.name}
   get_data()    {return this.state.data}
+  get_viz(unit) {return (this.get_data().viz || {})[clean_key(unit)] || {}}
   get_url(path) {return this.get_id() + path}
   get_info()    {return this.get_data().info || {}}
   get_version() {return this.get_info().version}
@@ -281,7 +282,9 @@ class Machine {
     if (this.first) {
       this.state.connected = true
       this.state.data = msg
-      this._update()
+
+      if (this.vizUnit)    this._send_viz_enable()
+      if (this.logEnabled) this._send_log_enable()
 
     } else if (Array.isArray(msg)) {
       update_obj(this.state.data, msg)
@@ -299,17 +302,17 @@ class Machine {
 
   async _viz_get_frames(unit) {
     const data = this.get_data()
-
     if (!data.viz) data.viz = {}
 
     // First try to load from cache
-    let viz = data.viz[unit]
-    if (!viz) viz = {frames: []}
+    let viz = this.get_viz(unit)
 
     if (!viz.topology) {
       let key = 'viz/' + unit + '/topology'
       viz.topology = await this.cache.get(key, 0)
     }
+
+    if (!viz.frames) viz.frames = []
 
     if (viz.topology) {
       for (let i = 0; i < 1000; i++) {
@@ -320,7 +323,7 @@ class Machine {
         viz.frames[i] = frame
       }
 
-      data.viz[unit] = viz
+      data.viz[clean_key(unit)] = viz
     }
 
     return viz.frames.length
@@ -337,12 +340,6 @@ class Machine {
 
   _send_log_enable() {
     if (this.is_connected()) this.send_command('log', {enable: this.logEnabled})
-  }
-
-
-  _update() {
-    if (this.vizUnit)    this._send_viz_enable()
-    if (this.logEnabled) this._send_log_enable()
   }
 }
 

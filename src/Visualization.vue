@@ -60,30 +60,20 @@ export default {
 
 
   computed: {
-    target() {return this.$refs.canvas},
-
-
-    viz() {
-      let data = this.mach.get_data()
-      return data.viz ? data.viz[this.unitID] : undefined
-    },
-
-    topology()  {if (this.viz) return this.viz.topology},
-    positions() {if (this.viz) return this.viz.frames},
-    frames() {return this.positions ? this.positions.length : 0}
+    target()    {return this.$refs.canvas},
+    viz()       {return this.mach.get_viz(this.unitID)},
+    topology()  {return this.viz.topology},
+    positions() {return this.viz.frames},
+    frames()    {return this.positions ? this.positions.length : 0}
   },
 
 
   watch: {
-    positions() {
-      if (this.positions != undefined && !this.protein.length)
-        this.load()
-    }
+    positions() {this.load()}
   },
 
 
   mounted() {
-    console.debug('Visualize', this.unitID)
     this.graphics()
     this.mach.visualize_unit(this.unitID)
     this.load()
