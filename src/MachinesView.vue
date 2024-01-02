@@ -66,9 +66,8 @@ export default {
     MachineView(v-for="mach in machs", :mach="mach")
 
     .no-data(v-if="$machs.is_empty()")
-      td(colspan="100")
-        p No folding machines found.
-        p Login or install the Folding@home client software.
+      p No folding machines found.
+      p Login or install the Folding@home client software.
 </template>
 
 <style lang="stylus">
@@ -76,4 +75,7 @@ export default {
   display flex
   flex-direction column
   gap 1em
+
+  .no-data
+    text-align center
 </style>

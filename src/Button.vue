@@ -163,6 +163,5 @@ a.button
 
 @media (max-width 800px)
   a.button
-    font-size 80%
     padding 0.5em 0.75em
 </style>

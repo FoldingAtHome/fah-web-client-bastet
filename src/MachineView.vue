@@ -71,8 +71,9 @@ export default {
     .machine-disconnected(v-if="!connected") DISCONNECTED
     .machine-no-wus(v-else-if="!units.length") NO WORK UNITS
 
-    .machine-resources.header-subtitle(v-if="one_group")
-      | {{mach.get_resources()}}
+    .machine-resources.header-subtitle(
+      v-if="one_group", :title="mach.get_resources()")
+      | {{mach.get_resources('', 50)}}
 
     .machine-actions
       Button.button-icon(:route="mach.get_url('/settings')",
@@ -85,11 +86,11 @@ export default {
         :disabled="!info.version", title="View Machine details")
 
       template(v-if="one_group")
-        Button.button-icon(v-if="mach.is_paused()", @click="fold",
+        Button.button-icon(v-if="mach.is_paused()", @click="fold()",
           icon="play", title="Start folding on this machine",
           :disabled="!connected")
 
-        Button.button-icon(v-else, @click="pause", icon="pause",
+        Button.button-icon(v-else, @click="pause()", icon="pause",
         title="Pause folding on this machine", :disabled="!connected")
 
   table.machine-units.view-table(v-if="units.length || !one_group")
@@ -110,7 +111,9 @@ export default {
             .group-header
               .group-name(v-if="group") Group {{group}}
               .group-name(v-else) Default Group
-              .group-resources.header-subtitle {{mach.get_resources(group)}}
+              .group-resources.header-subtitle(
+                :title="mach.get_resources(group)")
+                | {{mach.get_resources(group, 50)}}
 
             .machine-actions
               Button.button-icon(v-if="mach.is_paused(group)", icon="play",
@@ -140,6 +143,7 @@ export default {
     gap 1em
     align-items baseline
     width 100%
+    white-space normal
 
   .machine-disconnected
     font-weight bold
@@ -158,11 +162,9 @@ export default {
     justify-content end
 
 @media (max-width 800px)
-  .machine-view .group-resources
-    display none
-
-  .machine-units
-    td, th
-      &.eta, &.cpus, &.gpus, &.ppd, .status-text
-        display none
+  .machine-view
+    .machine-units
+      td, th
+        &.eta, &.cpus, &.gpus, &.ppd, .status-text
+          display none
 </style>

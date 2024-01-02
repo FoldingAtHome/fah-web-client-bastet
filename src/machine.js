@@ -124,7 +124,7 @@ class Machine {
   }
 
 
-  get_resources(group = '') {
+  get_resources(group = '', max_length) {
     let l = []
     let config = this.get_config(group)
 
@@ -133,7 +133,12 @@ class Machine {
     for (let gpu of this.get_gpus(group))
       l.push(gpu.description)
 
-    return l.length ? l.join(', ') : 'No resources'
+    let s = l.length ? l.join(', ') : 'No resources'
+
+    if (max_length && max_length < s.length)
+      return s.substr(0, max_length - 3) + '...'
+
+    return s
   }
 
 

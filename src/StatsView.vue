@@ -174,4 +174,9 @@ export default {
   .stats-view .view-body > *
     max-width 100vw
 
+@media (max-width 800px)
+  .stats-view
+    .view-body
+      .user-top, .team-top
+        margin 0.5em -0.75em
 </style>

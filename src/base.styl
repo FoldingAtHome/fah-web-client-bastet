@@ -58,11 +58,11 @@ a.fa
     text-decoration none
 
 .header-title
-  font-size 16pt
+  font-size 130%
   color var(--title-color)
 
 .header-subtitle
-  font-size 13pt
+  font-size 105%
   color var(--subtitle-color)
 
 tt
@@ -231,6 +231,16 @@ fieldset
       margin 0.5em
 
 @media (max-width 800px)
+  body
+    font-size 85%
+
+  .view-panel
+    padding 0.25em 0.5em
+
+  .view-table
+    td, th
+      padding 0.125em 0.25em
+
   fieldset.settings .setting
     flex-direction column
 
