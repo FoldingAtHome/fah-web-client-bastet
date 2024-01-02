@@ -60,8 +60,8 @@ export default {
 
 
   lock_scrolling() {
-    document.body.style.position = 'fixed'
     document.body.style.top = `-${window.scrollY}px`
+    document.body.style.position = 'fixed' // Must be second
   },
 
 

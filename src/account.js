@@ -75,6 +75,13 @@ class Account {
   }
 
 
+  async save_credentials(id, password, name, iconURL) {
+    let data = {id, password, name, iconURL}
+    if (window.PasswordCredential)
+      return navigator.credentials.store(new PasswordCredential(data))
+  }
+
+
   async register(config) {
     const {user, team, passkey, avatar, node, email, passphrase} = config
     const salt = email.toLowerCase()
@@ -87,7 +94,8 @@ class Account {
       user, team, passkey, avatar, node, email, password, pubkey, secret,
       verify_url}
 
-    return this.api.put('/register', data)
+    await this.api.put('/register', data)
+    return this.save_credentials(email, passphrase, user, avatar)
   }
 
 
@@ -99,6 +107,7 @@ class Account {
     config = {email, password: hash}
     let data = await this.api.get('/login', config, 'Signing in')
     this.api.sid_save(data.id)
+    await this.save_credentials(email, passphrase)
     await this.retrieve_secret(hash, key, salt)
     await this.update()
   }
@@ -112,6 +121,7 @@ class Account {
       let config = {redirect_uri: get_redirect()}
       let data = await this.api.get('/login/' + provider, config)
       this.api.sid_save(data.id)
+      await this.save_credentials(email, passphrase)
       location.href = data.redirect
 
     } catch(e) {console.log('api.login() failed')}

@@ -96,9 +96,14 @@ export default {
     },
 
 
-    do_login() {if (this.valid) this.$refs.dialog.close('login')},
-    google()   {this.$refs.dialog.close('google')},
-    cancel()   {this.$refs.dialog.close('cancel')},
+    close(action) {
+      this.show = false
+      this.$refs.dialog.close(action)
+    },
+
+
+    do_login() {if (this.valid) this.close('login')},
+    cancel()   {this.close('cancel')},
 
 
     generate_passphrase() {
@@ -134,7 +139,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
 
         .setting
           label {{login ? '' : '* '}}Passphrase
-          input(v-model="passphrase", :class="{password: !show}",
+          input(v-model="passphrase", :type="show ? 'text' : 'password'",
             @keyup.enter="do_login", name="password",
             autocomplete="current-password")
 
@@ -146,7 +151,8 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
         template(v-if="!login")
           .setting
             label * Confirm Passphrase
-            input(v-model="passphrase2", :class="{password: !show}")
+            input(v-model="passphrase2", :type="show ? 'text' : 'password'",
+              autocomplete="new-password")
             .setting-actions
               Button.button-icon(icon="refresh", @click="generate_passphrase",
                 title="Generate a memorable and strong random passphrase")
