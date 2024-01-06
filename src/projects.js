@@ -3,7 +3,7 @@
                   This file is part of the Folding@home Client.
 
           The fah-client runs Folding@home protein folding simulations.
-                    Copyright (c) 2001-2023, foldingathome.org
+                    Copyright (c) 2001-2024, foldingathome.org
                                All rights reserved.
 
        This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
                           joseph@cauldrondevelopment.com
 
 \******************************************************************************/
+
 import {watchEffect, reactive} from 'vue'
 import util from './util.js'
 
