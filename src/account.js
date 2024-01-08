@@ -102,6 +102,23 @@ class Account {
   }
 
 
+  async request_reset(config) {
+    const data = {email: config.email, url: location.origin + '/reset/'}
+    return this.api.put('/reset', data, 'Requesting account reset')
+  }
+
+
+  async reset(config) {
+    const {token, email, passphrase} = config
+    const salt = email.toLowerCase()
+    const {pubkey, password, secret, key} =
+          await this.create_secret(passphrase, salt)
+
+    return this.api.put('/reset/' + token, {pubkey, password, secret},
+                        'Resetting account')
+  }
+
+
   async login_with_passphrase(config) {
     const {email, passphrase} = config
     const salt = await crypto.sha256(email.toLowerCase())

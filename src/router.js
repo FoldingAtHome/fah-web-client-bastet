@@ -39,28 +39,33 @@ import MachineDetailsView from './MachineDetailsView.vue'
 import UnitDetailsView    from './UnitDetailsView.vue'
 import AccountView        from './AccountView.vue'
 import VerifyView         from './VerifyView.vue'
+import ResetView          from './ResetView.vue'
 
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
-    {path: '/',              redirect: '/machines'},
-    {path: '/stats',         component: StatsView},
-    {path: '/machines',      component: MachinesView},
-    {path: '/projects',      component: ProjectsView},
-    {path: '/news',          component: NewsView},
-    {path: '/account',       component: AccountView, props: true},
-    {path: '/verify/:token', component: VerifyView,  props: true},
+    {path: '/',                    redirect: '/machines'},
+    {path: '/stats',               component: StatsView},
+    {path: '/machines',            component: MachinesView},
+    {path: '/projects',            component: ProjectsView},
+    {path: '/news',                component: NewsView},
+    {path: '/account',             component: AccountView, props: true},
+    {path: '/verify/:token',       component: VerifyView,  props: true},
     {
+      path: '/reset/:token',
+      component: ResetView,
+      props: route => Object.assign({email: route.query.email}, route.params)
+    }, {
       path: '/:machID?',
       props: true,
       component: MachineMux,
       children: [
-        {path: '',             redirect: '/'},
-        {path: 'settings',     component: SettingsView},
-        {path: 'details',      component: MachineDetailsView},
-        {path: 'unit/:unitID', component: UnitDetailsView, props: true},
-        {path: 'view/:unitID', component: Visualization,   props: true},
+        {path: '',                 redirect: '/'},
+        {path: 'settings',         component: SettingsView},
+        {path: 'details',          component: MachineDetailsView},
+        {path: 'unit/:unitID',     component: UnitDetailsView, props: true},
+        {path: 'view/:unitID',     component: Visualization,   props: true},
         {
           path: 'log',
           component: LogView,

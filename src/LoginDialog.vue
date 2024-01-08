@@ -30,44 +30,51 @@
 export default {
   data() {
     return {
-      login: true,
-      email: '',
-      passphrase:  '',
+      mode:         'login',
+      email:        '',
+      passphrase:   '',
       passphrase2:  '',
-      user: '',
-      team: 0,
-      passkey: '',
-      show: false,
-      show_passkey: false
+      user:         '',
+      team:         0,
+      passkey:      '',
+      show:         false,
+      show_passkey: false,
     }
   },
 
 
   computed: {
     buttons() {
-      if (this.login) return []
-
-      return [
+      switch (this.mode) {
+      case 'login': return []
+      case 'register': return [
         {name: 'cancel',   icon: 'times'},
         {name: 'register', icon: 'sign-in', disabled: !this.valid,
          success: true}
       ]
+      case 'reset': return [
+        {name: 'cancel', icon: 'times'},
+        {text: 'Request Reset', name: 'reset', icon: 'check',
+         disabled: !this.valid, success: true}
+      ]
+      }
     },
 
 
     valid() {
-      if (!this.login && this.passphrase != this.passphrase2)
-        return false
+      switch (this.mode) {
+      case 'register': if (this.passphrase != this.passphrase2) return false
+      case 'login': if (this.passphrase.length < 10) return false
+      }
 
-      return /.{1,64}@.{4,255}/.test(this.email) &&
-        9 < this.passphrase.length
+      return /.{1,64}@.{4,255}/.test(this.email)
     }
   },
 
 
   methods: {
     async exec(config = {}) {
-      this.login = true
+      this.mode = 'login'
       this.passphrase = this.passphrase2 = ''
       this.show = false
 
@@ -77,13 +84,15 @@ export default {
       let response = await this.$refs.dialog.exec()
       let data
 
-      if (response == 'login')
+      switch (response) {
+      case 'login':
         data = {
           email:      this.email,
           passphrase: this.passphrase,
         }
+        break
 
-      if (response == 'register')
+      case 'register':
         data = {
           email:      this.email,
           passphrase: this.passphrase,
@@ -91,6 +100,12 @@ export default {
           team:       this.team,
           passkey:    this.passkey || undefined,
         }
+        break
+
+      case 'reset':
+        data = {email: this.email}
+        break
+      }
 
       return {response, data}
     },
@@ -102,7 +117,7 @@ export default {
     },
 
 
-    do_login() {if (this.valid) this.close('login')},
+    do_login() {if (this.mode == 'login' && this.valid) this.close('login')},
     cancel()   {this.close('cancel')},
 
 
@@ -119,26 +134,27 @@ export default {
 <template lang="pug">
 Dialog(:buttons="buttons", ref="dialog", width="40em")
   template(v-slot:header)
-    template(v-if="login") Login to Folding@home
-    template(v-else) Register a new Folding@home account
+    template(v-if="mode == 'login'") Login to Folding@home
+    template(v-else-if="mode == 'register'") Register a new Folding@home account
+    template(v-else-if="mode == 'reset'") Request Folding@home account reset
 
   template(v-slot:body)
     form.login-dialog
-      template(v-if="login")
+      template(v-if="mode == 'login'")
         .actions
           Button(icon="plus", text="Register New Account",
-             @click="login = false",
+             @click="mode = 'register'",
              title="Create a new account with Folding@home")
 
         .text-bar Or Login
 
       fieldset.settings
         .setting
-          label {{login ? '' : '* '}}Email
+          label {{mode != 'register' ? '' : '* '}}Email
           input(v-model="email", name="email", autocomplete="username")
 
-        .setting
-          label {{login ? '' : '* '}}Passphrase
+        .setting(v-if="mode != 'reset'")
+          label {{mode != 'register' ? '' : '* '}}Passphrase
           input(v-model="passphrase", :type="show ? 'text' : 'password'",
             @keyup.enter="do_login", name="password",
             autocomplete="current-password")
@@ -148,7 +164,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
               @click="show = !show",
               :title="(show ? 'Hide' : 'Show') + ' passphrase'")
 
-        template(v-if="!login")
+        template(v-if="mode == 'register'")
           .setting
             label * Confirm Passphrase
             input(v-model="passphrase2", :type="show ? 'text' : 'password'",
@@ -176,7 +192,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
                 @click="show_passkey = !show_passkey",
                 :title="(show ? 'Hide' : 'Show') + ' passkey'")
 
-      template(v-if="login")
+      template(v-if="mode == 'login'")
         .actions
           Button(icon="times", text="Cancel", @click="cancel",
             title="Cancel login")
@@ -184,7 +200,9 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
           Button.button-success(icon="sign-in", text="Login", @click="do_login",
             :disabled="!valid", title="Login to your Folding@home account")
 
-      template(v-else)
+        p: a(href="#", @click="mode = 'reset'") Forgot your passphrase?
+
+      template(v-if="mode == 'register'")
         p.required * Required
 
 </template>
@@ -193,6 +211,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
 .login-dialog
   display flex
   flex-direction column
+  text-align center
   gap 1em
 
   fieldset.settings

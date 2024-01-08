@@ -122,6 +122,14 @@ export default {
             'message.  Please follow the link in the email to activate your ' +
             'account.</p>')
 
+        case 'reset':
+          await this.$account.request_reset(result.data)
+          return this.message(
+            'info', 'Account reset requested', '<p>Your request to reset ' +
+            'your Folding@home account has been submitted.</p><p>You have ' +
+            'been sent an email verification message.  Please follow the ' +
+            'link in the email to complete your account reset.</p>')
+
         case 'cancel': return
 
         default: return this.$account.login(result.response) // OAuth2
@@ -134,6 +142,13 @@ export default {
       await this.$root.pacify(async () => {
         await this.$node.logout()
         await this.$account.logout()
+      })
+    },
+
+
+    async reset(config) {
+      await this.$root.pacify(async () => {
+        await this.$account.reset(config)
       })
     },
 
