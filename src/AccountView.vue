@@ -155,7 +155,7 @@ export default {
       if (response == 'delete')
         return this.$root.pacify(async () => {
           await this.$account.delete()
-          if (this.$node.active) await this.$node.broadcast('reset')
+          await this.$node.broadcast('reset')
           this.close()
         })
     }

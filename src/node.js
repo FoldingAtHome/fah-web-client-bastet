@@ -30,15 +30,19 @@ import Sock         from './sock.js'
 import util         from './util.js'
 import crypto       from './crypto.js'
 import NodeMachConn from './node-mach-conn.js'
+import {reactive}   from 'vue'
 
 
 
 class Node extends Sock {
   constructor(ctx, ...args) {
     super(undefined, ...args)
-    this.ctx = ctx
-    this.active = false
+    this.ctx    = ctx
+    this.state  = reactive({})
   }
+
+
+  is_loading() {return this.state.loading}
 
 
   async _mach_add(msg) {
@@ -123,7 +127,7 @@ class Node extends Sock {
     // Work around for Brave.  Loading the node's root page lets it connect.
     fetch('https://' + this.ctx.$adata.node, {mode: 'no-cors'})
 
-    if (this.active) setTimeout(() => this.connect(), 1000)
+    if (this.state.active) setTimeout(() => this.connect(), 1000)
   }
 
 
@@ -131,6 +135,8 @@ class Node extends Sock {
 
 
   async _login() {
+    setTimeout(() => this.state.loading = false, 8000)
+
     // Compute account ID
     let apub = util.base64_decode(this.ctx.$adata.pubkey)
     apub     = await crypto.spki_import(apub)
@@ -154,10 +160,11 @@ class Node extends Sock {
 
   async login() {
     if (!this.ctx.$adata.node) return
-    this.active = true
+    this.state.active  = true
+    this.state.loading = true
 
     // Import private key for decryption and signing
-    let secret = this.ctx.$account.secret
+    let secret  = this.ctx.$account.secret
     this.deckey = await crypto.pkcs8_import(secret, 'RSA-OAEP')
     this.sigkey = await crypto.pkcs8_import(secret, 'RSASSA-PKCS1-v1_5')
 
@@ -167,7 +174,7 @@ class Node extends Sock {
 
 
   async logout() {
-    this.active = false
+    this.state.active = false
 
     let machs = Array.from(this.ctx.$machs)
     for (let mach of machs)
@@ -181,7 +188,7 @@ class Node extends Sock {
 
 
   async broadcast(cmd, data = {}) {
-    if (!this.connected) throw 'Account not connected'
+    if (!this.state.active) return
 
     let payload   = Object.assign({cmd, time: new Date().toISOString()}, data)
     let signature = await crypto.rsa_sign(this.sigkey, JSON.stringify(payload))

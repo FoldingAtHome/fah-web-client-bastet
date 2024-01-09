@@ -51,7 +51,7 @@ ViewHeader.main-header
     Button.button-icon(v-else-if="$adata.created", route="/account",
       icon="user", :title="$adata.user + ': Account Settings and Logout'")
 
-    Button.button-icon(v-else, icon="sign-in", @click="$root.login()",
+    Button(v-else, text="Login", icon="sign-in", @click="$root.login()",
       title="Login to Folding@home or register a new account")
 
   template(v-slot:menu)

@@ -36,6 +36,7 @@ export default {
 
 
   computed: {
+    loading()   {return !this.connected && this.$node.is_loading()},
     one_group() {return this.mach.get_groups().length == 1},
     connected() {return this.mach.is_connected()},
     groups()    {return this.mach.get_groups()},
@@ -68,8 +69,9 @@ export default {
 
     ClientVersion(:mach="mach")
 
-    .machine-disconnected(v-if="!connected") DISCONNECTED
-    .machine-no-wus(v-else-if="!units.length") NO WORK UNITS
+    .machine-status(v-if="loading") Loading...
+    .machine-status(v-else-if="!connected") DISCONNECTED
+    .machine-status(v-else-if="!units.length") NO WORK UNITS
 
     .machine-resources.header-subtitle(
       v-if="one_group", :title="mach.get_resources()")
@@ -145,9 +147,9 @@ export default {
     width 100%
     white-space normal
 
-  .machine-disconnected
+  .machine-status
     font-weight bold
-    font-size 150%
+    font-size 120%
 
   .group-header
     display flex

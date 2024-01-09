@@ -101,8 +101,7 @@ class Machines {
 
 
   async set_state(state) {
-    if (this.ctx.$node.active)
-      await this.ctx.$node.broadcast('state', {state})
+    await this.ctx.$node.broadcast('state', {state})
 
     for (let mach of this)
       if (mach.is_direct())
