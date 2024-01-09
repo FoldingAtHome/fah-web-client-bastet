@@ -32,17 +32,25 @@ import util from './util.js'
 
 class Projects {
   constructor(ctx, timeout = 24 * 60 * 60 * 1000) {
-    this.ctx      = ctx
-    this.loading  = {}
-    this.projects = reactive({})
-    this.timeout  = timeout
+    this.ctx     = ctx
+    this.timeout = timeout
+    this.state   = reactive({
+      loading:     true,
+      in_progress: {},
+      projects:    {},
+    })
+
     watchEffect(() => this._update())
+    setTimeout(() => this.state.loading = false, 8000)
   }
 
 
+  is_loading() {return this.state.loading}
+
+
   get(id) {
-    if (id) return this.projects[id]
-    return Object.values(this.projects)
+    if (id) return this.state.projects[id]
+    return Object.values(this.state.projects)
   }
 
 
@@ -57,8 +65,8 @@ class Projects {
     this._load_all(Object.keys(projects))
 
     // Remove old projects
-    for (let id of Object.keys(this.projects))
-      if (!projects[id]) delete this.projects[id]
+    for (let id of Object.keys(this.state.projects))
+      if (!projects[id]) delete this.state.projects[id]
   }
 
 
@@ -68,9 +76,9 @@ class Projects {
 
 
   async _load(id) {
-    if (this.projects[id] || this.loading[id]) return
+    if (this.state.projects[id] || this.state.in_progress[id]) return
 
-    this.loading[id] = true
+    this.state.in_progress[id] = true
     try {
       let url = this.ctx.$api.url + '/project/' + id
       let data = await this.ctx.$api.fetch({
@@ -81,10 +89,10 @@ class Projects {
 
       if (!data.error) {
         data.id = parseInt(id)
-        this.projects[id] = data
+        this.state.projects[id] = data
       }
 
-    } finally {this.loading[id] = false}
+    } finally {this.state.in_progress[id] = false}
   }
 }
 

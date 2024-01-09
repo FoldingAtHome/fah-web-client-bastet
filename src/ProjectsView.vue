@@ -37,7 +37,9 @@ export default {
   MainHeader
 
   .view-body
-    template(v-if="!projects.length")
+    h2(v-if="$projects.is_loading() && !this.projects.length") Loading...
+
+    template(v-else-if="!projects.length")
       p No active projects.
       p While you are folding active projects will display here.
 
@@ -50,7 +52,7 @@ export default {
   flex-direction column
   gap 1em
 
-  > p
+  > p, > h2
     text-align center
     margin 0
 </style>
