@@ -31,7 +31,7 @@ import CommonSettings from './CommonSettings.vue'
 
 
 export default {
-  props: ['name', 'config', 'cpus', 'gpus', 'advanced'],
+  props: ['config', 'cpus', 'gpus', 'advanced', 'version'],
 }
 </script>
 
@@ -44,10 +44,28 @@ fieldset.settings.view-panel
   .setting
     HelpBalloon(name="Only When Idle"): p.
       Enable folding only when your machine is idle.  I.e. when the mouse
-      and keyboard are not being used.
+      and keyboard are not being used.  Note, that folding will not start
+      when idle if your machine goes to sleep first.
 
     input(v-model="config.on_idle", type="checkbox",
-      title="Only fold when computer is idle")
+      title="Only fold when machine is idle")
+
+  template(v-if="$util.version_less('8.3.1', version)")
+    .setting
+      HelpBalloon(name="While On Battery"): p.
+        If this option is disabled, folding will pause when your machine is
+        running on battery power.
+
+      input(v-model="config.on_battery", type="checkbox",
+        title="Allow folding when machine is on battery")
+
+    .setting
+      HelpBalloon(name="Keep Awake"): p.
+        When enabled, this option prevents your machine from going to sleep
+        while folding is active and your machine is not on battery power.
+
+      input(v-model="config.keep_awake", type="checkbox",
+        title="Prevent system sleep when folding and not on battery")
 
 fieldset.settings.view-panel
   legend

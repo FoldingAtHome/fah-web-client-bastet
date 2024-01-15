@@ -41,34 +41,6 @@ function copy_keys(config, keys) {
 }
 
 
-function get_group_config(config, gpus) {
-  let copy = copy_keys(config, ['on_idle', 'cpus', 'gpus', 'beta', 'key'])
-
-  copy.on_idle = !!copy.on_idle
-  copy.cpus    = copy.cpus || 0
-  copy.beta    = !!copy.beta
-  copy.key     = copy.key || 0
-
-  copy.gpus = {}
-  for (let id in gpus) {
-    let gpu = (config.gpus || {})[id] || {}
-    copy.gpus[id] = {enabled: gpu.enabled || false}
-  }
-
-  return copy
-}
-
-
-function get_account_config(config) {
-  let copy = copy_keys(config, ['user', 'team', 'passkey', 'cause'])
-
-  if (!copy.cause || copy.cause == 'unspecified') copy.cause = 'any'
-  copy.cause = copy.cause.toLowerCase()
-
-  return copy
-}
-
-
 export default {
   props: ['mach'],
   components: {CommonSettings, GroupSettings},
@@ -123,9 +95,10 @@ export default {
     },
 
 
-    info()   {return this.mach.get_info()},
-    data()   {return this.mach.get_data()},
-    groups() {return (this.config || {}).groups || {}},
+    info()    {return this.mach.get_info()},
+    data()    {return this.mach.get_data()},
+    groups()  {return (this.config || {}).groups || {}},
+    version() {return this.mach.get_version()},
 
 
     modified() {
@@ -170,22 +143,54 @@ export default {
 
 
   methods: {
+    get_group_config(config) {
+      let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key']
+      let copy = copy_keys(config, keys)
+
+      copy.on_idle = !!copy.on_idle
+      copy.cpus    = copy.cpus || 0
+      copy.beta    = !!copy.beta
+      copy.key     = copy.key || 0
+
+      if (this.$util.version_less('8.3.1', this.version)) {
+        copy.on_battery = !!config.on_battery
+        copy.keep_awake = !!config.keep_awake
+      }
+
+      copy.gpus = {}
+      for (let id in this.available_gpus) {
+        let gpu = (config.gpus || {})[id] || {}
+        copy.gpus[id] = {enabled: gpu.enabled || false}
+      }
+
+      return copy
+    },
+
+
+    get_account_config(config) {
+      let copy = copy_keys(config, ['user', 'team', 'passkey', 'cause'])
+
+      if (!copy.cause || copy.cause == 'unspecified') copy.cause = 'any'
+      copy.cause = copy.cause.toLowerCase()
+
+      return copy
+    },
+
+
     init() {
       let config = this.data.config
       if (this.config || !config || this.$util.isEmpty(config)) return
 
-      config = this.have_account ? {} : get_account_config(config)
-
-      let gpus = this.available_gpus
+      config = this.have_account ? {} : this.get_account_config(config)
 
       if (!this.data.groups)
-        config.groups = {'': get_group_config(config, gpus)}
+        config.groups = {'': this.get_group_config(config)}
 
       else {
         config.groups = {}
 
         for (const [name, group] of Object.entries(this.data.groups))
-          config.groups[name] = get_group_config(group.config, gpus)
+          config.groups[name] = this.get_group_config(group.config)
       }
 
       this.config = config
@@ -215,7 +220,7 @@ export default {
 
       let name = this.new_group.trim()
       if (!(name in this.config.groups))
-        this.config.groups[name] = get_group_config({}, this.available_gpus)
+        this.config.groups[name] = this.get_group_config({})
 
       this.group = name
     },
@@ -289,8 +294,8 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
         Button.button-icon(@click="add_group", icon="plus",
           title="Add a new resource group")
 
-    GroupSettings(:name="group", :config="groups[group]",
-      :cpus="available_cpus", :gpus="gpus", :advanced="advanced")
+    GroupSettings(:config="groups[group]", :cpus="available_cpus", :gpus="gpus",
+      :advanced="advanced", :version="version")
 
   .actions
     Button.button-icon(v-if="!advanced", @click="unlock", icon="lock",
