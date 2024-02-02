@@ -154,21 +154,26 @@ class API {
       }
     }
 
-    if (expire != undefined) {
-      let content = await this.cache.get(url, expire)
-      if (content != undefined) return content
-    }
-
-    let r = await fetch(url, config)
     let error = async (r, data) => {
       return this.error(r, path, method, data, action, error_cb)
     }
 
-    if (r.headers.get('Content-Type') == 'application/json') {
-      if (!r.ok) return error(r, await r.json())
+    if (expire != undefined) {
+      let content = await this.cache.get(url, expire, true)
+      if (content != undefined) {
+        if (content.status == 404)
+          return error(new Response(content.value, {status: 404}))
 
+        if (!content.status || (200 <= content.status && content.status < 300))
+          return content.value
+      }
+    }
+
+    let r = await fetch(url, config)
+    if (r.headers.get('Content-Type') == 'application/json') {
       let content = await r.json()
-      if (expire != undefined) await this.cache.set(url, content)
+      if (expire != undefined) await this.cache.set(url, content, r.status)
+      if (!r.ok) return error(r, content)
 
       return content
 

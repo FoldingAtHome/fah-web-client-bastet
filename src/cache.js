@@ -33,8 +33,8 @@ class Cache {
   }
 
 
-  async set(key, value) {
-    let data = {ts: new Date().toISOString(), value}
+  async set(key, value, status) {
+    let data = {ts: new Date().toISOString(), value, status}
 
     try {
       if (!this.cache) this.cache = await caches.open(this.name)
@@ -47,7 +47,7 @@ class Cache {
   }
 
 
-  async get(key, timeout) {
+  async get(key, timeout, withStatus = false) {
     let data
     if (timeout == undefined) timeout = this.timeout
 
@@ -65,7 +65,7 @@ class Cache {
 
     if (data &&
         (!timeout || Date.now() - new Date(data.ts).getTime() < timeout))
-      return data.value
+      return withStatus ? data : data.value
   }
 }
 

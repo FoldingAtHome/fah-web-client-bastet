@@ -63,7 +63,6 @@ class Projects {
           projects[unit.assignment.project] = true
 
     projects = Object.keys(projects)
-    console.debug('projects:', projects)
 
     if (projects != this.state.ids) {
       this.state.ids = projects
