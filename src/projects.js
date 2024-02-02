@@ -40,7 +40,7 @@ class Projects {
       projects:    {},
     })
 
-    watchEffect(() => this._update())
+    watchEffect(() => this._update_ids())
     setTimeout(() => this.state.loading = false, 8000)
   }
 
@@ -54,7 +54,7 @@ class Projects {
   }
 
 
-  _update() {
+  _update_ids() {
     let projects = {}
 
     for (let mach of this.ctx.$machs)
@@ -62,16 +62,32 @@ class Projects {
         if (unit.assignment)
           projects[unit.assignment.project] = true
 
-    this._load_all(Object.keys(projects))
+    projects = Object.keys(projects)
+    console.debug('projects:', projects)
 
-    // Remove old projects
-    for (let id of Object.keys(this.state.projects))
-      if (!projects[id]) delete this.state.projects[id]
+    if (projects != this.state.ids) {
+      this.state.ids = projects
+      this._trigger_update()
+    }
   }
 
 
-  async _load_all(ids) {
-    for (let id of ids) try {await this._load(id)} catch(e) {}
+  _trigger_update() {
+    if (this.update_timer == undefined)
+      this.update_timer = setTimeout(() => this._update(), 1000)
+  }
+
+
+  async _update() {
+    delete this.update_timer
+
+    // Load project data
+    for (let id of this.state.ids)
+      try {await this._load(id)} catch(e) {}
+
+    // Remove old projects
+    for (let id of Object.keys(this.state.projects))
+      if (!id in this.state.ids) delete this.state.projects[id]
   }
 
 
