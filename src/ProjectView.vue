@@ -57,12 +57,12 @@ export default {
 </script>
 
 <template lang="pug">
-article.project.view-panel(v-if="project.description", @click="toggle")
-  .project-title
-    .project-id.header-title Project {{project.id}}
-    .project-cause.header-subtitle Target: {{project.cause}}
+fieldset.project.view-panel(v-if="project.description", @click="toggle")
+  legend Project {{project.id}}
 
-  .project-byline By {{project.manager}}, {{project.institution}}
+  .project-title
+    .project-byline By {{project.manager}}, {{project.institution}}
+    .project-cause.header-subtitle Target: {{project.cause}}
 
   .project-body(:class="{'read-less': !more}")
     .project-details
@@ -84,14 +84,12 @@ article.project.view-panel(v-if="project.description", @click="toggle")
   .project-title
     display flex
     justify-content space-between
-    margin-bottom 0.5em
 
-  .project-byline
-    font-size 80%
-    margin-bottom 1em
+    .project-byline
+      font-size 80%
 
-  .project-cause
-    text-transform capitalize
+    .project-cause
+      text-transform capitalize
 
   .project-body
     overflow hidden

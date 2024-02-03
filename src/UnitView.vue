@@ -88,7 +88,8 @@ export default {
 
     unit_id() {
       if (this.wu)
-        return `Run ${this.wu.run} Clone ${this.wu.clone} Gen ${this.wu.gen}`
+        return `Work Unit #${this.unit.number} Project ${this.project} ` +
+          `Run ${this.wu.run} Clone ${this.wu.clone} Gen ${this.wu.gen}`
     },
 
 

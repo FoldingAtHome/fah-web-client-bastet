@@ -45,11 +45,11 @@ export default {
 .machine-details-view.page-view
   ViewHeader(title="Machine Details", :subtitle="mach.get_name()")
 
-  .view-body
+  .view-body(v-if="info")
     fieldset.view-panel
       legend Machine
 
-      .info-group(v-if="info")
+      .info-group
         .info-item
           label Hostname
           span {{info.hostname}}
@@ -58,7 +58,7 @@ export default {
           label OS
           span {{info.os}}
 
-      .info-group(v-if="info")
+      .info-group
         .info-item
           label Client Version
           span {{info.version}}
@@ -67,15 +67,33 @@ export default {
           label OS Version
           span {{info.os_version}}
 
+      .info-group
+        .info-item
+          label Build Mode
+          span {{info.mode}}
+
+        .info-item
+          label Revision
+          span {{info.revision}}
+
+      .info-group
+        .info-item
+          label Has Battery
+          span {{info.has_battery ? 'True' : 'False'}}
+
+        .info-item
+          label On Battery
+          span {{info.on_battery ? 'True' : 'False'}}
+
     fieldset.view-panel
       legend CPU
 
-      .info-group(v-if="info")
+      .info-group
         .info-item
           label Description
           span {{info.cpu_brand}}
 
-      .info-group(v-if="info")
+      .info-group
         .info-item
           label Cores
           span {{info.cpus}}

@@ -61,7 +61,9 @@ export default {
   ViewHeader(title="Work Unit Details")
 
   .view-body(v-if="unit.wu")
-    .view-panel
+    fieldset.view-panel
+      legend Work Unit {{'#' + unit.number}}
+
       .info-group
         .info-item
           label PPD
@@ -135,7 +137,8 @@ export default {
 
 <style lang="stylus">
 .unit-details-view
-  .view-body
+  fieldset.view-body
+    margin 0
     display flex
     flex-direction column
     gap 1em
