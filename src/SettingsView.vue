@@ -78,7 +78,7 @@ export default {
 
       let config = this.config || {}
 
-      for (let [group, name] of Object.entries(config.groups || {}))
+      for (let [name, group] of Object.entries(config.groups || {}))
         if (name || group.key || group.beta) return true
 
       return false
@@ -281,21 +281,28 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
 
       CommonSettings(:config="config")
 
-    fieldset.view-panel.resource-groups(v-if="advanced")
-      legend Resource Group
-      select(v-model="group")
-        option(v-for="(group, name) in groups", :value="name")
-          | {{name || 'Default'}}
+    .view-pane
+      fieldset.view-panel.resource-groups(v-if="advanced")
+        legend Resource Groups
 
-      .actions
-        Button.button-icon(@click="del_group", icon="trash",
-          title="Delete this resource group", v-if="group")
+        Button(v-for="(g, name) in groups", :text="name || 'Default'",
+          :class="{active: group == name}", :disabled="name == group",
+          @click="group = name")
 
-        Button.button-icon(@click="add_group", icon="plus",
-          title="Add a new resource group")
+        .actions
+          Button(@click="del_group", icon="trash", text="Delete",
+            :title="'Delete resource group ' + group", :disabled="!group")
 
-    GroupSettings(:config="groups[group]", :cpus="available_cpus", :gpus="gpus",
-      :advanced="advanced", :version="version")
+          Button(@click="add_group", icon="plus", text="Add",
+            title="Add a new resource group")
+
+      component.group-settings(:is="advanced ? 'fieldset' : 'div'",
+        :class="{'view-panel': advanced}")
+        legend(v-if="advanced")
+          | {{group ? '' : 'Default'}} Resource Group {{group}}
+
+        GroupSettings(:config="groups[group]", :cpus="available_cpus",
+          :gpus="gpus", :advanced="advanced", :version="version")
 
   .actions
     Button.button-icon(v-if="!advanced", @click="unlock", icon="lock",
@@ -304,6 +311,31 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
 
 <style lang="stylus">
 .settings-view
+  .view-body .view-pane
+    display flex
+    flex-direction row
+    gap 0.5em
+
+    .resource-groups
+      margin 0
+      flex-direction column
+      gap 0.5em
+      align-items stretch
+      display flex
+
+      > .button
+        justify-content left
+        margin 0
+
+      .actions
+        flex 1
+        flex-direction row
+        align-items end
+        margin-top 1em
+
+    .group-settings
+      flex 1
+
   .actions
     display flex
     justify-content end
@@ -341,15 +373,18 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
     .setting > :first-child
       width 9em
 
-  .resource-groups
-    display flex
-    flex-direction row
-    justify-content space-between
-
 .new-group-dialog .dialog-body
   display flex
   gap 0.5em
 
   input
     flex 1
+
+@media (max-width 800px)
+  .settings-view .view-body .view-pane .resource-groups > .actions
+    flex-direction column
+    align-items normal
+
+    .button
+      justify-content left
 </style>

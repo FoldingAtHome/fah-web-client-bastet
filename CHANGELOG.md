@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.3.2
+ - Replaced resource group selection box in settings with left-hand column. #123
+
 ## v8.3.0
  - Proper support for mobile devices.
  - Return of resource groups.
