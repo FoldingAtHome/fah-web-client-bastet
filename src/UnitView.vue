@@ -181,7 +181,7 @@ export default {
 <template lang="pug">
 tr.unit-view(:class="{disabled: disabled}")
   td.project
-    a(v-if="project", :href="project_url + project", target="_blank",
+    router-link(v-if="project", :to="mach.get_url('/unit/' + unit.id)",
       :title="unit_id") {{project}}
 
   td.cpus {{unit.cpus}}
