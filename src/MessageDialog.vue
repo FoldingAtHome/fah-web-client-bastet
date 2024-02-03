@@ -51,6 +51,17 @@ export default {
 
   methods: {
     async exec(type, title, body, buttons) {
+      if (this.$refs.dialog.active) {
+        let multiple = 'Multiple messages'
+        if (this.title != multiple) {
+          this.body = '<h2>' + this.title + '</h2><p>' + this.body + '</p>'
+          this.title = multiple
+        }
+
+        this.body += '<h2>' + title + '</h2><p>' + body + '</p>'
+        return
+      }
+
       this.title = title
       this.body  = body
       this.icon  = get_icon(type)

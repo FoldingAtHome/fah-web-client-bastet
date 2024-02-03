@@ -139,45 +139,52 @@ class API {
 
   async fetch(args) {
     const {path, method = 'GET', data, action, expire, error_cb} = args
-    let url    = new URL(this.url + path)
-    let config = {method, headers: {}, credentials: 'include'}
-
-    if (this.sid) config.headers.Authorization = this.sid
-
-    if (data) {
-      if (method == 'GET' || method == 'DELETE')
-        url.search = new URLSearchParams(data).toString()
-
-      else {
-        config.headers['Content-Type'] = 'application/json'
-        if (data) config.body = JSON.stringify(data)
-      }
-    }
 
     let error = async (r, data) => {
       return this.error(r, path, method, data, action, error_cb)
     }
 
-    if (expire != undefined) {
-      let content = await this.cache.get(url, expire, true)
-      if (content != undefined) {
-        if (content.status == 404)
-          return error(new Response(content.value, {status: 404}))
+    try {
+      let url    = new URL(this.url + path)
+      let config = {method, headers: {}, credentials: 'include'}
 
-        if (!content.status || (200 <= content.status && content.status < 300))
-          return content.value
+      if (this.sid) config.headers.Authorization = this.sid
+
+      if (data) {
+        if (method == 'GET' || method == 'DELETE')
+          url.search = new URLSearchParams(data).toString()
+
+        else {
+          config.headers['Content-Type'] = 'application/json'
+          if (data) config.body = JSON.stringify(data)
+        }
       }
+
+      if (expire != undefined) {
+        let content = await this.cache.get(url, expire, true)
+        if (content != undefined) {
+          if (content.status == 404)
+            return error(new Response(content.value, {status: 404}))
+
+          if (!content.status || (200 <= content.status && content.status < 300))
+            return content.value
+        }
+      }
+
+      let r = await fetch(url, config)
+      if (r.headers.get('Content-Type') == 'application/json') {
+        let content = await r.json()
+        if (expire != undefined) await this.cache.set(url, content, r.status)
+        if (!r.ok) return error(r, content)
+
+        return content
+
+      } else if (!r.ok) return error(r)
+
+    } catch (e) {
+      console.debug('API error', e)
+      return error(new Response, {error: 'API error: ' + e})
     }
-
-    let r = await fetch(url, config)
-    if (r.headers.get('Content-Type') == 'application/json') {
-      let content = await r.json()
-      if (expire != undefined) await this.cache.set(url, content, r.status)
-      if (!r.ok) return error(r, content)
-
-      return content
-
-    } else if (!r.ok) return error(r)
   }
 
 
