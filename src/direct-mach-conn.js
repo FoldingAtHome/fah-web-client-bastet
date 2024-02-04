@@ -84,6 +84,7 @@ class DirectMachConn extends MachConnection {
   _on_close(event) {
     this._clear_ping()
     this.on_close()
+    this.initialized = false
     setTimeout(() => this.sock.connect(), 1000)
   }
 
@@ -97,6 +98,18 @@ class DirectMachConn extends MachConnection {
 
       if (info.version) {
         this.initialized = true
+
+        // Check versions, reload Web Control if out of date
+        console.debug('Local Client Version', info.version)
+        let last_version = util.retrieve('fah-last-version')
+        let our_version  = import.meta.env.PACKAGE_VERSION
+        if (util.version_less(our_version, info.version) &&
+            (!last_version || util.version_less(last_version, info.version))) {
+          util.store('fah-last-version', info.version)
+
+          if (!info.url) location.reload(true)
+          else location.replace(info.url)
+        }
 
         // Prefer direct connection
         if (info.id) {

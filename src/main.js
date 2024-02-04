@@ -87,4 +87,5 @@ async function main(url) {
 }
 
 
+console.debug('Web Control Version', import.meta.env.PACKAGE_VERSION)
 main(import.meta.env.VITE_API_URL || 'https://api.foldingathome.org')
