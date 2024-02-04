@@ -5,8 +5,8 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "publish": "vite build && rsync -r --progress dist/ fah:/var/www/app.foldingathome.org/html/",
-    "alpha": "vite build && rsync -r --progress dist/ fah:/var/www/alpha.foldingathome.org/html/"
+    "alpha": "vite build && rsync -r --progress dist/ fah:/var/www/alpha.foldingathome.org/html/",
+    "beta": "vite build && rsync -r --progress dist/ fah:/var/www/beta.foldingathome.org/html/"
   },
   "dependencies": {
     "npm-check-updates": "^16.10.8",

@@ -41,7 +41,19 @@ export default {
     connected() {return this.mach.is_connected()},
     groups()    {return this.mach.get_groups()},
     info()      {return this.mach.get_info()},
+    version()   {return this.info.version},
     units()     {return Array.from(this.mach)},
+
+
+    outdated()  {
+      return this.version && this.$util.version_less(this.version, '8.3.0')
+    },
+
+
+    web_control() {
+      if (this.version && this.$util.version_less(this.version, '8.2.0'))
+        return 'https://v8-1.foldingathome.org/'
+    }
   },
 
 
@@ -71,13 +83,17 @@ export default {
 
     .machine-status(v-if="loading") Loading...
     .machine-status(v-else-if="!connected") DISCONNECTED
+    .machine-status(v-else-if="outdated") UPGRADE REQUIRED
     .machine-status(v-else-if="!units.length") NO WORK UNITS
 
+    a(v-if="web_control", :href="web_control")
+      | Old Web Control #[.fa.fa-arrow-right]
+
     .machine-resources.header-subtitle(
-      v-if="one_group", :title="mach.get_resources()")
+      v-if="one_group && !outdated", :title="mach.get_resources()")
       | {{mach.get_resources('', 50)}}
 
-    .machine-actions
+    .machine-actions(v-if="!outdated")
       Button.button-icon(:route="mach.get_url('/settings')",
         title="Edit machine settings", icon="cog", :disabled="!connected")
 
@@ -85,7 +101,7 @@ export default {
         title="View machine log", icon="list-alt", :disabled="!connected")
 
       Button.button-icon(:route="mach.get_url('/details')", icon="info-circle",
-        :disabled="!info.version", title="View Machine details")
+        :disabled="!version", title="View Machine details")
 
       template(v-if="one_group")
         Button.button-icon(v-if="mach.is_paused()", @click="fold()",
@@ -95,7 +111,8 @@ export default {
         Button.button-icon(v-else, @click="pause()", icon="pause",
         title="Pause folding on this machine", :disabled="!connected")
 
-  table.machine-units.view-table(v-if="units.length || !one_group")
+  table.machine-units.view-table(
+    v-if="(units.length || !one_group) && !outdated")
     tr
       th.project Project
       th.cpus CPUs
