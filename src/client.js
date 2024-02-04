@@ -99,6 +99,11 @@ class Client extends Sock {
     console.debug(this.state.address + ':', msg)
 
     if (this.first) {
+      // Redirect on newer version
+      let info = msg.info
+      if (info && info.version && info.url)
+        return location.replace(info.url)
+
       this.state.data = msg
       this._update()
 
