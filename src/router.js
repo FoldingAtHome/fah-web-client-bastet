@@ -39,7 +39,7 @@ export default createRouter({
   routes: [
     {path: '/', component: HomeView},
     {
-      path: '/:peerID',
+      path: '/:peerID(\\d+)',
       props: true,
       component: PeerView,
       children: [
@@ -51,6 +51,7 @@ export default createRouter({
           props: route => ({query: route.query.q})
         }
       ]
-    }
+    },
+    {path: '/:any(.+)', redirect: '/'}
   ]
 })
