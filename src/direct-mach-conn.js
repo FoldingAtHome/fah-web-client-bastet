@@ -113,6 +113,7 @@ class DirectMachConn extends MachConnection {
 
         // Prefer direct connection
         if (info.id) {
+          this.ctx.$machs.del(this.mach.id)
           this.mach.id = info.id
           this.ctx.$machs.set(info.id, this.mach)
         }
