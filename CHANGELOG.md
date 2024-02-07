@@ -7,6 +7,10 @@ Folding@home Web Control Changelog
 ## v8.3.2
  - Replaced resource group selection box in settings with left-hand column. #123
  - Compare Web Control versions and reload/redirect page if out of date.
+ - Show errors for API network failures.
+ - Detect v8.1.x clients
+ - Link WU project to WU details view rather than stats site
+ - Display more machine/wu info
 
 ## v8.3.0
  - Proper support for mobile devices.
