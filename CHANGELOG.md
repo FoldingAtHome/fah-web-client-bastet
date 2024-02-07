@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.3.4
+ - Beta release
+
 ## v8.3.2
  - Replaced resource group selection box in settings with left-hand column. #123
  - Compare Web Control versions and reload/redirect page if out of date.
