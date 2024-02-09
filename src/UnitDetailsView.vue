@@ -93,6 +93,7 @@ export default {
         info-item(label="Core", :content="core")
 
       .info-group
+        info-item(label="Project",    :content="assign.project")
         info-item(label="Run",        :content="wu.run")
         info-item(label="Clone",      :content="wu.clone")
         info-item(label="Generation", :content="wu.gen")
