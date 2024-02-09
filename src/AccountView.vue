@@ -176,7 +176,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       Button(@click="cancel", text="Cancel", icon="times",
         title="Leave Account Settings with out making changes")
 
-      Button.button-success(:disabled="!modified", @click="save", text="Save",
+      Button(:disabled="!modified", @click="save", text="Save", success,
         icon="save", title="Save your changes and go back to the main page")
 
   .view-body(v-if="$adata")

@@ -32,8 +32,16 @@ import util from './util'
 
 export default {
   name: 'Button',
-  props: [
-    'name', 'text', 'icon', 'image', 'disabled', 'href', 'route', 'success'],
+  props: {
+    name:     {},
+    text:     {},
+    icon:     {},
+    image:    {},
+    href:     {},
+    route:    {},
+    disabled: {type: Boolean},
+    success:  {type: Boolean},
+  },
   emits: ['click'],
 
 

@@ -56,7 +56,7 @@ export default {
 .machines-view.page-view
   MainHeader
     template(v-slot:center)
-      Button.button-success(text="Fold", @click="$root.fold()",
+      Button(text="Fold", @click="$root.fold()", success,
         icon="play", :disabled="$machs.is_empty()")
 
       Button(text="Pause", @click="$root.pause()", icon="pause",

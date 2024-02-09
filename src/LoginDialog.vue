@@ -197,7 +197,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
           Button(icon="times", text="Cancel", @click="cancel",
             title="Cancel login")
 
-          Button.button-success(icon="sign-in", text="Login", @click="do_login",
+          Button(icon="sign-in", text="Login", @click="do_login", success,
             :disabled="!valid", title="Login to your Folding@home account")
 
         p: a(href="#", @click="mode = 'reset'") Forgot your passphrase?

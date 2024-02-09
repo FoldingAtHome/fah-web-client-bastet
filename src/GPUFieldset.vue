@@ -56,45 +56,24 @@ export default {
 fieldset.view-panel.gpu-fieldset
   legend {{id}}
   .info-group
-    .info-item
-      label Description
-      span {{gpu.description}}
-
-    .info-item
-      label Vendor
-      span {{gpu.type}}
+    info-item(label="Description", :content="gpu.description")
+    info-item(label="Vendor",      :content="gpu.type")
 
   .info-group
-    .info-item
-      label Supported
-      span {{gpu.supported ? 'true' : 'false'}}
-
-    .info-item
-      label UUID
-      span {{gpu.uuid}}
+    info-item(label="Supported", :content="gpu.supported", bool)
+    info-item(label="UUID",      :content="gpu.uuid")
 
   .info-group
-    .info-item
-      label PCI Device ID
-      span 0x{{gpu.device.toString(16)}}
-
-    .info-item
-      label PCI Vendor ID
-      span 0x{{gpu.vendor.toString(16)}}
+    info-item(label="PCI Device ID", :content="'0x' + gpu.device.toString(16)")
+    info-item(label="PCI Vendor ID", :content="'0x' + gpu.vendor.toString(16)")
 
   .info-group(v-for="dev of devs")
-    .info-item
-      label {{dev.name}}
-      span {{(dev.supported ? '' : 'un') + 'supported'}}
+    info-item(:label="dev.name",
+      :content="(dev.supported ? '' : 'un') + 'supported'")
 
     template(v-if="dev.compute")
-      .info-item
-        label Compute
-        span {{dev.compute}}
-
-      .info-item
-        label Driver
-        span {{dev.driver}}
+      info-item(label="Compute", :content="dev.compute")
+      info-item(label="Driver",  :content="dev.driver")
 </template>
 
 <style lang="stylus">

@@ -65,22 +65,12 @@ export default {
       legend Work Unit {{'#' + unit.number}}
 
       .info-group
-        .info-item
-          label PPD
-          span {{ppd}}
-
-        .info-item
-          label Base Credit
-          span {{credit}}
+        info-item(label="PPD",         :content="ppd")
+        info-item(label="Base Credit", :content="credit")
 
       .info-group
-        .info-item
-          label CPUs
-          span {{assign.cpus}}
-
-        .info-item
-          label GPUs
-          span {{gpus}}
+        info-item(label="CPUs", :content="assign.cpus")
+        info-item(label="GPUs", :content="gpus")
 
       .info-group
         .info-item
@@ -88,49 +78,24 @@ export default {
           span: progress-bar(:progress="progress")
 
       .info-group
-        .info-item
-          label ETA
-          span {{unit.eta}}
-
-        .info-item
-          label Run Time
-          span {{run_time}}
+        info-item(label="ETA",      :content="unit.eta")
+        info-item(label="Run Time", :content="run_time")
 
       .info-group
-        .info-item
-          label Assign Time
-          span {{assign.time}}
-
-        .info-item
-          label Deadline
-          span {{deadline}}
-
-        .info-item
-          label Timeout
-          span {{timeout}}
+        info-item(label="Assign Time", :content="assign.time")
+        info-item(label="Deadline",    :content="deadline")
+        info-item(label="Timeout",     :content="timeout")
 
       .info-group
-        .info-item
-          label Work Server
-          span {{assign.ws}}
+        info-item(label="Work Server", :content="assign.ws")
 
       .info-group
-        .info-item
-          label Core
-          span {{core}}
+        info-item(label="Core", :content="core")
 
       .info-group
-        .info-item
-          label Run
-          span {{wu.run}}
-
-        .info-item
-          label Clone
-          span {{wu.clone}}
-
-        .info-item
-          label Generation
-          span {{wu.gen}}
+        info-item(label="Run",        :content="wu.run")
+        info-item(label="Clone",      :content="wu.clone")
+        info-item(label="Generation", :content="wu.gen")
 
     ProjectView(v-if="project", :project="project", :full="true")
 </template>

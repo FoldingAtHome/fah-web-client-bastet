@@ -50,57 +50,30 @@ export default {
       legend Machine
 
       .info-group
-        .info-item
-          label Hostname
-          span {{info.hostname}}
-
-        .info-item
-          label OS
-          span {{info.os}}
+        info-item(label="Hostname", :content="info.hostname")
+        info-item(label="OS",       :content="info.os")
 
       .info-group
-        .info-item
-          label Client Version
-          span {{info.version}}
-
-        .info-item
-          label OS Version
-          span {{info.os_version}}
+        info-item(label="Client Version", :content="info.version")
+        info-item(label="OS Version",     :content="info.os_version")
 
       .info-group
-        .info-item
-          label Build Mode
-          span {{info.mode}}
-
-        .info-item
-          label Revision
-          span {{info.revision}}
+        info-item(label="Build Mode", :content="info.mode")
+        info-item(label="Revision",   :content="info.revision")
 
       .info-group
-        .info-item
-          label Has Battery
-          span {{info.has_battery ? 'True' : 'False'}}
-
-        .info-item
-          label On Battery
-          span {{info.on_battery ? 'True' : 'False'}}
+        info-item(label="Has Battery", :content="info.has_battery", bool)
+        info-item(label="On Battery",  :content="info.on_battery",  bool)
 
     fieldset.view-panel
       legend CPU
 
       .info-group
-        .info-item
-          label Description
-          span {{info.cpu_brand}}
+        info-item(label="Description", :content="info.cpu_brand")
 
       .info-group
-        .info-item
-          label Cores
-          span {{info.cpus}}
-
-        .info-item
-          label Type
-          span {{info.cpu}}
+        info-item(label="Cores", :content="info.cpus")
+        info-item(label="Type",  :content="info.cpu")
 
     GPUFieldset(v-for="(gpu, id) in info.gpus", :gpu="gpu", :id="id")
 </template>

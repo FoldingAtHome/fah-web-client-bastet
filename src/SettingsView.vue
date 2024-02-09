@@ -272,8 +272,8 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
     template(v-slot:actions)
       Button(@click="cancel", text="Cancel", icon="times")
 
-      Button.button-success(:disabled="!modified", @click="save",
-        text="Save", icon="save")
+      Button(:disabled="!modified", @click="save", success, text="Save",
+        icon="save")
 
   .view-body(v-if="config")
     fieldset.settings.view-panel(v-if="!have_account")

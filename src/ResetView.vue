@@ -69,7 +69,7 @@ export default {
 .reset-view.page-view
   ViewHeader(title="Reset your Folding@home account")
     template(v-slot:actions)
-      Button.button-success(icon="sign-in", text="Login",
+      Button(icon="sign-in", text="Login", success,
         @click="$root.login()", title="Login to your Folding@home account",
         :disabled="!success")
 
@@ -112,7 +112,7 @@ export default {
               title="Copy passphrase to clipboard")
 
         .actions
-          Button.button-success(icon="check", text="Reset", @click="reset",
+          Button(icon="check", text="Reset", @click="reset", success,
             :disabled="!valid", title="Reset your Folding@home account")
 </template>
 

@@ -28,47 +28,43 @@
 
 <script>
 export default {
-  props: ['token'],
-  data() {return {success: false, failed: false}},
-
-
-  async mounted() {
-    try {
-      await this.$api.get('/verify/' + this.token)
-      this.success = true
-
-    } catch (e) {
-      this.failed = true
-      console.debug(e)
-    }
+  props: {
+    label:   {},
+    content: {},
+    bool:    {type: Boolean},
   }
 }
 </script>
 
 <template lang="pug">
-.verify-view.page-view
-  ViewHeader(title="Verifying Account Email")
-    template(v-slot:actions)
-      Button(icon="sign-in", text="Login", success,
-        @click="$root.login()", title="Login to your Folding@home account",
-        :disabled="!success && !failed")
-
-  .view-body
-    div(v-if="!success && !failed")
-      p Verifying...
-
-    div(v-if="success")
-      p Email verification successful.
-
-    div(v-if="failed")
-      p Email verification failed.
-      p.
-        A verification token can be used only once.  If you've already
-        verified your email address, please try to login.
-
+.info-item
+  label {{label}}
+  span(:title="content") {{bool ? (content ? 'true' : 'false') : content}}
 </template>
 
 <style lang="stylus">
-  .verify-view .view-body
-    padding 1em
+.info-group
+  display flex
+  flex-wrap wrap
+  width calc(100% - 1px)
+  border var(--table-border)
+  border-radius var(--border-radius)
+  overflow hidden
+
+  .info-item
+    display flex
+    flex 1
+    background var(--panel-bg)
+
+    > *
+      padding 0.5em 0.3em
+      width 7em
+
+    label
+      background var(--table-header-bg)
+
+    span
+      flex 1
+      overflow hidden
+      text-overflow ellipsis
 </style>

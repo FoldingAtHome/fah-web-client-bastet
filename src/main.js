@@ -32,6 +32,7 @@ import router         from './router'
 import Button         from './Button.vue'
 import Dialog         from './Dialog.vue'
 import ProgressBar    from './ProgressBar.vue'
+import InfoItem       from './InfoItem.vue'
 import Award          from './Award.vue'
 import HelpBalloon    from './HelpBalloon.vue'
 import FAHLogo        from './FAHLogo.vue'
@@ -80,7 +81,7 @@ async function main(url) {
   app.use(router)
   add_components(app, {
     Button, Dialog, ProgressBar, Award, HelpBalloon, FAHLogo, ClientVersion,
-    ViewHeader, MainHeader, ProjectView
+    ViewHeader, MainHeader, ProjectView, InfoItem
   })
 
   app.mount('#app')
