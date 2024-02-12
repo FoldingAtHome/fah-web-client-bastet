@@ -32,10 +32,11 @@ export default {
 
 
   props: {
-    title: String,
-    wus:   Boolean,
-    team:  Number,
-    user:  Number,
+    title:    String,
+    wus:      Boolean,
+    team:     Number,
+    user:     Number,
+    disabled: Boolean,
   },
 
 
@@ -70,7 +71,7 @@ export default {
 
 <template lang="pug">
 .award
-  Button(@click="open()", icon="trophy", :text="title")
+  Button(@click="open()", icon="trophy", :text="title", :disabled="disabled")
 
   Dialog.award-dialog(ref="dialog", :buttons="[]", :header="title",
     width="auto", allowClickAway)

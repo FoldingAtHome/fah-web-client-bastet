@@ -88,6 +88,23 @@ class Stats {
   }
 
 
+  async _get_team_stats(team) {
+    let data = await this.api.fetch({
+      path: `/team/${team}`, error_cb: () => false, expire: this.timeout})
+
+    if (data && data.id != undefined)
+      return Object.assign(data, {
+        team,
+        tscore: data.score,
+        twus:   data.wus,
+        score:  0,
+        wus:    0,
+      })
+
+    return {team, name: team, tscore: 0, twus: 0, score: 0, wus: 0}
+  }
+
+
   async _get_stats() {
     let {user, team} = this.data
 
@@ -97,7 +114,14 @@ class Stats {
     let data = team == undefined ? {} : {team}
 
     this.data.stats = await this.api.fetch({
-      path, data, action: 'Getting user stats', expire: this.timeout})
+      path, data, error_cb: () => false, expire: this.timeout})
+
+    if (!this.data.stats) {
+      this.data.stats = {
+        name: user, id: 0, score: 0, wus: 0, active_7: 0, active_50: 0,
+        teams: [await this._get_team_stats(team)]
+      }
+    }
   }
 }
 

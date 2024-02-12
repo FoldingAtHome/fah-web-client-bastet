@@ -47,6 +47,12 @@ export default {
         let level = Math.pow(10, i)
         if (rank <= level) return this.$util.human_number(level, 0)
       }
+    },
+
+
+    tpercent(user, team) {
+      if (!team) return '0.0%'
+      return (user / team * 100).toFixed(1) + '%'
     }
   }
 }
@@ -56,16 +62,17 @@ export default {
 .stats-view.page-view
   MainHeader
 
-  .view-body
-    .view-panel(v-if="stats.id")
+  .view-body(v-if="stats")
+    .view-panel(v-if="stats.name")
       .user-header
         .user-avatar.fa.fa-user-o
-        .user-name(v-if="stats.name")
-          a(v-if="stats.name", :href="$stats.url + '/donor/id/' + stats.id",
+        .user-name(:title="stats.name")
+          a(v-if="stats.id", :href="$stats.url + '/donor/id/' + stats.id",
             target="_blank") {{stats.name}}
+          span(v-else-if="stats.name") {{stats.name}}
           span(v-else) Anonymous
 
-        .user-rank Rank {{stats.rank.toLocaleString() || 'unranked'}}
+        .user-rank(v-if="stats.rank") Rank {{stats.rank.toLocaleString()}}
 
       .user-top(v-if="top(stats.rank)") Top {{top(stats.rank)}} Ranked Donor
 
@@ -78,8 +85,10 @@ export default {
 
       h2 Awards
       .user-awards
-        Award.user-wus-award(title="WUs Award", :user="uid", wus)
-        Award.user-points-award(title="Points Award", :user="uid")
+        Award.user-wus-award(
+          title="WUs Award", :user="uid", wus, :disabled="!stats.wus")
+        Award.user-points-award(title="Points Award", :user="uid",
+          :disabled="!stats.wus")
 
     .view-panel.no-info(v-else) Folding anonymously
 
@@ -88,10 +97,10 @@ export default {
         a(:href="team.url", target="_blank")
           img.team-logo(v-if="team.logo", :src="team.logo")
           .team-logo.fa.fa-users(v-else)
-        .team-name
+        .team-name(:title="team.name")
           a(:href="$stats.url + '/team/' + team.team", target="_blank")
             | {{team.name}}
-        .team-rank Rank {{team.trank.toLocaleString() || 'unranked'}}
+        .team-rank(v-if="team.trank") Rank {{team.trank.toLocaleString()}}
 
       .team-top(v-if="top(team.trank)") Top {{top(team.trank)}} Ranked Team
 
@@ -101,16 +110,17 @@ export default {
       h2 Your Contribution
       .contrib-points.
         {{team.score.toLocaleString()}} points
-        ({{(team.score / team.tscore * 100).toFixed(1)}}%)
+        ({{tpercent(team.score, team.tscore)}})
 
       .contrib-wus.
-        {{team.wus.toLocaleString()}} WUs
-        ({{(team.wus / team.twus * 100).toFixed(1)}}%)
+        {{team.wus.toLocaleString()}} WUs ({{tpercent(team.wus, team.twus)}})
 
       h2 Awards
       .team-awards
-        Award.team-wus-award(title="WUs Award", :team="team.team", wus)
-        Award.team-points-award(title="Points Award", :team="team.team")
+        Award.team-wus-award(
+        title="WUs Award", :team="team.team", wus, :disabled="!team.twus")
+        Award.team-points-award(title="Points Award", :team="team.team",
+         :disabled="!team.tscore")
 
     .view-panel.no-info(v-else) No team selected
 </template>
@@ -142,6 +152,9 @@ export default {
 
     .user-name, .team-name
       font-size 150%
+      width 18em
+      overflow hidden
+      text-overflow ellipsis
 
     .user-avatar, .team-logo
       display flex
