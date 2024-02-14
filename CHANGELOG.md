@@ -4,6 +4,8 @@ Folding@home Web Control Changelog
 ## v8.3.5
  - Fix Stats display with long user name. #138
  - Show project number with RCG in WU details view. #131
+ - More robust handling of missing user/team stats data.
+ - Fix for log user names. #138
 
 ## v8.3.4
  - Beta release
