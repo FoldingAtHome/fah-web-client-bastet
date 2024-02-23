@@ -52,7 +52,7 @@ class Machines {
         if (!found[mach.id]) {
           if (mach.is_direct()) continue // Don't remove direct connections
           mach.close()
-          delete this.machines[mach.id]
+          this.del(mach.id)
         }
     })
   }

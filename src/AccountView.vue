@@ -239,7 +239,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
             here.  You can link it to this account by clicking on the
             #[.fa.fa-link] icon.
 
-      AccountMach(v-for="mach in $machs", :mach="mach")
+      AccountMach(v-for="mach in $machs", :key="mach.get_id()", :mach="mach")
 
     .actions
       Button(@click="logout", text="Logout", icon="sign-out")
