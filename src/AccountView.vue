@@ -235,6 +235,9 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
           p The machines linked to your account will display here.
           p You can rename your machines or unlink machines you no longer use.
           p.
+            Machine names can be from 1 to 64 charcters in length and may
+            include a-z, 0-9, dashes (-) and dots (.).
+          p.
             If the local machine is linked to another account it will show up
             here.  You can link it to this account by clicking on the
             #[.fa.fa-link] icon.
