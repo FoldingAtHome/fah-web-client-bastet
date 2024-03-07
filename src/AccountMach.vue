@@ -40,7 +40,7 @@ export default {
 
   computed: {
     linked() {return this.mach.is_linked()},
-    valid() {return /^[\w-]+$/.test(this.name)},
+    valid() {return /^[\w\.-]{1,64}$/.test(this.name)},
     modified() {return this.name != this.mach.get_name()},
   },
 
@@ -66,7 +66,7 @@ export default {
 <template lang="pug">
 .setting
   label(:title="'F@H ID ' + mach.get_id()") Name
-  input(v-model="name", pattern="[\\w\\-]+")
+  input(v-model="name", pattern="[\\w\\.-]{1,64}")
 
   .setting-actions
     Button.button-icon(v-if="linked", @click="save", icon="save",
