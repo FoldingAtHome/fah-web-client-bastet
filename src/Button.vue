@@ -49,7 +49,7 @@ export default {
     _icon() {
       if (this.icon) return this.icon
 
-      let text = (this.text || this.name).toLowerCase()
+      let text = (this.text || this.name || '').toLowerCase()
       switch (text) {
       case 'ok':     case 'yes': return 'check'
       case 'cancel': case 'no':  return 'times'
