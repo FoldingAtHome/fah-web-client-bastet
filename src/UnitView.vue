@@ -39,7 +39,8 @@ const status = {
   'UPLOAD':   'Uploading',
   'CLEAN':    'Cleaning up',
   'WAIT':     'Waiting',
-  'PAUSE':    'Paused'
+  'PAUSE':    'Paused',
+  'DUMP':     'Dumping',
 }
 
 const icons = {
@@ -51,7 +52,7 @@ const icons = {
   'UPLOAD':   'upload',
   'CLEAN':    'eraser',
   'WAIT':     'clock-o',
-  'PAUSE':    'hourglass-o'
+  'PAUSE':    'hourglass-o',
 }
 
 
@@ -134,6 +135,7 @@ export default {
 
 
     status() {
+      if (this.waiting) return status[this.unit.state]
       return this.unit.pause_reason || status[this.state]
     },
 

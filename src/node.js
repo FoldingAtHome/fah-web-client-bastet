@@ -99,7 +99,7 @@ class Node extends Sock {
 
   async _mach_msg(msg) {
     let mach = this.ctx.$machs.get(msg.client)
-    if (mach) return mach.get_conn().receive(msg)
+    if (mach && mach.get_conn()) mach.get_conn().receive(msg)
   }
 
 
