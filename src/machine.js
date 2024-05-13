@@ -299,6 +299,10 @@ class Machine {
         let value = msg.slice(-1)[0]
         await this.cache.set(key, value)
       }
+
+      // Trim log
+      let log = this.state.data.log || []
+      if (1e5 < log.length) log.splice(0, log.length - 1e5)
     }
 
     this.first = false

@@ -40,6 +40,7 @@ class MachConnection {
   on_message(msg) {this.mach.on_message(msg)}
 
   async send(msg) {}
+  async receive(msg) {}
   close() {}
 }
 
