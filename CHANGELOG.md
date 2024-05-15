@@ -3,6 +3,7 @@ Folding@home Web Control Changelog
 
 ## v8.3.13
  - Fix local machine log/viz enable on page reload.
+ - Scroll log to end on LogView page load.
 
 ## v8.3.5
  - Fix Stats display with long user name. #138

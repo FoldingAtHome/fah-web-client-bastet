@@ -82,6 +82,7 @@ export default {
   mounted()   {
     this.search = this.query
     this.mach.log_enable(true)
+    if (this.follow) this.scroll_to_end()
   },
 
 
