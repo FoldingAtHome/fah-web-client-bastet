@@ -264,6 +264,7 @@ class Machine {
 
   log_enable(enable) {
     if (this.logEnabled == enable) return
+    console.debug(this.get_name() + ': log ' + (enable ? 'enabled' : 'disabled'))
     this.logEnabled = enable
     this._send_log_enable()
   }
@@ -336,6 +337,12 @@ class Machine {
     }
 
     return viz.frames.length
+  }
+
+
+  dup_state(mach) {
+    this.log_enable(mach.logEnabled)
+    this.visualize_unit(mach.vizUnit)
   }
 
 

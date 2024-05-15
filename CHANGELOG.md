@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.3.13
+ - Fix local machine log/viz enable on page reload.
+
 ## v8.3.5
  - Fix Stats display with long user name. #138
  - Show project number with RCG in WU details view. #131

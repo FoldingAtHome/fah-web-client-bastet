@@ -32,10 +32,7 @@ export default {
 
 
   computed: {
-    mach() {
-      if (this.$machs.has(this.machID))
-        return this.$machs.get(this.machID)
-    }
+    mach() {return this.$machs.get(this.machID)}
   }
 }
 </script>

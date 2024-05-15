@@ -69,7 +69,8 @@ class News {
     let url   = `${this.url}/media/${post.featured_media}?context=embed`
     let r     = await fetch(url)
     let media = await r.json()
-    article.image = media.media_details.sizes.medium.source_url
+    let details = media.media_details || {sizes: {medium: {}}}
+    article.image = details.sizes.medium.source_url
   }
 
 
