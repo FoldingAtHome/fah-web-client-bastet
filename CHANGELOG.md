@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.3.17
+ - Fixes for account (un)linking and node changes.
+
 ## v8.3.13
  - Fix local machine log/viz enable on page reload.
  - Scroll log to end on LogView page load.

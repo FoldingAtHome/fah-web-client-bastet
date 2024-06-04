@@ -37,7 +37,7 @@ function get_redirect() {return location.href.replace(/\/?#.*$/, '')}
 
 class Account {
   constructor(ctx) {
-    this.api      = ctx.$api
+    this.ctx      = ctx
     this.provider = util.retrieve('fah-provider', 0)
     this.data     = reactive({})
 
@@ -97,14 +97,14 @@ class Account {
       user, team, passkey, avatar, node, email, password, pubkey, secret,
       verify_url}
 
-    await this.api.put('/register', data)
+    await this.ctx.$api.put('/register', data)
     return this.save_credentials(email, passphrase, user, avatar)
   }
 
 
   async request_reset(config) {
     const data = {email: config.email, url: location.origin + '/reset/'}
-    return this.api.put('/reset', data, 'Requesting account reset')
+    return this.ctx.$api.put('/reset', data, 'Requesting account reset')
   }
 
 
@@ -114,7 +114,7 @@ class Account {
     const {pubkey, password, secret, key} =
           await this.create_secret(passphrase, salt)
 
-    return this.api.put('/reset/' + token, {pubkey, password, secret},
+    return this.ctx.$api.put('/reset/' + token, {pubkey, password, secret},
                         'Resetting account')
   }
 
@@ -125,8 +125,8 @@ class Account {
     const {hash, key} = await this.derive_password(passphrase, salt)
 
     config = {email, password: hash}
-    let data = await this.api.get('/login', config, 'Signing in')
-    this.api.sid_save(data.id)
+    let data = await this.ctx.$api.get('/login', config, 'Signing in')
+    this.ctx.$api.sid_save(data.id)
     await this.save_credentials(email, passphrase)
     await this.retrieve_secret(hash, key, salt)
     await this.update()
@@ -134,13 +134,13 @@ class Account {
 
 
   async login(provider) {
-    this.api.sid_clear()
+    this.ctx.$api.sid_clear()
     if (provider) util.store('fah-provider', provider)
 
     try {
       let config = {redirect_uri: get_redirect()}
-      let data = await this.api.get('/login/' + provider, config)
-      this.api.sid_save(data.id)
+      let data = await this.ctx.$api.get('/login/' + provider, config)
+      this.ctx.$api.sid_save(data.id)
       await this.save_credentials(email, passphrase)
       location.href = data.redirect
 
@@ -199,7 +199,7 @@ class Account {
           await this.create_secret(passphrase, salt)
 
     const data = {pubkey, password, secret}
-    await this.api.put('/account/secret', data, 'Storing account secret')
+    await this.ctx.$api.put('/account/secret', data, 'Storing account secret')
     await this._secret_save(key.privateKey)
     await this.update()
   }
@@ -211,7 +211,7 @@ class Account {
   async retrieve_secret(password, key, iv) {
     //  Request secret from the DB by passing derived password hash.
     //  The DB compares SHA256(password) and returns secret on match.
-    let W = await this.api.get(
+    let W = await this.ctx.$api.get(
       '/account/secret', {password}, 'Retreiving account secret')
 
     // Decrypt private key
@@ -229,12 +229,12 @@ class Account {
 
 
   async update() {
-    if (this.api.sid)
+    if (this.ctx.$api.sid)
       try {
-        let account = await this.api.fetch({
+        let account = await this.ctx.$api.fetch({
           path: '/account', action: 'Logging in', error_cb:
           (action, error, r) => {
-            if (r.status == 401) this.api.sid_clear() // Not logged in
+            if (r.status == 401) this.ctx.$api.sid_clear() // Not logged in
           }})
 
         if (!account.pubkey) this.set_data({})
@@ -252,7 +252,7 @@ class Account {
 
   async try_login() {
     if (util.query_get('state')) {
-      await this.api.get('/login/' + this.provider + location.search)
+      await this.ctx.$api.get('/login/' + this.provider + location.search)
       location.search = '' // Redirect
       throw 'Logging in'
     }
@@ -262,7 +262,7 @@ class Account {
 
 
   loggedout() {
-    this.api.sid_clear()
+    this.ctx.$api.sid_clear()
     this._secret_clear()
     delete this.data.id
     delete this.data.avatar
@@ -273,7 +273,7 @@ class Account {
 
 
   async logout() {
-    await this.api.put('/logout')
+    await this.ctx.$api.put('/logout')
     this.loggedout()
   }
 
@@ -288,7 +288,7 @@ class Account {
         account.passkey = account.passkey || undefined
 
         try {
-          await this.api.put('/account', account, 'Creating account')
+          await this.ctx.$api.put('/account', account, 'Creating account')
         } catch(e) {}
       }
 
@@ -298,19 +298,23 @@ class Account {
 
 
   async delete() {
-    await this.api.delete('/account', undefined, 'Deleting account')
+    await this.ctx.$api.delete('/account', undefined, 'Deleting account')
     this.loggedout()
+    await this.ctx.$node.restart()
   }
 
 
-  async save(data) {
-    await this.api.put('/account', data, 'Saving account data')
-    this.set_data(data)
+  async save(config) {
+    let restart = config.node != this.data.node
+    await this.ctx.$api.put('/account', config, 'Saving account data')
+    this.set_data(config)
+    await this.ctx.$node.broadcast('config', {config})
+    if (restart) await this.ctx.$node.restart()
   }
 
 
   async reset_token() {
-    await this.api.post('/account/token', null, 'Resetting account token')
+    await this.ctx.$api.post('/account/token', null, 'Resetting account token')
     await this.update()
   }
 }

@@ -208,8 +208,7 @@ class Machine {
 
   is_linked() {
     if (!this.is_direct()) return true
-    let info = this.get_info()
-    return info.account == this.aid
+    return this.get_info().account == this.aid
   }
 
 
@@ -250,8 +249,8 @@ class Machine {
 
 
   async unlink() {
-    if (this.is_connected()) this.send_command('reset')
-    return this.api.delete('/account/machines/' + this.id)
+    await this.api.delete('/account/machines/' + this.id)
+    if (this.is_connected()) this.send_command('restart')
   }
 
 

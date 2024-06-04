@@ -197,6 +197,13 @@ class Node extends Sock {
     console.debug('Broadcasting:', payload)
     this.send({type: 'broadcast', payload, signature})
   }
+
+
+  async restart() {
+    await this.broadcast('restart')
+    await this.logout()
+    await this.login()
+  }
 }
 
 

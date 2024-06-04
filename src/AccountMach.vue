@@ -39,8 +39,8 @@ export default {
 
 
   computed: {
-    linked() {return this.mach.is_linked()},
-    valid() {return /^[\w\.-]{1,64}$/.test(this.name)},
+    linked()   {return this.mach.is_linked()},
+    valid()    {return /^[\w\.-]{1,64}$/.test(this.name)},
     modified() {return this.name != this.mach.get_name()},
   },
 

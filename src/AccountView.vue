@@ -114,9 +114,7 @@ export default {
     async save() {
       return this.$root.pacify(async () => {
         try {
-          let config = copy_account(this.account_new)
-          await this.$account.save(config)
-          await this.$node.broadcast('config', {config})
+          await this.$account.save(copy_account(this.account_new))
           this.close()
 
         } catch (e) {
@@ -155,7 +153,6 @@ export default {
       if (response == 'delete')
         return this.$root.pacify(async () => {
           await this.$account.delete()
-          await this.$node.broadcast('reset')
           this.close()
         })
     }
