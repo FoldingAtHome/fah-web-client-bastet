@@ -228,7 +228,10 @@ class Account {
   }
 
 
-  async update() {
+  async update(ts) {
+    if (ts && this._last_update && ts < this._last_update) return
+    this._last_update = Date.now()
+
     if (this.ctx.$api.sid)
       try {
         let account = await this.ctx.$api.fetch({
@@ -278,7 +281,7 @@ class Account {
   }
 
 
-  async check(create_dialog, ok) {
+  async check(create_dialog) {
     if (!this.data.user) return
 
     if (!this.data.created) {
@@ -293,23 +296,23 @@ class Account {
       }
 
       this.logout()
-    } else if (this.data.unlocked) return ok()
+    }
   }
 
 
   async delete() {
     await this.ctx.$api.delete('/account', undefined, 'Deleting account')
+    await this.ctx.$node.broadcast('restart')
     this.loggedout()
-    await this.ctx.$node.restart()
   }
 
 
   async save(config) {
     let restart = config.node != this.data.node
     await this.ctx.$api.put('/account', config, 'Saving account data')
-    this.set_data(config)
     await this.ctx.$node.broadcast('config', {config})
-    if (restart) await this.ctx.$node.restart()
+    if (restart) await this.ctx.$node.broadcast('restart')
+    this.set_data(config) // NOTE, this indirectly triggers a node reconnect
   }
 
 

@@ -30,7 +30,7 @@ import Sock         from './sock.js'
 import util         from './util.js'
 import crypto       from './crypto.js'
 import NodeMachConn from './node-mach-conn.js'
-import {reactive}   from 'vue'
+import {reactive, watchEffect} from 'vue'
 
 
 
@@ -39,6 +39,8 @@ class Node extends Sock {
     super(undefined, ...args)
     this.ctx    = ctx
     this.state  = reactive({})
+
+    watchEffect(() => this.login())
   }
 
 
@@ -103,12 +105,30 @@ class Node extends Sock {
   }
 
 
+  async on_broadcast(msg) {
+    // Check signature
+    let apub      = this.ctx.$adata.pubkey
+    let pubkey    = await crypto.spki_import(util.base64_decode(apub))
+    let signature = util.base64_decode(msg.signature)
+    await crypto.rsa_verify(pubkey, signature, JSON.stringify(msg.payload))
+
+    console.debug('broadcast:', msg.payload)
+
+    // Handle command
+    let cmd = msg.payload.cmd
+    if (cmd == 'restart' || cmd == 'config') {
+      let ts = new Date(msg.payload.time).getTime()
+      await this.ctx.$account.update(ts)
+    }
+  }
+
+
   on_message(msg) {
     switch (msg.type) {
     case 'connect':    return this._mach_add(msg.client)
     case 'disconnect': return this._mach_del(msg.id)
     case 'message':    return this._mach_msg(msg)
-    case 'broadcast':  break // Ignore for now
+    case 'broadcast':  return this.on_broadcast(msg)
     default: throw 'Unsupported account message type "' + msg.type + '"'
     }
   }
@@ -160,6 +180,8 @@ class Node extends Sock {
 
   async login() {
     if (!this.ctx.$adata.node) return
+
+    if (this.state.active) await this.logout()
     this.state.active  = true
     this.state.loading = true
 
@@ -196,13 +218,6 @@ class Node extends Sock {
 
     console.debug('Broadcasting:', payload)
     this.send({type: 'broadcast', payload, signature})
-  }
-
-
-  async restart() {
-    await this.broadcast('restart')
-    await this.logout()
-    await this.login()
   }
 }
 

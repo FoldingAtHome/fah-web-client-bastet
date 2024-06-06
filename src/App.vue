@@ -48,9 +48,6 @@ export default {
 
 
   watch: {
-    '$adata.unlocked'(unlocked) {if (unlocked) this.$node.login()},
-
-
     dark_mode(enabled) {
       if (enabled) document.body.classList.add('dark')
       else document.body.classList.remove('dark')
@@ -85,7 +82,7 @@ export default {
 
     async check_account() {
       let dialog = this.$refs.new_account_dialog
-      return this.$account.check(dialog.exec, () => {this.$node.login()})
+      return this.$account.check(dialog.exec)
     },
 
 
@@ -110,7 +107,6 @@ export default {
         switch (result.response) {
         case 'login':
           await this.$account.login_with_passphrase(result.data)
-          await this.$node.login()
           this.$router.push('/')
           break
 
