@@ -66,7 +66,7 @@ export default {
 <template lang="pug">
 .setting
   label(:title="'F@H ID ' + mach.get_id()") Name
-  input(v-model="name", pattern="[\\w\\.-]{1,64}")
+  input(v-model="name", pattern="[\\w.\\-]{1,64}")
 
   .setting-actions
     Button.button-icon(v-if="linked", @click="save", icon="save",
