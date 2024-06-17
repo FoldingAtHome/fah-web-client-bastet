@@ -302,7 +302,7 @@ class Machine {
 
       // Trim log
       let log = this.state.data.log || []
-      if (1e5 < log.length) log.splice(0, log.length - 1e5)
+      if (1e4 < log.length) log.splice(0, log.length - 1e4)
     }
 
     this.first = false
