@@ -138,6 +138,8 @@ class Node extends Sock {
 
 
   on_close(event) {
+    if (!this.state.active) return
+
     console.log('Account closed')
 
     for (let mach of this.ctx.$machs)
@@ -179,9 +181,9 @@ class Node extends Sock {
 
 
   async login() {
+    if (this.state.active) await this.logout()
     if (!this.ctx.$adata.node) return
 
-    if (this.state.active) await this.logout()
     this.state.active  = true
     this.state.loading = true
 
