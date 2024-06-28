@@ -27,15 +27,13 @@
 \******************************************************************************/
 
 import {watch, watchEffect, reactive} from 'vue'
-import util   from './util.js'
-import crypto from './crypto.js'
 
 
 class Stats {
-  constructor(app, timeout = 60 * 60 * 1000) {
-    this.api      = app.$api
-    this.adata    = app.$account.data
-    this.machs    = app.$machs
+  constructor(ctx, timeout = 60 * 60 * 1000) {
+    this.api      = ctx.$api
+    this.adata    = ctx.$account.data
+    this.machs    = ctx.$machs
     this.data     = reactive({user: undefined, team: undefined, stats: {}})
     this.timeout  = timeout
     this.url      = 'https://stats.foldingathome.org'
@@ -110,7 +108,7 @@ class Stats {
 
     if (this.is_anon() && !team) return this.data.stats = {}
 
-    let path = `/user/${user}`
+    let path = `/user/${encodeURIComponent(user)}`
     let data = team == undefined ? {} : {team}
 
     this.data.stats = await this.api.fetch({
