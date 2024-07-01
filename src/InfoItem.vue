@@ -39,7 +39,7 @@ export default {
 <template lang="pug">
 .info-item
   label {{label}}
-  span(:title="content") {{bool ? (content ? 'true' : 'false') : content}}
+  span {{bool ? (content ? 'true' : 'false') : content}}
 </template>
 
 <style lang="stylus">

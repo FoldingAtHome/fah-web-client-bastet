@@ -611,7 +611,7 @@ export default {
         margin 0
 
       .frames
-        font-family mono
+        font-family var(--mono-font)
 
 
 @media (max-width 800px)

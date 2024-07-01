@@ -27,31 +27,16 @@
 -->
 
 <script>
-function addTime(t, offset) {
-  t = new Date(t)
-  t.setSeconds(t.getSeconds() + offset)
-  return t.toISOString().replace(/\.\d+Z/, 'Z')
-}
+import Unit from './unit.js'
 
 
 export default {
-  props: ['mach', 'unitID'],
+  props: ['unitID'],
 
 
   computed: {
-    unit()     {return this.mach.get_unit(this.unitID) || {}},
-    wu()       {return this.unit.wu || {}},
-    assign()   {return this.unit.assignment || {}},
-    core()     {return (this.assign.core || {}).type},
-    timeout()  {return addTime(this.assign.time, this.assign.timeout)},
-    deadline() {return addTime(this.assign.time, this.assign.deadline)},
-    cs()       {return (this.wu.cs || []).join(', ')},
-    progress() {return ((this.unit.progress || 0) * 100).toFixed(1)},
-    run_time() {return (this.unit.run_time || 0).toLocaleString() + 's'},
-    credit()   {return (this.assign.credit || 0).toLocaleString()},
-    ppd()      {return (this.unit.ppd || 0).toLocaleString()},
-    gpus()     {return this.assign.gpus ? this.assign.gpus.join(' ') : 'None'},
-    project()  {return this.$projects.get(this.assign.project)},
+    unit() {return new Unit(this.$ctx, this.$machs.get_unit(this.unitID))},
+    project() {return this.$projects.get(this.unit.project) || {}},
   }
 }
 </script>
@@ -65,40 +50,43 @@ export default {
       legend Work Unit {{'#' + unit.number}}
 
       .info-group
-        info-item(label="PPD",         :content="ppd")
-        info-item(label="Base Credit", :content="credit")
+        info-item(label="PPD",         :content="unit.ppd")
+        info-item(label="Base Credit", :content="unit.credit")
 
       .info-group
-        info-item(label="CPUs", :content="assign.cpus")
-        info-item(label="GPUs", :content="gpus")
+        info-item(label="CPUs", :content="unit.cpus_description")
+        info-item(label="GPUs", :content="unit.gpus_description")
 
       .info-group
         .info-item
           label Progress
-          span: progress-bar(:progress="progress")
+          span: progress-bar(:progress="unit.progress")
 
       .info-group
         info-item(label="ETA",      :content="unit.eta")
-        info-item(label="Run Time", :content="run_time")
+        info-item(label="Run Time", :content="unit.run_time")
 
       .info-group
-        info-item(label="Assign Time", :content="assign.time")
-        info-item(label="Deadline",    :content="deadline")
-        info-item(label="Timeout",     :content="timeout")
+        info-item(label="Assign Time", :content="unit.assign_time",
+          :title="unit.assigned")
+        info-item(label="Deadline",    :content="'in ' + unit.deadline",
+          :title="unit.deadline_time")
+        info-item(label="Timeout",     :content="'in ' + unit.timeout",
+          :title="unit.timeout_time")
 
       .info-group
-        info-item(label="Work Server", :content="assign.ws")
+        info-item(label="Work Server", :content="unit.assign.ws")
 
       .info-group
-        info-item(label="Core", :content="core")
+        info-item(label="Core", :content="unit.core")
 
       .info-group
-        info-item(label="Project",    :content="assign.project")
-        info-item(label="Run",        :content="wu.run")
-        info-item(label="Clone",      :content="wu.clone")
-        info-item(label="Generation", :content="wu.gen")
+        info-item(label="Project",    :content="unit.project")
+        info-item(label="Run",        :content="unit.wu.run")
+        info-item(label="Clone",      :content="unit.wu.clone")
+        info-item(label="Generation", :content="unit.wu.gen")
 
-    ProjectView(v-if="project", :project="project", :full="true")
+    ProjectView(v-if="project.description", :project="project", :full="true")
 </template>
 
 <style lang="stylus">

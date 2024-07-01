@@ -27,57 +27,67 @@
 -->
 
 <script>
-import MachineView from './MachineView.vue'
-
-
-function mach_cmp(a, b) {
-  let cmp = b.is_direct() - a.is_direct()
-  if (cmp) return cmp
-
-  cmp = b.is_connected() - a.is_connected()
-  if (cmp) return cmp
-
-  return a.get_name().localeCompare(b.get_name())
-}
-
-
 export default {
-  name: 'MachinesView',
-  components: {MachineView},
+  name: 'PopupMenu',
+  props: {title: {}},
+  data() {return {show: false}},
 
-
-  computed: {
-    machs() {return Array.from(this.$machs).sort(mach_cmp)}
+  methods: {
+    close() {setTimeout(() => {this.show = false}, 250)}
   }
 }
 </script>
 
 <template lang="pug">
-.machines-view.page-view
-  MainHeader
-    template(v-slot:center)
-      Button(text="Fold", @click="$root.fold()", success,
-        icon="play", :disabled="$machs.is_empty()")
+Teleport(to="body")
+  .popup-overlay(v-if="show", @click="show = false")
 
-      Button(text="Pause", @click="$root.pause()", icon="pause",
-        :disabled="$machs.is_empty()")
-
-  .view-body
-    template(v-for="mach in machs")
-      MachineView(v-if="!mach.is_hidden()", :mach="mach")
-
-    .no-data(v-if="$machs.is_empty()")
-      p No folding machines found.
-      p Login or install the Folding@home client software.
-      p If you are using Brave browser, please use "Shields Down" for this site.
+.popup-menu(@click="show = true", :title="title")
+  Button.button-icon(icon="bars")
+  .popup-content(@mouseup="close")
+    slot(v-if="show")
 </template>
 
 <style lang="stylus">
-.machines-view .view-body
-  display flex
-  flex-direction column
-  gap 1em
+.popup-overlay
+  position fixed
+  top 0
+  left 0
+  width 100vw
+  height 100vh
+  background-color rgba(64, 64, 64, 0.2)
 
-  .no-data
-    text-align center
+.popup-menu
+  position relative
+  justify-content end
+
+  .popup-content
+    top 0
+    right 0
+    position absolute
+    display flex
+    flex-direction column
+    background-color var(--popup-bg)
+    border var(--popup-border)
+    border-bottom none
+    border-radius var(--border-radius)
+    opacity 1
+    z-index 100
+    justify-content start
+    overflow hidden
+
+    > *, > .button
+      justify-content left
+      margin 0
+      padding 0.5em
+      border-bottom var(--popup-border)
+      border-radius 0
+      height 2em
+
+      &:hover
+        background-color rgba(255, 255, 255, 0.1)
+
+      .fa
+        width 1em
+        text-align center
 </style>

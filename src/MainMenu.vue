@@ -35,6 +35,7 @@ export default {
 <template lang="pug">
 .view-menu
   router-link(to="/machines") Machines
+  router-link(to="/wus") Work Units
   router-link(to="/stats") Stats
   router-link(to="/projects") Projects
   router-link(to="/news") News

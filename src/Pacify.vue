@@ -27,9 +27,6 @@
 -->
 
 <script>
-import util from './util.js'
-
-
 export default {
   name: 'Pacify',
   data() {return {active: false}},
@@ -38,14 +35,14 @@ export default {
   methods: {
     open()  {
       if (this.active) return
-      util.lock_scrolling()
+      this.$util.lock_scrolling()
       this.active = true
     },
 
 
     close() {
       if (!this.active) return
-      util.unlock_scrolling()
+      this.$util.unlock_scrolling()
       this.active = false
     }
   }

@@ -27,6 +27,7 @@
 \******************************************************************************/
 
 import {ungzip} from 'pako'
+import {reactive} from 'vue'
 
 
 const colors = [
@@ -55,14 +56,40 @@ const bright = [
 const store_timeout = 24 * 60 * 60 * 1000
 
 
-export default {
-  _addressRE: new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/),
+function pad(t, c = ' ', count = 2) {
+  let s = '' + t
+  while (s.length < count) s = c + s
+  return s
+}
+
+
+function zpad(t, count = 2) {return pad(t, '0', count)}
+
+
+class Util {
+  constructor() {
+    this._addressRE = new RegExp(/^(([\w.-]+)(:\d+)?)?(\/[\w.-]+)?$/)
+    this._urlbase64_map = {'+': '-', '\/': '_', '=': ''}
+    this._base64_map =    {'-': '+', '_': '\/'}
+
+    this.data = reactive({})
+    this._tick() // Start timer
+  }
+
+
+  _tick() {
+    this.data.now = Date.now()
+    //setTimeout(() => this._tick(), 250)
+  }
+
+
+  get now() {return this.data.now}
 
 
   lock_scrolling() {
     document.body.style.top = `-${window.scrollY}px`
     document.body.style.position = 'fixed' // Must be second
-  },
+  }
 
 
   unlock_scrolling() {
@@ -70,7 +97,7 @@ export default {
     document.body.style.position = ''
     document.body.style.top = ''
     window.scrollTo(0, parseInt(scrollY || '0') * -1)
-  },
+  }
 
 
   Deferred() {
@@ -82,11 +109,11 @@ export default {
     })
 
     this.promise = () => self._promise
-  },
+  }
 
 
-  isObject(o) {return o != null && typeof o === 'object'},
-  isEmpty(o)  {return !Object.keys(o).length},
+  isObject(o) {return o != null && typeof o === 'object'}
+  isEmpty(o)  {return !Object.keys(o).length}
 
 
   deepCopy(o) {
@@ -109,7 +136,7 @@ export default {
     }
 
     return o
-  },
+  }
 
 
   isEqual(a, b) {
@@ -130,7 +157,7 @@ export default {
     }
 
     return true
-  },
+  }
 
 
   format(s, o) {
@@ -141,7 +168,7 @@ export default {
         return typeof r === 'string' || typeof r === 'number' ? r : a
       }
     )
-  },
+  }
 
 
   human_number(x, precision = 1) {
@@ -150,10 +177,10 @@ export default {
     if (1e6  <= x) return (x / 1e6 ).toFixed(precision) + 'M'
     if (1e3  <= x) return (x / 1e3 ).toFixed(precision) + 'K'
     return x
-  },
+  }
 
 
-  capitalize(s) {return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''},
+  capitalize(s) {return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''}
 
 
   escapehtml(s) {
@@ -166,7 +193,7 @@ export default {
       case "'": return '&#039;'
       }
     })
-  },
+  }
 
 
   ansi2html(s) {
@@ -185,14 +212,14 @@ export default {
         let style = (fg ? 'color' : 'background') + ':' + c
         return '<font style="' + style + '">' + m2 + '</font>'
       })
-  },
+  }
 
 
   version_parse(v) {
     if (typeof(v) == 'string') v = v.split('.')
     if (v != undefined) return v.map(x => parseInt(x))
     return [0, 0, 0]
-  },
+  }
 
 
   version_less(a, b) {
@@ -206,19 +233,19 @@ export default {
     }
 
     return false
-  },
+  }
 
 
   remove(key) {
     localStorage.removeItem(key)
     localStorage.removeItem(key + '.__ts__')
-  },
+  }
 
 
   store(key, value) {
     localStorage.setItem(key, JSON.stringify(value))
     localStorage.setItem(key + '.__ts__', new Date().toISOString())
-  },
+  }
 
 
   is_expired(key, timeout = store_timeout) {
@@ -230,7 +257,7 @@ export default {
     } catch (e) {}
 
     return true
-  },
+  }
 
 
   retrieve(key, timeout = store_timeout) {
@@ -238,15 +265,15 @@ export default {
       if (!this.is_expired(key, timeout))
         return JSON.parse(localStorage.getItem(key))
     } catch (e) {console.log(e)}
-  },
+  }
 
 
-  store_bool(key, value) {this.store(key, !!value)},
+  store_bool(key, value) {this.store(key, !!value)}
 
 
   retrieve_bool(key, timeout = store_timeout) {
     return !!this.retrieve(key, timeout)
-  },
+  }
 
 
   uri_get(str, name, defaultValue) {
@@ -256,31 +283,53 @@ export default {
     return results === null ?
       (defaultValue === undefined ? '' : defaultValue) :
       decodeURIComponent(results[3].replace(/\+/g, ' '))
-  },
+  }
 
 
   query_get(name, defaultValue) {
     return this.uri_get(location.search, name, defaultValue)
-  },
+  }
 
 
   cookie_get(name) {
     const parts = `; ${document.cookie}`.split(`; ${name}=`)
     if (parts.length == 2) return parts.pop().split(';').shift()
-  },
+  }
 
 
   time_interval(secs) {
+    if (secs < 0) return '-' + this.time_interval(-secs)
+
     function div(x, y) {return (x / y) >> 0}
     function mod(x, y) {return (x % y) >> 0}
 
     if (secs < 60) return parseInt(secs) + 's'
-    if (secs < 60 * 60) return div(secs, 60) + 'm ' + mod(secs, 60) + 's'
+    if (secs < 60 * 60) return div(secs, 60) + 'm ' + zpad(mod(secs, 60)) + 's'
     if (secs < 60 * 60 * 24)
-      return div(secs, 60 * 60) + 'h ' + mod(secs, 60 * 60) + 'm'
+      return div(secs, 60 * 60) + 'h ' + zpad(div(mod(secs, 60 * 60), 60)) + 'm'
 
-    return div(secs, 60 * 60 * 24) + 'd ' + mod(secs, 60 * 60 * 24) + 'h'
-  },
+    return div(secs, 60 * 60 * 24) + 'd ' +
+      zpad(div(mod(secs, 60 * 60 * 24), 60 * 60)) + 'h'
+  }
+
+
+  format_time(t) {
+    t = new Date(t)
+    return t.getUTCFullYear() + '/' + zpad(t.getUTCMonth()) + '/' +
+      zpad(t.getUTCDate())    + ' ' + zpad(t.getUTCHours()) + ':' +
+      zpad(t.getUTCMinutes()) + ':' + zpad(t.getUTCSeconds())
+  }
+
+
+  format_timeout(t, offset) {
+    t = (new Date(t).getTime() - new Date().getTime()) / 1000 + offset
+    return t < 0 ? 'Expired' : this.time_interval(t)
+  }
+
+
+  timeout_time(t, offset) {
+    return this.format_time(new Date(t).getTime() + offset * 1000)
+  }
 
 
   wrap(s, length) {
@@ -292,28 +341,24 @@ export default {
       chunks.push(s.substr(i * length, length))
 
     return chunks.join('\n')
-  },
+  }
 
 
-  _urlbase64_map: {'+': '-', '\/': '_', '=': ''},
-  _base64_map:    {'-': '+', '_': '\/'},
-
-
-  base64_encode(s, length) {return this.wrap(btoa(s), length)},
+  base64_encode(s, length) {return this.wrap(btoa(s), length)}
 
 
   urlbase64_encode(s, length) {
     s = this.base64_encode(s, length)
     return s.replace(/[+\/=]/g, c => this._urlbase64_map[c])
-  },
+  }
 
 
   base64_decode(s) {
     return atob(s.replace(/[-_]/g, c => this._base64_map[c]))
-  },
+  }
 
 
-  str2buf(str) {return Uint8Array.from(str, c => c.codePointAt(0))},
+  str2buf(str) {return Uint8Array.from(str, c => c.codePointAt(0))}
 
 
   buf2str(buf) {
@@ -327,22 +372,24 @@ export default {
     }
 
     return result
-  },
+  }
 
 
   async decompress(s, type) {
     if (type != 'gzip') throw 'Unsupported compression type "' + type + '"'
     return this.buf2str(ungzip(this.str2buf(s)))
-  },
+  }
 
 
-  default_address() {
-    if (import.meta.env.VITE_WEBSOCKET) return import.meta.env.VITE_WEBSOCKET
+  get_direct_address() {
+    return localStorage.getItem('fah-direct-address') || undefined
+  }
 
-    let hostname = window.location.hostname
-    let host     = hostname.endsWith('.local') ? hostname : '127.0.0.1'
-    let local    = hostname.endsWith('.local') || hostname == 'localhost'
-    let port     = local ? window.location.port : 7396
-    return host + ':' + port
-  },
+
+  set_direct_address(addr) {
+    if (!addr) localStorage.removeItem('fah-direct-address')
+    else localStorage.setItem('fah-direct-address', addr)
+  }
 }
+
+export default Util

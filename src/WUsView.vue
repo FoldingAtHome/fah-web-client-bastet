@@ -27,57 +27,76 @@
 -->
 
 <script>
-import MachineView from './MachineView.vue'
+import UnitRow from './UnitRow.vue'
 
 
-function mach_cmp(a, b) {
-  let cmp = b.is_direct() - a.is_direct()
-  if (cmp) return cmp
-
-  cmp = b.is_connected() - a.is_connected()
-  if (cmp) return cmp
-
-  return a.get_name().localeCompare(b.get_name())
+function cmp_wus(a, b) {
+  return new Date(b.assignment.time).getTime() -
+    new Date(a.assignment.time).getTime()
 }
 
 
 export default {
-  name: 'MachinesView',
-  components: {MachineView},
+  name: 'WUsView',
+  components: {UnitRow},
 
 
   computed: {
-    machs() {return Array.from(this.$machs).sort(mach_cmp)}
-  }
+    columns() {
+      return ['Number', 'Project', 'Progress', 'Status', 'Core',
+        'TPF', 'PPD', 'Assign Time']
+    },
+
+
+    wus() {
+      let wus = []
+
+      for (let mach of this.$machs) {
+        let data = mach.get_data()
+        if (data.wus)   wus = wus.concat(data.wus)
+        if (data.units) wus = wus.concat(data.units)
+      }
+
+      wus = wus.filter((wu) => wu.assignment)
+
+      return wus.sort(cmp_wus)
+    },
+  },
+
+
+  mounted() {this.$machs.wus_enable(true)},
+  unmounted(to, from) {this.$machs.wus_enable(false)},
 }
 </script>
 
 <template lang="pug">
-.machines-view.page-view
+.wus-view.page-view
   MainHeader
-    template(v-slot:center)
-      Button(text="Fold", @click="$root.fold()", success,
-        icon="play", :disabled="$machs.is_empty()")
-
-      Button(text="Pause", @click="$root.pause()", icon="pause",
-        :disabled="$machs.is_empty()")
 
   .view-body
-    template(v-for="mach in machs")
-      MachineView(v-if="!mach.is_hidden()", :mach="mach")
+    table.view-table
+      tr
+        th(v-for="col in columns") {{col}}
+        th
 
-    .no-data(v-if="$machs.is_empty()")
-      p No folding machines found.
-      p Login or install the Folding@home client software.
-      p If you are using Brave browser, please use "Shields Down" for this site.
+      tr(v-for="unit in wus")
+        UnitRow(:data="unit", v-if="unit.id", :key="unit.id",
+          :columns="columns")
+
+        td
+          Button.button-icon(icon="info-circle", :route="'/unit/' + unit.id")
 </template>
 
 <style lang="stylus">
-.machines-view .view-body
+.wus-view .view-body
   display flex
   flex-direction column
   gap 1em
+  font-family var(--mono-font)
+  overflow-x auto
+  width 100%
 
-  .no-data
-    text-align center
+  .view-table .button
+    margin 0
+    font-size 12pt
 </style>

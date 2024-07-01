@@ -27,9 +27,7 @@
 \******************************************************************************/
 
 import {reactive} from 'vue'
-import api        from './api.js'
-import util       from './util.js'
-import crypto     from './crypto.js'
+import columns    from './columns.json'
 
 
 function get_redirect() {return location.href.replace(/\/?#.*$/, '')}
@@ -38,7 +36,9 @@ function get_redirect() {return location.href.replace(/\/?#.*$/, '')}
 class Account {
   constructor(ctx) {
     this.ctx      = ctx
-    this.provider = util.retrieve('fah-provider', 0)
+    this.util     = ctx.$util
+    this.crypto   = ctx.$crypto
+    this.provider = this.util.retrieve('fah-provider', 0)
     this.data     = reactive({})
 
     this._secret_load()
@@ -54,25 +54,42 @@ class Account {
   }
 
 
+  get_all_columns() {return Object.keys(columns)}
+
+
+  get_default_columns() {
+    return Object.entries(columns).reduce((l, col) => {
+      if (col[1].enabled) l.push(col[0])
+      return l
+    }, [])
+  }
+
+
+  get_columns() {
+    if (document.body.clientWidth <= 800) return this.get_default_columns()
+    return (this.data.config || {}).columns || this.get_default_columns()
+  }
+
+
   async _secret_load() {
-    let secret = util.retrieve('fah-secret', 0)
+    let secret = this.util.retrieve('fah-secret', 0)
 
     if (secret) {
-      this.secret = util.base64_decode(secret)
+      this.secret = this.util.base64_decode(secret)
       this.data.unlocked = true
     }
   }
 
 
   async _secret_save(prikey) {
-    this.secret = await crypto.pkcs8_export(prikey)
-    util.store('fah-secret', util.base64_encode(this.secret))
+    this.secret = await this.crypto.pkcs8_export(prikey)
+    this.util.store('fah-secret', this.util.base64_encode(this.secret))
     this.data.unlocked = true
   }
 
 
   _secret_clear() {
-    util.remove('fah-secret')
+    this.util.remove('fah-secret')
     delete this.secret
     this.data.unlocked = false
   }
@@ -121,7 +138,7 @@ class Account {
 
   async login_with_passphrase(config) {
     const {email, passphrase} = config
-    const salt = await crypto.sha256(email.toLowerCase())
+    const salt = await this.crypto.sha256(email.toLowerCase())
     const {hash, key} = await this.derive_password(passphrase, salt)
 
     config = {email, password: hash}
@@ -135,7 +152,7 @@ class Account {
 
   async login(provider) {
     this.ctx.$api.sid_clear()
-    if (provider) util.store('fah-provider', provider)
+    if (provider) this.util.store('fah-provider', provider)
 
     try {
       let config = {redirect_uri: get_redirect()}
@@ -149,10 +166,10 @@ class Account {
 
 
   async derive_password(passphrase, salt) {
-    let L = await crypto.pbkdf2_derive(passphrase, salt)
-    let H = await crypto.sha256(await crypto.raw_export(L))
+    let L = await this.crypto.pbkdf2_derive(passphrase, salt)
+    let H = await this.crypto.sha256(await this.crypto.raw_export(L))
 
-    return {hash: util.base64_encode(H), key: L}
+    return {hash: this.util.base64_encode(H), key: L}
   }
 
 
@@ -180,14 +197,14 @@ class Account {
     //  7. Machine computes E = RSA-OAEP.import(machine.prikey).decrypt(M)
     //  8. Communication proceeds with messages encrypted with E.
 
-    let K = await crypto.rsa_gen()
-    let P = await crypto.spki_export(K.publicKey)
-    salt  = await crypto.sha256(salt)
+    let K = await this.crypto.rsa_gen()
+    let P = await this.crypto.spki_export(K.publicKey)
+    salt  = await this.crypto.sha256(salt)
     let {hash, key} = await this.derive_password(passphrase, salt)
-    let W = await crypto.pkcs8_wrap(key, K.privateKey, salt)
+    let W = await this.crypto.pkcs8_wrap(key, K.privateKey, salt)
 
-    W = util.base64_encode(W)
-    P = util.base64_encode(P)
+    W = this.util.base64_encode(W)
+    P = this.util.base64_encode(P)
 
     return {pubkey: P, password: hash, secret: W, key: K}
   }
@@ -215,14 +232,14 @@ class Account {
       '/account/secret', {password}, 'Retreiving account secret')
 
     // Decrypt private key
-    W = util.base64_decode(W.secret)
-    let prikey = await crypto.pkcs8_unwrap(key, W, iv)
+    W = this.util.base64_decode(W.secret)
+    let prikey = await this.crypto.pkcs8_unwrap(key, W, iv)
     await this._secret_save(prikey)
   }
 
 
   async unlock_secret(passphrase, salt) {
-    salt = await crypto.sha256(salt)
+    salt = await this.crypto.sha256(salt)
     let {hash, key} = await this.derive_password(passphrase, salt)
     this.retrieve_secret(hash, key, salt)
   }
@@ -242,19 +259,22 @@ class Account {
 
         if (!account.pubkey) this.set_data({})
         else {
-          let pubkey = util.base64_decode(account.pubkey)
-          pubkey     = await crypto.spki_import(pubkey)
-          account.id = await crypto.pubkey_id(pubkey)
+          let pubkey = this.util.base64_decode(account.pubkey)
+          pubkey     = await this.crypto.spki_import(pubkey)
+          account.id = await this.crypto.pubkey_id(pubkey)
           this.set_data(account)
         }
       } catch (e) {console.error('Login failed', e)}
+
+    if (typeof this.data.config == 'string')
+      this.data.config = JSON.parse(this.data.config)
 
     return this.data
   }
 
 
   async try_login() {
-    if (util.query_get('state')) {
+    if (this.util.query_get('state')) {
       await this.ctx.$api.get('/login/' + this.provider + location.search)
       location.search = '' // Redirect
       throw 'Logging in'
@@ -271,11 +291,13 @@ class Account {
     delete this.data.avatar
     delete this.data.email
     delete this.data.created
+    delete this.data.node
     this.data.machines = []
   }
 
 
   async logout() {
+    delete this.data.node
     await this.ctx.$api.put('/logout')
     this.loggedout()
   }
@@ -307,12 +329,12 @@ class Account {
   }
 
 
-  async save(config) {
-    let restart = config.node != this.data.node
-    await this.ctx.$api.put('/account', config, 'Saving account data')
-    await this.ctx.$node.broadcast('config', {config})
+  async save(data) {
+    let restart = data.node != this.data.node
+    await this.ctx.$api.put('/account', data, 'Saving account data')
+    await this.ctx.$node.broadcast('config', {data})
     if (restart) await this.ctx.$node.broadcast('restart')
-    this.set_data(config) // NOTE, this indirectly triggers a node reconnect
+    this.set_data(data) // NOTE, this indirectly triggers a node reconnect
   }
 
 

@@ -27,15 +27,15 @@
 \******************************************************************************/
 
 import {reactive} from 'vue'
-import util from './util.js'
 
 
 class API {
   constructor(ctx, url, timeout = 24 * 60 * 60 * 1000) {
     this.url      = url
+    this.util     = ctx.$util
     this.cache    = ctx.$cache
     this.timeout  = timeout
-    this.sid      = util.retrieve('fah-sid', 0)
+    this.sid      = ctx.$util.retrieve('fah-sid', 0)
     this.data     = reactive({causes: []})
 
     this._error_handler = (action, error) => {
@@ -49,14 +49,14 @@ class API {
 
 
   sid_clear() {
-    util.remove('fah-sid')
+    this.util.remove('fah-sid')
     delete this.sid
   }
 
 
   sid_save(sid) {
     this.sid = sid
-    util.store('fah-sid', sid)
+    this.util.store('fah-sid', sid)
   }
 
 

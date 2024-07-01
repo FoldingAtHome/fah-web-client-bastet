@@ -28,7 +28,6 @@
 
 class MachConnection {
   constructor(mach) {this.mach = mach}
-  destroy() {}
 
   is_connected()  {return false}
   is_direct()     {return false}

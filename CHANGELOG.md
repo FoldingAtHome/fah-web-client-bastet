@@ -1,6 +1,17 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.0
+ - Configurable WU columns. #128
+ - Moved dark/light theme selection to account settings.
+ - Show WU TPF.  #43
+ - Support wide display.
+ - Moved machine unlink and name editing to machine settings.
+ - Show "target" icon next to directly connected client.
+ - CTRL-C to change direct client address.
+ - Improved log view performance for very large log files.
+ - WU history. #133
+
 ## v8.3.18
  - Added notice about Brave browser.
 

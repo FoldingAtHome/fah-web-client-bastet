@@ -26,19 +26,38 @@
 
 \******************************************************************************/
 
-import util           from './util.js'
 import MachConnection from './mach-connection.js'
 import Sock           from './sock.js'
 
 
 class DirectMachConn extends MachConnection {
-  constructor(ctx, name, address) {
-    let mach = ctx.$machs.create('local')
-    super(mach)
+  constructor(ctx, name, address = '127.0.0.1:7396') {
+    super(ctx.$machs.create(undefined))
 
     this.ctx = ctx
     this.initialized = false
-    mach.set_conn(this)
+
+    this.mach.set_conn(this)
+    this.set_address(address)
+    this.ctx.$machs.set('', this.mach)
+  }
+
+
+  set_address(address) {
+    if (this.address == address) return
+    this.address = address
+
+    if (this.sock) {
+      this.sock.on_open    = () => {}
+      this.sock.on_close   = () => {}
+      this.sock.on_message = () => {}
+      this.sock.close()
+      delete this.sock
+      this._on_close()
+    }
+
+    this.mach.set_name('direct')
+    this.mach.state.data = {}
 
     let url  = 'ws://' + address + '/api/websocket'
     this.sock = new Sock(url)
@@ -50,7 +69,6 @@ class DirectMachConn extends MachConnection {
   }
 
 
-  destroy() {if (this.sock) this.sock.destroy()}
   open() {this.sock.connect()}
 
 
@@ -58,7 +76,6 @@ class DirectMachConn extends MachConnection {
   is_connected()  {return this.sock.connected}
   is_direct()     {return true}
   async send(msg) {return this.sock.send(msg)}
-  close()         {this.sock.close()}
 
 
   _clear_ping() {
@@ -68,7 +85,7 @@ class DirectMachConn extends MachConnection {
 
 
   _update_ping() {
-    if (util.version_less('8.1.17', this.mach.get_version())) {
+    if (this.ctx.$util.version_less('8.1.17', this.mach.get_version())) {
       this._clear_ping()
       this._ping_timer = setTimeout(() => {
         console.log(this.mach.get_name() + ': timedout')
@@ -85,7 +102,7 @@ class DirectMachConn extends MachConnection {
     this._clear_ping()
     this.on_close()
     this.initialized = false
-    setTimeout(() => this.sock.connect(), 1000)
+    if (this.sock) setTimeout(() => this.sock.connect(), 1000)
   }
 
 
@@ -100,24 +117,23 @@ class DirectMachConn extends MachConnection {
         this.initialized = true
 
         // Check versions, reload Web Control if out of date
-        console.debug('Local Client Version', info.version)
-        let last_version = util.retrieve('fah-last-version')
+        console.debug('Direct Client Version', info.version)
+        let last_version = this.ctx.$util.retrieve('fah-last-version')
         let our_version  = import.meta.env.PACKAGE_VERSION
-        if (util.version_less(our_version, info.version) &&
-            (!last_version || util.version_less(last_version, info.version))) {
-          util.store('fah-last-version', info.version)
+        if (this.ctx.$util.version_less(our_version, info.version) &&
+            (!last_version ||
+              this.ctx.$util.version_less(last_version, info.version))) {
+          this.ctx.$util.store('fah-last-version', info.version)
 
           if (!info.url) location.reload(true)
           else location.replace(info.url)
         }
 
-        // Prefer direct connection
+        // Set direct connection
         if (info.id) {
-          let old = this.ctx.$machs.get(info.id)
-          if (old) this.mach.dup_state(old)
-
-          this.mach.id = info.id
-          this.ctx.$machs.set(info.id, this.mach)
+          let node_mach = this.ctx.$machs.get(info.id)
+          if (node_mach) this.mach.dup_state(node_mach)
+          this.mach.state.id = info.id
         }
 
         // Update machine name

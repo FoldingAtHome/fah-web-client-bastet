@@ -74,6 +74,7 @@ export default {
       display flex
       flex-direction column
       gap 0.5em
+      flex 1
 
     .article-title .header-title:hover
       color var(--link-color)

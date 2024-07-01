@@ -1,11 +1,11 @@
 {
   "name": "fah-web-control",
-  "version": "8.3.18",
+  "version": "8.4.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "pub": "vite build && rsync -r --progress dist/ fah:/var/www/v8-3.foldingathome.org/html/"
+    "pub": "vite build && rsync -r --progress dist/ fah:/var/www/v8-4.foldingathome.org/html/"
   },
   "dependencies": {
     "npm-check-updates": "^16.10.8",

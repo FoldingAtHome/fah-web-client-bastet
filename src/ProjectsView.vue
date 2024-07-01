@@ -52,7 +52,6 @@ export default {
   flex-direction column
   gap 1em
 
-  > p, > h2
-    text-align center
-    margin 0
+  .project
+    width 100%
 </style>
