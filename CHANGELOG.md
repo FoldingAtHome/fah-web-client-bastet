@@ -4,6 +4,8 @@ Folding@home Web Control Changelog
 ## v8.3.17
  - Fixes for account (un)linking and node changes.
  - Use broadcast messages to detect account config changes.
+ - Fixed stats user lookup with special name characters.
+ - Use passkey in stats lookup. #156
 
 ## v8.3.13
  - Fix local machine log/viz enable on page reload.

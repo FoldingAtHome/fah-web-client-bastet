@@ -31,25 +31,36 @@ import {watch, watchEffect, reactive} from 'vue'
 
 class Stats {
   constructor(ctx, timeout = 60 * 60 * 1000) {
-    this.api      = ctx.$api
-    this.adata    = ctx.$account.data
-    this.machs    = ctx.$machs
-    this.data     = reactive({user: undefined, team: undefined, stats: {}})
-    this.timeout  = timeout
-    this.url      = 'https://stats.foldingathome.org'
+    this.api   = ctx.$api
+    this.adata = ctx.$account.data
+    this.machs = ctx.$machs
+    this.state = reactive({
+      user:    undefined,
+      team:    undefined,
+      passkey: undefined,
+      stats:   {}
+    })
+    this.timeout = timeout
+    this.url = 'https://stats.foldingathome.org'
 
-    watch([() => this.data.user, () => this.data.team], () => this._get_stats())
+    watch([
+        () => this.state.user,
+        () => this.state.team,
+        () => this.state.passkey
+      ], () => this._get_stats())
+
     watchEffect(() => this._update_config())
+
     this._update()
   }
 
 
-  get_data() {return this.data.stats}
+  get_data() {return this.state.stats}
 
 
   get_team() {
-    for (let team of this.data.stats.teams || [])
-      if (team.team == this.data.team)
+    for (let team of this.state.stats.teams || [])
+      if (team.team == this.state.team)
         return team
 
     return {}
@@ -57,7 +68,7 @@ class Stats {
 
 
   is_anon() {
-    let user = this.data.user
+    let user = this.state.user
     return !user || user.toLowerCase() == 'anonymous'
   }
 
@@ -79,10 +90,11 @@ class Stats {
 
 
   _update_config() {
-    let {user, team} = this._get_config()
+    let {user, team, passkey} = this._get_config()
 
-    this.data.user = user
-    this.data.team = team
+    this.state.user    = user
+    this.state.team    = team
+    this.state.passkey = passkey
   }
 
 
@@ -104,18 +116,19 @@ class Stats {
 
 
   async _get_stats() {
-    let {user, team} = this.data
+    let {user, team, passkey} = this.state
 
-    if (this.is_anon() && !team) return this.data.stats = {}
+    if (this.is_anon() && !team) return this.state.stats = {}
 
     let path = `/user/${encodeURIComponent(user)}`
     let data = team == undefined ? {} : {team}
+    if (this.state.passkey) data.passkey = this.state.passkey
 
-    this.data.stats = await this.api.fetch({
+    this.state.stats = await this.api.fetch({
       path, data, error_cb: () => false, expire: this.timeout})
 
-    if (!this.data.stats) {
-      this.data.stats = {
+    if (!this.state.stats) {
+      this.state.stats = {
         name: user, id: 0, score: 0, wus: 0, active_7: 0, active_50: 0,
         teams: [await this._get_team_stats(team)]
       }
