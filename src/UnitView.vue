@@ -27,130 +27,20 @@
 -->
 
 <script>
-import util from './util.js'
-
-
-const status = {
-  'ASSIGN':   'Requesting work',
-  'DOWNLOAD': 'Downloading work',
-  'CORE':     'Downloading core',
-  'RUN':      'Running',
-  'FINISH':   'Finishing',
-  'UPLOAD':   'Uploading',
-  'CLEAN':    'Cleaning up',
-  'WAIT':     'Waiting',
-  'PAUSE':    'Paused',
-  'DUMP':     'Dumping',
-}
-
-const icons = {
-  'ASSIGN':   'download',
-  'DOWNLOAD': 'download',
-  'CORE':     'download',
-  'RUN':      'refresh',
-  'FINISH':   'refresh',
-  'UPLOAD':   'upload',
-  'CLEAN':    'eraser',
-  'WAIT':     'clock-o',
-  'PAUSE':    'hourglass-o',
-}
+import UnitRow from './UnitRow.vue'
 
 
 export default {
   props: ['unit', 'mach'],
-
-
-  data() {
-    return {
-      project_url: 'https://stats.foldingathome.org/project/',
-      waiting: false,
-      wait_progress: 0
-    }
-  },
-
-
-  watch: {
-    'unit.wait'() {this.update_wait()}
-  },
+  components: {UnitRow},
 
 
   computed: {
-    info()     {return this.mach.get_info()},
     disabled() {return !this.mach.is_connected()},
-
-
-    project() {
-      if (this.unit.assignment) return this.unit.assignment.project
-    },
-
-
-    wu() {return this.unit.wu},
-
-
-    unit_id() {
-      if (this.wu)
-        return `Work Unit #${this.unit.number} Project ${this.project} ` +
-          `Run ${this.wu.run} Clone ${this.wu.clone} Gen ${this.wu.gen}`
-    },
-
-
-    gpus() {
-      let gpus = 0
-
-      if (this.unit.gpus && this.info.gpus)
-        for (let i = 0; i < this.unit.gpus.length; i++) {
-          let id = this.unit.gpus[i]
-          if (this.info.gpus[id]) gpus++
-        }
-
-      return gpus
-    },
-
-
-    paused() {return !!this.unit.pause_reason},
-    config() {return this.mach.get_config(this.unit.group)},
-
-
-    state() {
-      if (this.waiting) return 'WAIT'
-      if (this.unit.pause_reason) return 'PAUSE'
-      if (this.unit.state == 'RUN' && this.config.finish) return 'FINISH'
-      return this.unit.state
-    },
-
-
-    icon() {return icons[this.state]},
-    ppd() {return (this.unit.ppd || 0).toLocaleString()},
-
-
-    eta() {
-      if (this.waiting) {
-        let eta = new Date(this.unit.wait).getTime() - (new Date).getTime()
-        // Use "progress" to force updates
-        return util.time_interval(eta / 1000, this.progress)
-      }
-
-      return this.unit.eta
-    },
-
-
-    status() {
-      if (this.waiting) return status[this.unit.state]
-      return this.unit.pause_reason || status[this.state]
-    },
-
-
-    progress() {
-      let p = this.waiting ? this.wait_progress : this.unit.progress
-      return isNaN(p) ? 0 : (p * 100).toFixed(1)
-    },
-
-
-    can_dump() {return (this.paused || this.waiting) && !this.disabled}
+    paused()   {return !!this.unit.pause_reason},
+    can_dump() {return this.paused && !this.disabled},
+    finish()   {return this.mach.get_config(this.unit.group).finish},
   },
-
-
-  mounted() {this.update_wait()},
 
 
   methods: {
@@ -162,43 +52,15 @@ export default {
 
       if (result == 'ok') this.mach.dump(id)
     },
-
-
-    update_wait() {
-      if (!this.unit.wait) return
-
-      let now = Date.now()
-      let t = new Date(this.unit.wait).getTime()
-
-
-      if ((this.waiting = now < t)) {
-        this.wait_progress = 1 - (t - now) / 1000 / this.unit.delay
-        setTimeout(this.update_wait, 250)
-      }
-    }
   }
 }
 </script>
 
 <template lang="pug">
-tr.unit-view(:class="{disabled: disabled}")
-  td.project
-    router-link(v-if="project", :to="mach.get_url('/unit/' + unit.id)",
-      :title="unit_id") {{project}}
+tr.unit-view
+  UnitRow(:data="unit", :columns="$account.get_columns()", :finish="finish")
 
-  td.cpus {{unit.cpus}}
-  td.gpus {{gpus}}
-
-  td.status(:class="state.toLowerCase()", :title="status")
-    | #[.fa(:class="'fa-' + icon")] #[span.status-text {{status}}]
-
-  td.progress-cell(:title="'ETA ' + eta")
-    ProgressBar(:progress="progress")
-
-  td.ppd(title="Estimated Points Per Day") {{ppd}}
-  td.eta(title="Esitmated time to Work Unit completion") {{eta}}
-
-  td.actions: div
+  td.column-actions
     Button.button-icon(:disabled="!can_dump", @click="dump(unit.id)",
       icon="trash", title="Dump this Work Unit")
 
@@ -206,8 +68,9 @@ tr.unit-view(:class="{disabled: disabled}")
       :route="mach.get_url('/log?q=:WU' + unit.number + ':')",
       icon="list-alt", title="View Work Unit log")
 
-    Button.button-icon(:route="mach.get_url('/unit/' + unit.id)",
-      icon="info-circle", :disabled="!unit.wu", title="View Work Unit details")
+    Button.button-icon(:route="'/unit/' + unit.id",
+      icon="info-circle", :disabled="!unit.wu",
+      title="View Work Unit details")
 
     Button.button-icon(
       :route="mach.get_url('/view/' + unit.id)", icon="eye",
@@ -216,23 +79,8 @@ tr.unit-view(:class="{disabled: disabled}")
 
 <style lang="stylus">
 .unit-view
-  td
-    font-family mono
-    text-align right
-
-    &.status
-      text-align left
-
-  .status.run, .status.finish
-    .fa
-      color green
-
-  .status.pause .fa
-    color #e8cf01
-
-  .status.finish .fa
-    color orange
-
-  .progress-cell
-    width 100%
+  td.column-actions
+    display flex
+    gap 0.5em
+    justify-content end
 </style>

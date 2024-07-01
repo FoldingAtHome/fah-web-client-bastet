@@ -27,18 +27,20 @@
 \******************************************************************************/
 
 import bip39 from './bip39.js'
-import util  from './util.js'
 
 
-export default {
-  subtle: crypto.subtle,
+class Crypto {
+  constructor(ctx) {
+    this.util = ctx.$util
+    this.subtle = crypto.subtle
+  }
 
 
   get_random(bytes) {
     let rand = new Uint8Array(bytes)
     crypto.getRandomValues(rand)
-    return util.buf2str(rand)
-  },
+    return this.util.buf2str(rand)
+  }
 
 
   gen_passphrase() {
@@ -50,68 +52,76 @@ export default {
       words.push(bip39[x & 2047])
 
     return words.join(' ')
-  },
+  }
 
 
   async export(type, key) {
     let data = await this.subtle.exportKey(type, key)
-    return type == 'jwk' ? data : util.buf2str(data)
-  },
+    return type == 'jwk' ? data : this.util.buf2str(data)
+  }
 
 
   async import(type, data, config, usage, allowExport = true) {
     return this.subtle.importKey(
-      type, util.str2buf(data), config, allowExport, usage)
-  },
+      type, this.util.str2buf(data), config, allowExport, usage)
+  }
 
 
   async crypt(config, key, data, encrypt) {
-    return util.buf2str(await this.subtle[encrypt ? 'encrypt' : 'decrypt'](
-      config, key, util.str2buf(data)))
-  },
+    return this.util.buf2str(
+      await this.subtle[encrypt ? 'encrypt' : 'decrypt'](
+        config, key, this.util.str2buf(data)))
+  }
 
 
   async derive(config, material, keyConfig, usage) {
     return this.subtle.deriveKey(config, material, keyConfig, true, usage)
-  },
+  }
 
 
   async wrap(type, unwrapped, key, config) {
-    return util.buf2str(await this.subtle.wrapKey(type, unwrapped, key, config))
-  },
+    return this.util.buf2str(
+      await this.subtle.wrapKey(type, unwrapped, key, config))
+  }
 
 
   async unwrap(type, wrapped, key, config, unwrappedConfig, usage) {
     return this.subtle.unwrapKey(
-      type, util.str2buf(wrapped), key, config, unwrappedConfig, true, usage)
-  },
+      type, this.util.str2buf(wrapped), key, config, unwrappedConfig, true,
+      usage)
+  }
 
 
   async digest(algorithm, data) {
     let config = {name: algorithm}
-    return util.buf2str(await this.subtle.digest(config, util.str2buf(data)))
-  },
+    return this.util.buf2str(
+      await this.subtle.digest(config, this.util.str2buf(data)))
+  }
 
 
   async generate(config, usage) {
     return this.subtle.generateKey(config, true, usage)
-  },
+  }
 
 
   async sign(algorithm, key, data) {
-    return util.buf2str(
-      await this.subtle.sign(algorithm, key, util.str2buf(data)))
-  },
+    return this.util.buf2str(
+      await this.subtle.sign(algorithm, key, this.util.str2buf(data)))
+  }
 
 
   async verify(algorithm, key, signature, data) {
     return this.subtle.verify(
-      algorithm, key, util.str2buf(signature), util.str2buf(data))
-  },
+      algorithm, key, this.util.str2buf(signature), this.util.str2buf(data))
+  }
 
 
-  async sha256(data) {return this.digest('SHA-256', data)},
-  async sha256base64(data) {return util.urlbase64_encode(this.sha256(data))},
+  async sha256(data) {return this.digest('SHA-256', data)}
+
+
+  async sha256base64(data) {
+    return this.util.urlbase64_encode(this.sha256(data))
+  }
 
 
   async rsa_gen(algorithm = 'RSA-OAEP') {
@@ -123,30 +133,30 @@ export default {
     }
 
     return this.generate(config, ['encrypt', 'decrypt'])
-  },
+  }
 
 
-  async rsa_sign(key, data) {return this.sign('RSASSA-PKCS1-v1_5', key, data)},
+  async rsa_sign(key, data) {return this.sign('RSASSA-PKCS1-v1_5', key, data)}
 
 
   async rsa_verify(key, signature, data) {
     return this.verify('RSASSA-PKCS1-v1_5', key, signature, data)
-  },
+  }
 
 
   async rsa_decrypt(key, data) {
     return this.crypt({name: 'RSA-OAEP'}, key, data, false)
-  },
+  }
 
 
    async pubkey_id(key) {
     let jwk  = await this.export('jwk', key)
-    let hash = await this.sha256(util.base64_decode(jwk.n))
-    return util.urlbase64_encode(hash)
-  },
+    let hash = await this.sha256(this.util.base64_decode(jwk.n))
+    return this.util.urlbase64_encode(hash)
+  }
 
 
-  async spki_export(key) {return this.export('spki', key)},
+  async spki_export(key) {return this.export('spki', key)}
 
 
   async spki_import(data, algorithm = 'RSASSA-PKCS1-v1_5') {
@@ -159,10 +169,10 @@ export default {
     }
 
     return this.import('spki', data, config, [usage])
-  },
+  }
 
 
-  async pkcs8_export(key) {return this.export('pkcs8', key)},
+  async pkcs8_export(key) {return this.export('pkcs8', key)}
 
 
   async pkcs8_import(data, algorithm = 'RSASSA-PKCS1-v1_5') {
@@ -175,18 +185,18 @@ export default {
     }
 
     return this.import('pkcs8', data, config, [usage])
-  },
+  }
 
 
   async aes_import(key) {
     return this.import('raw', key, {name: 'AES-CBC'}, ['encrypt', 'decrypt'])
-  },
+  }
 
 
   async aes(key, iv, data, encrypt) {
-    let config = {name: 'AES-CBC', iv: util.str2buf(iv)}
+    let config = {name: 'AES-CBC', iv: this.util.str2buf(iv)}
     return this.crypt(config, key, data, encrypt)
-  },
+  }
 
 
   async pbkdf2_derive(passphrase, salt) {
@@ -196,30 +206,33 @@ export default {
     let config = {
       name: 'PBKDF2',
       hash: 'SHA-256',
-      salt: util.str2buf(salt),
+      salt: this.util.str2buf(salt),
       iterations: 100000
     }
     let keyConfig = {name: 'AES-CBC', length: 256}
     let usage = ['encrypt', 'decrypt', 'wrapKey', 'unwrapKey']
 
     return this.derive(config, material, keyConfig, usage)
-  },
+  }
 
 
   async pkcs8_wrap(key, unwrapped, iv) {
-    iv = util.str2buf(iv).slice(0, 16)
+    iv = this.util.str2buf(iv).slice(0, 16)
     return this.wrap('pkcs8', unwrapped, key, {name: 'AES-CBC', iv})
-  },
+  }
 
 
   async pkcs8_unwrap(key, wrapped, iv) {
-    iv = util.str2buf(iv).slice(0, 16)
+    iv = this.util.str2buf(iv).slice(0, 16)
 
     return this.unwrap(
       'pkcs8', wrapped, key, {name: 'AES-CBC', iv},
       {name: 'RSA-OAEP', hash: 'SHA-256'}, ['decrypt'])
-  },
+  }
 
 
-  async raw_export(key) {return this.export('raw', key)},
+  async raw_export(key) {return this.export('raw', key)}
 }
+
+
+export default Crypto

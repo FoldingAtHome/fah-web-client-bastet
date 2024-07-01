@@ -26,8 +26,6 @@
 
 \******************************************************************************/
 
-import util           from './util.js'
-import crypto         from './crypto.js'
 import MachConnection from './mach-connection.js'
 
 
@@ -69,13 +67,13 @@ class NodeMachConn extends MachConnection {
   async _send(msg) {
     console.debug('Sending:', msg)
 
-    let iv = crypto.get_random(16)
+    let iv = this.ctx.$crypto.get_random(16)
 
     let payload = JSON.stringify(msg)
-    payload = await crypto.aes(this.key, iv, payload, true)
-    payload = util.urlbase64_encode(payload)
+    payload = await this.ctx.$crypto.aes(this.key, iv, payload, true)
+    payload = this.ctx.$util.urlbase64_encode(payload)
 
-    iv = util.urlbase64_encode(iv)
+    iv = this.ctx.$util.urlbase64_encode(iv)
     this.ivs[iv] = true
 
     msg = {type: 'message', id: this.get_id(), iv, payload}
@@ -89,14 +87,14 @@ class NodeMachConn extends MachConnection {
     if (this.ivs[iv]) throw 'IV cannot be used more than once'
     if (1e6 < this.ivs.length) throw 'Too many IVs'
     this.ivs[iv] = true
-    iv = util.base64_decode(iv)
+    iv = this.ctx.$util.base64_decode(iv)
 
-    let payload = util.base64_decode(msg.payload)
-    payload = await crypto.aes(this.key, iv, payload, false)
+    let payload = this.ctx.$util.base64_decode(msg.payload)
+    payload = await this.ctx.$crypto.aes(this.key, iv, payload, false)
 
     // Decompress
     if (msg.compression)
-      payload = await util.decompress(payload, msg.compression)
+      payload = await this.ctx.$util.decompress(payload, msg.compression)
 
     payload = JSON.parse(payload)
 

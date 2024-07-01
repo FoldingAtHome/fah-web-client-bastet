@@ -48,6 +48,7 @@ export default {
 
   data() {
     return {
+      name:            this.mach.get_name(),
       initial_config:  undefined,
       config:          undefined,
       group:           '',
@@ -71,7 +72,9 @@ export default {
 
   computed: {
     have_account() {return this.$adata.created},
-
+    connected()    {return this.mach.is_connected()},
+    linked()       {return this.mach.is_linked()},
+    valid_name()   {return /^[\w\.-]{1,64}$/.test(this.name)},
 
     advanced() {
       if (this.unlocked) return true
@@ -101,9 +104,19 @@ export default {
     version() {return this.mach.get_version()},
 
 
-    modified() {
-      if (!this.config) return false
+    name_modified() {return this.name != this.mach.get_name()},
+
+
+    config_modified() {
       return !this.$util.isEqual(this.initial_config, this.config)
+    },
+
+
+    modified() {
+      if (!this.valid_name) return false
+      if (this.name_modified) return true
+      if (!this.config) return false
+      return this.config_modified
     },
 
 
@@ -143,6 +156,17 @@ export default {
 
 
   methods: {
+    async link() {
+      this.mach.set_name(this.name)
+      this.mach.link(this.$adata.token)
+    },
+
+
+    async unlink() {
+      await this.mach.unlink()
+      await this.$account.update()
+    },
+
     get_group_config(config) {
       let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key']
       let copy = copy_keys(config, keys)
@@ -199,7 +223,8 @@ export default {
 
 
     async save() {
-      await this.mach.configure(this.config)
+      if (this.name_modified)   await this.mach.save_name(this.name)
+      if (this.config_modified) await this.mach.configure(this.config)
       this.close()
     },
 
@@ -275,13 +300,34 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
       Button(:disabled="!modified", @click="save", success, text="Save",
         icon="save")
 
-  .view-body(v-if="config")
-    fieldset.settings.view-panel(v-if="!have_account")
-      legend Account Settings
+  .view-body
+    fieldset.settings.view-panel(v-if="have_account")
+      legend
+        HelpBalloon(name="Machine")
+          p You can rename the machine or unlink a machine you no longer use.
+          p.
+            Machine names can be from 1 to 64 charcters in length and may
+            include a-z, 0-9, dashes (-) and dots (.).
+          p.
+            If the local machine is linked to another account you can link it to 
+            this account by clicking on the #[.fa.fa-link] icon.
 
+      .setting
+        label Name
+        input(v-model="name", pattern="[\\w.\\-]{1,64}")
+
+        .setting-actions
+          Button.button-icon(v-if="linked", @click="unlink",
+            icon="unlink", title="Unlink machine from this account")
+
+          Button.button-icon(v-if="!linked", @click="link", icon="link",
+            :disabled="!valid_name", title="Link machine to this account")
+
+    fieldset.settings.view-panel(v-if="!have_account && config")
+      legend Account Settings
       CommonSettings(:config="config")
 
-    .view-pane
+    .view-pane(v-if="connected && config")
       fieldset.view-panel.resource-groups(v-if="advanced")
         legend Resource Groups
 
@@ -305,8 +351,8 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
           :gpus="gpus", :advanced="advanced", :version="version")
 
   .actions
-    Button.button-icon(v-if="!advanced", @click="unlock", icon="lock",
-      title="Unlock advanced settings")
+    Button.button-icon(v-if="!advanced && connected", @click="unlock", 
+      icon="lock", title="Unlock advanced settings")
 </template>
 
 <style lang="stylus">

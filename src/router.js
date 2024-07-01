@@ -31,6 +31,7 @@ import StatsView          from './StatsView.vue'
 import MachinesView       from './MachinesView.vue'
 import NewsView           from './NewsView.vue'
 import ProjectsView       from './ProjectsView.vue'
+import WUsView            from './WUsView.vue'
 import SettingsView       from './SettingsView.vue'
 import Visualization      from './Visualization.vue'
 import LogView            from './LogView.vue'
@@ -49,7 +50,9 @@ export default createRouter({
     {path: '/stats',               component: StatsView},
     {path: '/machines',            component: MachinesView},
     {path: '/projects',            component: ProjectsView},
+    {path: '/wus',                 component: WUsView},
     {path: '/news',                component: NewsView},
+    {path: '/unit/:unitID',        component: UnitDetailsView, props: true},
     {path: '/account',             component: AccountView, props: true},
     {path: '/verify/:token',       component: VerifyView,  props: true},
     {
@@ -64,7 +67,6 @@ export default createRouter({
         {path: '',                 redirect: '/'},
         {path: 'settings',         component: SettingsView},
         {path: 'details',          component: MachineDetailsView},
-        {path: 'unit/:unitID',     component: UnitDetailsView, props: true},
         {path: 'view/:unitID',     component: Visualization,   props: true},
         {
           path: 'log',

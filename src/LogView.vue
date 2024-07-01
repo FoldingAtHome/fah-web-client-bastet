@@ -37,26 +37,45 @@ export default {
       search: '',
       errors: false,
       warnings: false,
-      follow: true
+      follow: true,
+      line_height: 0,
+      view_height: 0,
+      scroll_percent: 0,
+      log_top: 0,
+      scroll_ratio: 0,
+      top_line: 0
     }
   },
 
 
   watch: {
-    'lines.length'() {
-      if (this.follow) this.$nextTick(this.scroll_to_end)
-    }
+    count()  {this.update()},
+    follow() {this.scroll_to_end()}
   },
 
 
   computed: {
-    lines() {
-      let data  = this.mach.get_data()
-      let lines = []
+    count() {return this.lines.length},
 
-      for (let line of (data.log || []))
-        if (!this.match_exp || line.match(this.match_exp))
-            lines.push(line)
+
+    visible_lines() {
+      let lines = this.lines.slice(this.start, this.end)
+      return lines.map(line => [line[0], this.$util.ansi2html(line[1])])
+    },
+
+
+    log() {
+      let log = this.mach.get_data().log || []
+      let count = 0
+      return log.map(line => [count++, line])
+    },
+
+
+    lines() {
+      let lines = this.log
+
+      if (this.match_exp)
+        lines = lines.filter(line => line[1].match(this.match_exp))
 
       return lines
     },
@@ -75,6 +94,27 @@ export default {
         return exp
 
       } catch (e) {console.log(e)}
+    },
+
+
+    start() {
+      let s = Math.min(Math.max(this.top_line - this.view_lines, 0), this.count)
+      console.log('start', s)
+      return s
+    },
+
+
+    end() {return Math.min(this.top_line + this.view_lines * 2, this.count)},
+    view_lines()     {return Math.floor(this.view_height / this.line_height)},
+    wrapper_height() {return Math.min(2000000, this.line_height * this.count)},
+
+
+    content_offset() {
+      if (this.end - this.start <= this.view_lines) return 0
+      let lineOffset = (this.top_line - this.start + 1)
+      let offset = this.log_top - lineOffset * this.line_height
+      let max = this.wrapper_height - (this.end - this.start) * this.line_height
+      return Math.min(Math.max(offset, 0), max)
     }
   },
 
@@ -82,7 +122,21 @@ export default {
   mounted()   {
     this.search = this.query
     this.mach.log_enable(true)
-    if (this.follow) this.scroll_to_end()
+
+    // Compute log height
+    let log = this.$refs.log
+    let style = window.getComputedStyle(log)
+    this.view_height = parseInt(style.getPropertyValue('height'))
+
+    // Compute line-height
+    let e = document.createElement('div')
+    e.classList.add('log-line')
+    e.innerHTML = 'X'
+    log.appendChild(e)
+    this.line_height = e.getBoundingClientRect().height
+    log.removeChild(e)
+
+    this.update()
   },
 
 
@@ -96,9 +150,60 @@ export default {
     },
 
 
+    update() {
+      this.$nextTick(() => {
+        this.scroll_to_end()
+        this.update_scroll()
+      })
+    },
+
+
     scroll_to_end() {
-      if (this.$refs.log)
-        this.$refs.log.scrollTop = this.$refs.log.scrollHeight
+      if (!this.follow) return
+      let log = this.$refs.log
+      log.scrollTop = log.scrollHeight
+      this.update_scroll()
+    },
+
+
+    update_scroll() {
+      let log  = this.$refs.log
+      let wrap = this.$refs.wrap
+      if (!log || !wrap) return this.log_top = this.top_line = 0
+
+      let height   = wrap.getBoundingClientRect().height
+      this.log_top = log.scrollTop
+
+      this.scroll_ratio = Math.max(0,
+        Math.min(this.log_top / (height - this.view_height), 1))
+
+      let top = Math.floor((this.count - this.view_lines) * this.scroll_ratio)
+      this.top_line = Math.min(Math.max(top, 0), this.count)
+
+      this.follow = 1.0 == this.scroll_ratio
+    },
+
+
+    scroll() {
+      let percent = Math.floor(100 * this.scroll_ratio)
+
+      // Compute scroll percent for display
+      if (this.scroll_percent != percent &&
+        !(this.scroll_percent == 0 && percent == 100)) {
+        this.scroll_percent = percent
+
+        clearTimeout(this.fade_timer)
+        this.$refs.percent.classList.remove('fade-out')
+        this.fade_timer = setTimeout(() => {
+          this.$refs.percent.classList.add('fade-out')
+        }, 100)
+      }
+
+      if (this.timer == undefined)
+        this.timer = setTimeout(() => {
+          this.timer = undefined
+          this.update_scroll()
+        }, 250)
     }
   }
 }
@@ -109,7 +214,7 @@ export default {
   ViewHeader(title="Machine Log", :subtitle="mach.get_name()")
 
   .view-body
-    .log-controls.view-panel
+    .view-panel.log-controls
       label Search
       input(v-model="search", type="text")
       label(title="Filter log for error messages").
@@ -117,12 +222,18 @@ export default {
       label(title="Filter log for warning messages").
         #[input(v-model="warnings", type="checkbox")] Warnings
       Button(text="Reset", icon="repeat", @click="reset")
-      label(title="Automatically scroll to the bottom of the log").
-        #[input(v-model="follow", type="checkbox")] Follow
 
-    .log.view-panel(v-if="!lines.length") No matching log lines
-    .log.view-panel(v-else ref="log")
-      .log-line(v-for="line in lines" v-html="$util.ansi2html(line)")
+    .log-percent.fade-out(ref="percent")
+      div {{scroll_percent}}%
+
+    .view-panel.log(@scroll="scroll", ref="log")
+      .log-line(v-if="!log.length") Loading log...
+      .log-line(v-else-if="!count") No matching log lines.
+
+      .log-wrapper(v-else, ref="wrap",
+        :style="{height: wrapper_height + 'px'}")
+        .log-content(:style="{'padding-top': content_offset + 'px'}")
+          .log-line(v-for="line in visible_lines", v-html="line[1]")
 </template>
 
 <style lang="stylus">
@@ -136,6 +247,12 @@ export default {
     flex 1
     gap 1em
     overflow hidden
+    position relative
+    font-family var(--mono-font)
+
+    .view-panel
+      color var(--log-fg)
+      background var(--log-bg)
 
     .log-controls
       display flex
@@ -147,14 +264,33 @@ export default {
       input[type=text]
         flex 1
 
-    .log
+    .log-percent
+      position absolute
+      left 10%
+      top 45%
+      width 80%
+      margin auto
+      text-align center
+      font-size 32pt
+      opacity 1
+      pointer-events none
+      color var(--panel-fg)
+
+      &.fade-out
+        opacity 0
+        transition opacity 1s linear
+
+    .log.view-panel
       flex 1
-      color var(--log-fg)
-      background var(--log-bg)
+      overflow auto
       padding 1em
-      overflow scroll
-      font-family courier
 
       .log-line
         white-space nowrap
+
+@keyframes fadeOut
+	0%
+		opacity 1
+	100%
+		opacity 0
 </style>

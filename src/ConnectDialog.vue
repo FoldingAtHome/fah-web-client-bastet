@@ -28,56 +28,33 @@
 
 <script>
 export default {
-  props: ['mach'],
-
-
   data() {
     return {
-      name: this.mach.get_name()
+      address: this.$direct.address,
+      buttons: [
+        {name: 'connect', icon: 'check', success: true}
+      ]
     }
-  },
-
-
-  computed: {
-    linked()   {return this.mach.is_linked()},
-    valid()    {return /^[\w\.-]{1,64}$/.test(this.name)},
-    modified() {return this.name != this.mach.get_name()},
   },
 
 
   methods: {
-    async save() {return this.mach.save_name(this.name)},
-
-
-    async link() {
-      this.mach.set_name(this.name)
-      this.mach.link(this.$adata.token)
-    },
-
-
-    async unlink() {
-      await this.mach.unlink()
-      await this.$account.update()
-    }
+    exec() {return this.$refs.dialog.exec()}
   }
 }
 </script>
 
 <template lang="pug">
-.setting
-  label(:title="'F@H ID ' + mach.get_id()") Name
-  input(v-model="name", pattern="[\\w.\\-]{1,64}")
-
-  .setting-actions
-    Button.button-icon(v-if="linked", @click="save", icon="save",
-      :disabled="!valid || !modified", title="Save machine name")
-
-    Button.button-icon(v-if="linked", @click="unlink",
-      icon="unlink", title="Unlink machine from this account")
-
-    Button.button-icon(v-if="!linked", @click="link", icon="link",
-      :disabled="!valid", title="Link machine to this account")
+Dialog.connect-dialog(:buttons="buttons", ref="dialog")
+  template(v-slot:header) Connect directly to a client
+  template(v-slot:body)
+    label Address
+    input(v-model="address")
 </template>
 
 <style lang="stylus">
+.connect-dialog
+  .dialog-body
+    display flex
+    gap 0.5em
 </style>

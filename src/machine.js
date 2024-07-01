@@ -27,7 +27,9 @@
 \******************************************************************************/
 
 import {reactive} from 'vue'
-import util from './util.js'
+
+
+function is_object(o) {return o != null && typeof o === 'object'}
 
 
 function clean_key(key) {
@@ -46,7 +48,7 @@ function clean_keys(data) {
     return r
   }
 
-  if (util.isObject(data)) {
+  if (is_object(data)) {
     let r = {}
 
     for (const [key, value] of Object.entries(data))
@@ -86,19 +88,20 @@ function update_obj(obj, update) {
 
 class Machine {
   constructor(id, ctx) {
-    this.id    = id
-    this.api   = ctx.$api
+    this.ctx   = ctx
     this.aid   = ctx.$account.data.id
-    this.cache = this.api.cache
+    this.cache = ctx.$cache
+    this.util  = ctx.$util
     this.name  = id
     this.state = reactive({
+      id,
       connected: false,
-      data:      {info: {}, groups: {}}
+      data:      {}
     })
   }
 
 
-  get_id()      {return this.id}
+  get_id()      {return this.state.id}
   get_name()    {return this.name}
   get_data()    {return this.state.data}
   get_viz(unit) {return (this.get_data().viz || {})[clean_key(unit)] || {}}
@@ -106,15 +109,12 @@ class Machine {
   get_info()    {return this.get_data().info || {}}
   get_version() {return this.get_info().version}
   get_groups()  {return Object.keys(this.get_data().groups || {'': null})}
+  get_group(name = '') {return this.get_groups()[name] || {}}
 
 
-  get_group(name = '') {
-    let data = this.get_data()
-
-    if (data.groups && name in data.groups)
-      return data.groups[name]
-
-    return {}
+  get_title() {
+    if (this.is_direct()) return 'Direct client at ' + this.conn.address
+    return 'F@H ID ' + this.get_id()
   }
 
 
@@ -136,22 +136,28 @@ class Machine {
     let s = l.length ? l.join(', ') : 'No resources'
 
     if (max_length && max_length < s.length)
-      return s.substr(0, max_length - 3) + '...'
+      return s.substring(0, max_length - 3) + '...'
 
     return s
   }
 
 
-  get_conn()     {return this.conn}
+  get_conn() {return this.conn}
   set_conn(conn) {this.conn = conn}
-
-
   is_direct() {return this.get_conn() && this.get_conn().is_direct()}
 
 
   *[Symbol.iterator]() {
     for (let unit of (this.get_data().units || []))
       yield unit
+  }
+
+
+  is_hidden() {
+    if (this.is_direct())
+      return !this.is_connected() && !this.ctx.$util.get_direct_address()
+
+    return this.get_id() == this.ctx.$machs.get_direct_id()
   }
 
 
@@ -172,13 +178,13 @@ class Machine {
 
   save_name(name) {
     this.name = name
-    this.api.put('/account/machines/' + this.id, {name})
+    this.ctx.$api.put('/account/machines/' + this.get_id(), {name})
   }
 
 
   is_outdated(latest) {
     const current = this.get_version()
-    return current && util.version_less(current, latest)
+    return current && this.util.version_less(current, latest)
   }
 
 
@@ -249,7 +255,7 @@ class Machine {
 
 
   async unlink() {
-    await this.api.delete('/account/machines/' + this.id)
+    await this.ctx.$api.delete('/account/machines/' + this.get_id())
     if (this.is_connected()) this.send_command('restart')
   }
 
@@ -266,6 +272,13 @@ class Machine {
     console.debug(this.get_name() + ': log ' + (enable ? 'enabled' : 'disabled'))
     this.logEnabled = enable
     this._send_log_enable()
+  }
+
+
+  wus_enable(enable) {
+    if (this.wusEnabled == enable) return
+    this.wusEnabled = enable
+    this._send_wus_enable()
   }
 
 
@@ -290,6 +303,10 @@ class Machine {
 
       if (this.vizUnit)    this._send_viz_enable()
       if (this.logEnabled) this._send_log_enable()
+      if (this.wusEnabled) this._send_wus_enable()
+
+      for (let unit of msg.units)
+        this.ctx.$machs.units[unit.id] = unit
 
     } else if (Array.isArray(msg)) {
       update_obj(this.state.data, msg)
@@ -300,9 +317,30 @@ class Machine {
         await this.cache.set(key, value)
       }
 
+      if (msg.length && msg[0] == 'wus' || msg[0] == 'units') {
+        let units = []
+        if (Array.isArray(msg[1])) units = msg[1]
+        if (Number.isInteger(msg[1])) {
+          if (msg[1] == -1) units = [msg[2]]
+          if (msg[1] == -2) units = msg[2]
+        }
+
+        for (let unit of units)
+          if (unit.id) this.ctx.$machs.units[unit.id] = unit
+
+        if (msg[2] == 'id') {
+          let unit = this.state.data.units[msg[1]]
+          this.ctx.$machs.units[unit.id] = unit
+        }
+      }
+
       // Trim log
       let log = this.state.data.log || []
-      if (1e4 < log.length) log.splice(0, log.length - 1e4)
+      const maxLog = 1e5
+      if (maxLog < log.length) {
+        log.splice(0, log.length - maxLog)
+        log.splice(0, log.length / 3) // Drop a 3rd so the log stops shifting
+      }
     }
 
     this.first = false
@@ -340,8 +378,9 @@ class Machine {
 
 
   dup_state(mach) {
-    this.log_enable(mach.logEnabled)
     this.visualize_unit(mach.vizUnit)
+    this.log_enable(mach.logEnabled)
+    this.wus_enable(mach.wusEnabled)
   }
 
 
@@ -356,6 +395,11 @@ class Machine {
   _send_log_enable() {
     if (this.is_connected()) this.send_command('log', {enable: this.logEnabled})
   }
+
+  _send_wus_enable() {
+    if (this.is_connected()) this.send_command('wus', {enable: this.wusEnabled})
+  }
+
 }
 
 export default Machine

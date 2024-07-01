@@ -27,8 +27,18 @@
 -->
 
 <script>
-import AccountMach    from './AccountMach.vue'
 import CommonSettings from './CommonSettings.vue'
+
+let themes = 'Light Dark'.split(' ')
+
+
+function copy_config(config = {}) {
+  return {
+    theme: config.theme || 'light',
+    columns: (config.columns || []).concat([]),
+    wide: !!config.wide,
+  }
+}
 
 
 function copy_account(data) {
@@ -40,19 +50,20 @@ function copy_account(data) {
     passkey: data.passkey || undefined,
     cause,
     avatar:  data.avatar  || undefined,
-    node:    data.node    || undefined
+    node:    data.node    || undefined,
+    config:  copy_config(data.config),
   }
 }
 
 
 export default {
   inheritAttrs: false,
-  components: {AccountMach, CommonSettings},
+  components: {CommonSettings},
 
 
   data() {
     return {
-      account_new: {},
+      account_new: {config: {}},
       confirmed:   false,
       show:        {},
 
@@ -66,11 +77,28 @@ export default {
 
 
   watch: {
-    '$adata'() {if (this.$adata) this.init()}
+    '$adata'() {if (this.$adata) this.init()},
+    'account_new.config.theme'(theme) {this.$root.set_theme(theme)},
+    'account_new.config.wide'(wide)   {this.$root.set_wide(wide)},
   },
 
 
   computed: {
+    small()   {return document.body.clientWidth <= 800},
+    themes()  {return themes},
+    columns() {return this.account_new.config.columns || []},
+
+
+    unused_cols() {
+      let used = this.columns
+      let l = []
+
+      for (let col of this.$account.get_all_columns())
+        if (used.indexOf(col) == -1) l.push(col)
+
+      return l
+    },
+
     modified() {
       return !this.$util.isEqual(copy_account(this.account_new),
                                  copy_account(this.$adata))
@@ -106,6 +134,7 @@ export default {
 
       case 'discard':
         this.confirmed = true
+        this.$root.check_appearance()
         this.$router.push(to)
       }
     },
@@ -131,6 +160,7 @@ export default {
 
     close() {
       this.confirmed = true
+      this.$root.check_appearance()
       this.$router.back()
     },
 
@@ -155,6 +185,10 @@ export default {
           await this.$account.delete()
           this.close()
         })
+    },
+
+    reset_columns() {
+      this.account_new.config.columns = this.$account.get_default_columns()
     }
   }
 }
@@ -225,28 +259,42 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
           Button.button-icon(icon="copy", @click="copy_token",
             title="Copy account token to clipboard")
 
-
     fieldset.settings.view-panel
       legend
-        HelpBalloon(name="Machines")
-          p The machines linked to your account will display here.
-          p You can rename your machines or unlink machines you no longer use.
-          p.
-            Machine names can be from 1 to 64 charcters in length and may
-            include a-z, 0-9, dashes (-) and dots (.).
-          p.
-            If the local machine is linked to another account it will show up
-            here.  You can link it to this account by clicking on the
-            #[.fa.fa-link] icon.
+          HelpBalloon(name="Appearance"): p.
+            These settings change Web Control's appearance.  Note, some
+            settings are only available on wide screens.
 
-      AccountMach(v-for="mach in $machs", :key="mach.get_id()", :mach="mach")
+      .setting.theme-setting
+        HelpBalloon(name="Theme"): p.
+          Defines Web Control's visual theme.
 
-    .actions
+        select(v-model="account_new.config.theme")
+          option(v-for="theme in themes", :value="theme") {{theme}}
+
+      .setting.wide-setting(v-if="!small")
+        HelpBalloon(name="Wide Display"): p Use full screen width.
+        input(v-model="account_new.config.wide", type="checkbox")
+
+      .columns-setting(v-if="!small")
+        HelpBalloon(name="Work Unit Columns"): p.
+          Drag and drop columns to change their position and visibility.
+          Note, only the default columns are displayed on small screens.
+
+        .drag-zones
+          .drag-zone
+            Button.button-icon(icon="refresh", @click="reset_columns",
+              title="Reset columns to default")
+            DragList(:list="columns")
+          .drag-zone(title="Move disabled columns here")
+            .fa.fa-trash
+            DragList(:list="unused_cols", :removable="false")
+
+  .actions
       Button(@click="logout", text="Logout", icon="sign-out")
 
       Button.button-caution(@click="confirm_delete", text="Delete Account",
         icon="trash", title="Permanently delete this account")
-
 </template>
 
 <style lang="stylus">
@@ -260,4 +308,32 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
   .actions
     display flex
     gap 1em
+
+  .theme-setting option
+    text-transform capitalize
+
+  .columns-setting
+    width 100%
+
+    label
+      font-size 105%
+      color var(--subtitle-color)
+
+    .drag-zones
+      display flex
+      gap 1em
+      flex-direction column
+      margin 0.5em 0
+
+      .drag-zone
+        display flex
+        gap 0.5em
+        align-items center
+
+        .fa
+          font-size 20pt
+          width 1em
+
+        .drag-list
+          flex 1
 </style>

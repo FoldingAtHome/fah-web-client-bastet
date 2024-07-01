@@ -28,30 +28,66 @@
 
 <script>
 export default {
-  computed: {projects() {return this.$projects.get()}}
+  name: 'PopupMenu',
+  props: {title: {}},
+  data() {return {show: false}},
+
+  methods: {
+    close() {setTimeout(() => {this.show = false}, 250)}
+  }
 }
 </script>
 
 <template lang="pug">
-.projects-view.page-view
-  MainHeader
+Teleport(to="body")
+  .popup-overlay(v-if="show", @click="show = false")
 
-  .view-body
-    h2(v-if="$projects.is_loading() && !this.projects.length") Loading...
-
-    template(v-else-if="!projects.length")
-      p No active projects.
-      p While you are folding active projects will display here.
-
-    ProjectView(v-for="project in projects", :project="project")
+.popup-menu(@click="show = true", :title="title")
+  Button.button-icon(icon="bars")
+  .popup-content(@mouseup="close")
+    slot(v-if="show")
 </template>
 
 <style lang="stylus">
-.projects-view .view-body
-  display flex
-  flex-direction column
-  gap 1em
+.popup-overlay
+  position fixed
+  top 0
+  left 0
+  width 100vw
+  height 100vh
+  background-color rgba(64, 64, 64, 0.2)
 
-  .project
-    width 100%
+.popup-menu
+  position relative
+  justify-content end
+
+  .popup-content
+    top 0
+    right 0
+    position absolute
+    display flex
+    flex-direction column
+    background-color var(--popup-bg)
+    border var(--popup-border)
+    border-bottom none
+    border-radius var(--border-radius)
+    opacity 1
+    z-index 100
+    justify-content start
+    overflow hidden
+
+    > *, > .button
+      justify-content left
+      margin 0
+      padding 0.5em
+      border-bottom var(--popup-border)
+      border-radius 0
+      height 2em
+
+      &:hover
+        background-color rgba(255, 255, 255, 0.1)
+
+      .fa
+        width 1em
+        text-align center
 </style>

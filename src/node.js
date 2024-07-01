@@ -27,8 +27,6 @@
 \******************************************************************************/
 
 import Sock         from './sock.js'
-import util         from './util.js'
-import crypto       from './crypto.js'
 import NodeMachConn from './node-mach-conn.js'
 import {reactive, watchEffect} from 'vue'
 
@@ -38,6 +36,8 @@ class Node extends Sock {
   constructor(ctx, ...args) {
     super(undefined, ...args)
     this.ctx    = ctx
+    this.util   = ctx.$util
+    this.crypto = ctx.$crypto
     this.state  = reactive({})
 
     watchEffect(() => this.login())
@@ -49,15 +49,16 @@ class Node extends Sock {
 
   async _mach_add(msg) {
     // Load mach public key
-    let pubkey = await crypto.spki_import(util.base64_decode(msg.pubkey))
+    let pubkey =
+      await this.crypto.spki_import(this.util.base64_decode(msg.pubkey))
 
     // Compute mach ID from public key
-    let id = await crypto.pubkey_id(pubkey)
+    let id = await this.crypto.pubkey_id(pubkey)
 
     // Verify signature
-    let signature = util.base64_decode(msg.signature)
+    let signature = this.util.base64_decode(msg.signature)
     let data      = JSON.stringify(msg.payload)
-    let result    = await crypto.rsa_verify(pubkey, signature, data)
+    let result    = await this.crypto.rsa_verify(pubkey, signature, data)
     if (!result) throw 'Invalid machine signature'
 
     // Check that message is for this account
@@ -66,9 +67,9 @@ class Node extends Sock {
              ' is not for this account ' + this.id)
 
     // Decrypt cipher key
-    let key = util.base64_decode(msg.payload.key)
-    key = await crypto.rsa_decrypt(this.deckey, key)
-    key = await crypto.aes_import(key)
+    let key = this.util.base64_decode(msg.payload.key)
+    key = await this.crypto.rsa_decrypt(this.deckey, key)
+    key = await this.crypto.aes_import(key)
 
     let mach = this.ctx.$machs.get(id)
 
@@ -78,7 +79,7 @@ class Node extends Sock {
       mach = this.ctx.$machs.get(id)
     }
 
-    if (mach && !mach.is_direct()) {
+    if (mach) {
       console.log('Adding node machine connection', id)
       let conn = new NodeMachConn(this.ctx, mach, key)
       mach.set_conn(conn)
@@ -108,9 +109,9 @@ class Node extends Sock {
   async on_broadcast(msg) {
     // Check signature
     let apub      = this.ctx.$adata.pubkey
-    let pubkey    = await crypto.spki_import(util.base64_decode(apub))
-    let signature = util.base64_decode(msg.signature)
-    await crypto.rsa_verify(pubkey, signature, JSON.stringify(msg.payload))
+    let pubkey    = await this.crypto.spki_import(this.util.base64_decode(apub))
+    let signature = this.util.base64_decode(msg.signature)
+    await this.crypto.rsa_verify(pubkey, signature, JSON.stringify(msg.payload))
 
     console.debug('broadcast:', msg.payload)
 
@@ -160,20 +161,21 @@ class Node extends Sock {
     setTimeout(() => this.state.loading = false, 8000)
 
     // Compute account ID
-    let apub = util.base64_decode(this.ctx.$adata.pubkey)
-    apub     = await crypto.spki_import(apub)
-    this.id  = await crypto.pubkey_id(apub)
+    let apub = this.util.base64_decode(this.ctx.$adata.pubkey)
+    apub     = await this.crypto.spki_import(apub)
+    this.id  = await this.crypto.pubkey_id(apub)
 
     // Send login message
-    this.sid    = util.urlbase64_encode(crypto.get_random(12))
+    this.sid    = this.util.urlbase64_encode(this.crypto.get_random(12))
     let payload = {time: new Date().toISOString(), session: this.sid}
-    let signature = await crypto.rsa_sign(this.sigkey, JSON.stringify(payload))
+    let signature =
+      await this.crypto.rsa_sign(this.sigkey, JSON.stringify(payload))
 
     let msg = {
       type: 'login',
       payload,
       pubkey: this.ctx.$adata.pubkey,
-      signature: util.urlbase64_encode(signature),
+      signature: this.util.urlbase64_encode(signature),
     }
 
     this.send(msg)
@@ -189,8 +191,8 @@ class Node extends Sock {
 
     // Import private key for decryption and signing
     let secret  = this.ctx.$account.secret
-    this.deckey = await crypto.pkcs8_import(secret, 'RSA-OAEP')
-    this.sigkey = await crypto.pkcs8_import(secret, 'RSASSA-PKCS1-v1_5')
+    this.deckey = await this.crypto.pkcs8_import(secret, 'RSA-OAEP')
+    this.sigkey = await this.crypto.pkcs8_import(secret, 'RSASSA-PKCS1-v1_5')
 
     this.set_url('wss://' + this.ctx.$adata.node + '/ws/account')
     this.connect()
@@ -215,8 +217,9 @@ class Node extends Sock {
     if (!this.state.active) return
 
     let payload   = Object.assign({cmd, time: new Date().toISOString()}, data)
-    let signature = await crypto.rsa_sign(this.sigkey, JSON.stringify(payload))
-    signature     = util.urlbase64_encode(signature)
+    let signature =
+      await this.crypto.rsa_sign(this.sigkey, JSON.stringify(payload))
+    signature     = this.util.urlbase64_encode(signature)
 
     console.debug('Broadcasting:', payload)
     this.send({type: 'broadcast', payload, signature})

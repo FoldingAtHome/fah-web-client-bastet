@@ -28,6 +28,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap')
 
+body
+  --mono-font courier
+
 @import('dark.styl')
 @import('light.styl')
 
@@ -69,7 +72,7 @@ tt
   color var(--code-fg)
   background-color var(--code-bg)
   padding 0 0.25em
-  font-family mono
+  font-family var(--mono-font)
 
 input
   line-height 1.5em
@@ -103,8 +106,10 @@ body
     flex-direction column
     align-items center
 
-.page-view
+body:not(.wide-view) .page-view
   max-width 60em
+
+.page-view
   width calc(100% - 4px)
   display flex
   flex-direction column
@@ -205,6 +210,7 @@ fieldset
     p
       text-align center
       margin 0.5em
+
 
 @media (max-width 800px)
   body

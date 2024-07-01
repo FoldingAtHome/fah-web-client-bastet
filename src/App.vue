@@ -27,44 +27,79 @@
 -->
 
 <script>
-import util             from './util.js'
 import Pacify           from './Pacify.vue'
 import PauseDialog      from './PauseDialog.vue'
 import NewAccountDialog from './NewAccountDialog.vue'
 import MessageDialog    from './MessageDialog.vue'
 import LoginDialog      from './LoginDialog.vue'
+import ConnectDialog    from './ConnectDialog.vue'
+import {watchEffect}    from 'vue'
 
 
 export default {
   components: {
-    Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog},
-
-
-  data() {
-    return {
-      dark_mode: util.retrieve_bool('fah-dark-mode', 0)
-    }
-  },
-
-
-  watch: {
-    dark_mode(enabled) {
-      if (enabled) document.body.classList.add('dark')
-      else document.body.classList.remove('dark')
-
-      util.store_bool('fah-dark-mode', enabled)
-    }
+    Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog,
+    ConnectDialog,
   },
 
 
   mounted() {
-    if (this.dark_mode) document.body.classList.add('dark')
+    window.addEventListener('keyup', this.on_key_up)
+    watchEffect(() => this.check_appearance())
     this.$api.set_error_handler(this.error_handler)
     this.check_account()
   },
 
 
   methods: {
+    async on_key_up(e) {
+      if (!e.ctrlKey || e.key != 'c') return
+
+      let dialog = this.$refs.connect_dialog
+      let response = await dialog.exec()
+      if (response == 'connect') {
+        this.$util.set_direct_address(dialog.address)
+        this.$direct.set_address(dialog.address)
+      }
+    },
+
+
+    set_wide(wide) {
+      if (wide) document.body.classList.add('wide-view')
+      else document.body.classList.remove('wide-view')
+    },
+
+
+    check_wide() {this.set_wide((this.$adata.config || {}).wide)},
+
+
+    set_theme(theme) {
+      theme = theme.toLowerCase()
+
+      // Remove old theme classes
+      let cl = document.body.classList
+      for (let name of cl)
+        if (name.startsWith('theme-')) cl.remove(name)
+
+      // Add new theme class
+      cl.add('theme-' + theme)
+    },
+
+
+    check_theme() {
+      let theme = this.$util.retrieve('fah-theme')
+      theme = (this.$adata.config || {}).theme || theme || 'Light'
+      this.$util.store('fah-theme', theme)
+      this.set_theme(theme)
+    },
+
+
+    check_appearance() {
+      this.check_theme()
+      this.check_wide()
+    },
+
+
     async message(type, title, body, buttons) {
       return this.$refs.message_dialog.exec(type, title, body, buttons)
     },
@@ -98,7 +133,7 @@ export default {
 
 
     async login() {
-      const {user, team, passkey} = this.$machs.get_local_config()
+      const {user, team, passkey} = this.$machs.get_direct_config()
       const config = {user: user || '', team: team || 0, passkey: passkey || ''}
 
       let result = await this.$refs.login_dialog.exec(config)
@@ -171,6 +206,7 @@ PauseDialog(ref="pause_dialog")
 NewAccountDialog(ref="new_account_dialog")
 MessageDialog(ref="message_dialog")
 LoginDialog(ref="login_dialog")
+ConnectDialog(ref="connect_dialog")
 </template>
 
 <style lang="stylus">

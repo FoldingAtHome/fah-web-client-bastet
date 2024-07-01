@@ -66,7 +66,7 @@ export default {
     },
 
 
-    async fold(group) {return this.mach.set_state('fold', group)}
+    async fold(group) {return this.mach.set_state('fold', group)},
   }
 }
 </script>
@@ -76,7 +76,8 @@ export default {
   :class="{connected: connected, disconnected: !connected}",
   :title="connected ? undefined : 'Disconnected'")
   .machine-header
-    .machine-name.header-title(:title="'F@H ID ' + mach.get_id()")
+    .machine-name.header-title(:title="mach.get_title()")
+      .fa.fa-dot-circle-o(v-if="mach.is_direct()")
       | {{mach.get_name()}}
 
     ClientVersion(:mach="mach")
@@ -95,56 +96,53 @@ export default {
 
     .machine-actions(v-if="!outdated")
       Button.button-icon(:route="mach.get_url('/settings')",
-        title="Edit machine settings", icon="cog", :disabled="!connected")
+        title="Edit machine settings", icon="cog", :disabled="!mach.get_id()")
 
       Button.button-icon(:route="mach.get_url('/log')",
         title="View machine log", icon="list-alt", :disabled="!connected")
 
-      Button.button-icon(:route="mach.get_url('/details')", icon="info-circle",
-        :disabled="!version", title="View Machine details")
+      Button.button-icon(:route="mach.get_url('/details')",
+        icon="info-circle", :disabled="!version",
+        title="View Machine details")
 
       template(v-if="one_group")
         Button.button-icon(v-if="mach.is_paused()", @click="fold()",
           icon="play", title="Start folding on this machine",
-          :disabled="!connected")
+            :disabled="!connected")
 
         Button.button-icon(v-else, @click="pause()", icon="pause",
-        title="Pause folding on this machine", :disabled="!connected")
+          title="Pause folding on this machine",
+          :disabled="!connected")
 
-  table.machine-units.view-table(
-    v-if="(units.length || !one_group) && !outdated")
-    tr
-      th.project Project
-      th.cpus CPUs
-      th.gpus GPUs
-      th.status Status
-      th.progress Progress
-      th.ppd PPD
-      th.eta ETA
-      th.actions Actions
+  .machine-units(v-if="connected && !outdated")
+    table.view-table
+      tr
+        th(v-for="col in $account.get_columns()",
+          :class="'column-' + col.toLowerCase()") {{col}}
+        th.column-actions Actions
 
-    template(v-for="group in groups")
-      tr(v-if="!one_group")
-        td(colspan="99")
-          .machine-group-header
-            .group-header
-              .group-name(v-if="group") Group {{group}}
-              .group-name(v-else) Default Group
-              .group-resources.header-subtitle(
-                :title="mach.get_resources(group)")
-                | {{mach.get_resources(group, 50)}}
+      template(v-for="group in groups")
+        tr(v-if="!one_group")
+          td(colspan="99")
+            .machine-group-header
+              .group-header
+                .group-name(v-if="group") Group {{group}}
+                .group-name(v-else) Default Group
+                .group-resources.header-subtitle(
+                  :title="mach.get_resources(group)")
+                  | {{mach.get_resources(group, 50)}}
 
-            .machine-actions
-              Button.button-icon(v-if="mach.is_paused(group)", icon="play",
-                @click="fold(group)", :disabled="!connected",
-                title="Start folding in this group")
+              .machine-group-actions
+                Button.button-icon(v-if="mach.is_paused(group)", icon="play",
+                  @click="fold(group)", :disabled="!connected",
+                  title="Start folding in this group")
 
-              Button.button-icon(v-else, @click="pause(group)", icon="pause",
-                title="Pause folding in this group", :disabled="!connected")
+                Button.button-icon(v-else, @click="pause(group)", icon="pause",
+                  title="Pause folding in this group", :disabled="!connected")
 
-      template(v-for="unit in units")
-        UnitView(v-if="unit.group == group || one_group", :unit="unit",
-          :mach="mach")
+        template(v-for="unit in units", :key="unit.number")
+          UnitView(v-if="unit.group == group || one_group", :unit="unit",
+            :mach="mach")
 </template>
 
 <style lang="stylus">
@@ -154,7 +152,7 @@ export default {
   gap 0.5em
 
   &.disconnected
-    filter contrast(0.6) brightness(0.4)
+    filter contrast(0.6) brightness(0.5)
 
   .machine-header, .machine-group-header
     display flex
@@ -163,6 +161,10 @@ export default {
     align-items baseline
     width 100%
     white-space normal
+
+  .machine-name .fa
+    margin 0.5em
+    font-size 70%
 
   .machine-status
     font-weight bold
@@ -173,17 +175,33 @@ export default {
     flex-direction row
     gap 1em
 
-  .machine-actions
+  .machine-units
+    width 100%
+    overflow-x auto
+
+    > .view-table
+      width 100%
+
+      .column-progress
+        width 100%
+
+      .column-actions
+        text-align right
+
+  .machine-actions, .machine-group-actions
     flex 1
     display flex
-    gap 0.5em
     flex-direction row
     justify-content end
+    gap 0.5em
+
+  .machine-actions
+    margin-right 8px
 
 @media (max-width 800px)
   .machine-view
     .machine-units
       td, th
-        &.eta, &.cpus, &.gpus, &.ppd, .status-text
+        .status-text
           display none
 </style>

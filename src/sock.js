@@ -34,12 +34,6 @@ class Sock {
   }
 
 
-  destroy() {
-    this.connect = () => {}
-    if (this.ws) this.ws.close()
-  }
-
-
   set_url(url) {this.url = url}
   set_timeout(timeout) {this.timeout = timeout}
 
@@ -50,10 +44,7 @@ class Sock {
   on_error(event) {}
 
 
-  _clear_timeout() {
-    if (this.timer != undefined) clearTimeout(this.timer)
-    this.timer = undefined
-  }
+  _clear_timeout() {clearTimeout(this.timer)}
 
 
   _open(event) {
@@ -78,7 +69,7 @@ class Sock {
 
   close() {
     if (this.ws) this.ws.close()
-    clearTimeout(this.timer)
+    this._clear_timeout()
   }
 
 

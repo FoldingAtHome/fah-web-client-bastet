@@ -84,8 +84,8 @@ class Stats {
     // Use account settings
     if (this.adata.created) return this.adata
 
-    // Otherwise use local machine settings
-    return this.machs.get_local_config()
+    // Otherwise use direct machine settings
+    return this.machs.get_direct_config()
   }
 
 

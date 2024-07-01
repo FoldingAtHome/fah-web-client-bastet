@@ -27,31 +27,76 @@
 -->
 
 <script>
+import UnitRow from './UnitRow.vue'
+
+
+function cmp_wus(a, b) {
+  return new Date(b.assignment.time).getTime() -
+    new Date(a.assignment.time).getTime()
+}
+
+
 export default {
-  computed: {projects() {return this.$projects.get()}}
+  name: 'WUsView',
+  components: {UnitRow},
+
+
+  computed: {
+    columns() {
+      return ['Number', 'Project', 'Progress', 'Status', 'Core',
+        'TPF', 'PPD', 'Assign Time']
+    },
+
+
+    wus() {
+      let wus = []
+
+      for (let mach of this.$machs) {
+        let data = mach.get_data()
+        if (data.wus)   wus = wus.concat(data.wus)
+        if (data.units) wus = wus.concat(data.units)
+      }
+
+      wus = wus.filter((wu) => wu.assignment)
+
+      return wus.sort(cmp_wus)
+    },
+  },
+
+
+  mounted() {this.$machs.wus_enable(true)},
+  unmounted(to, from) {this.$machs.wus_enable(false)},
 }
 </script>
 
 <template lang="pug">
-.projects-view.page-view
+.wus-view.page-view
   MainHeader
 
   .view-body
-    h2(v-if="$projects.is_loading() && !this.projects.length") Loading...
+    table.view-table
+      tr
+        th(v-for="col in columns") {{col}}
+        th
 
-    template(v-else-if="!projects.length")
-      p No active projects.
-      p While you are folding active projects will display here.
+      tr(v-for="unit in wus")
+        UnitRow(:data="unit", v-if="unit.id", :key="unit.id",
+          :columns="columns")
 
-    ProjectView(v-for="project in projects", :project="project")
+        td
+          Button.button-icon(icon="info-circle", :route="'/unit/' + unit.id")
 </template>
 
 <style lang="stylus">
-.projects-view .view-body
+.wus-view .view-body
   display flex
   flex-direction column
   gap 1em
+  font-family var(--mono-font)
+  overflow-x auto
+  width 100%
 
-  .project
-    width 100%
+  .view-table .button
+    margin 0
+    font-size 12pt
 </style>

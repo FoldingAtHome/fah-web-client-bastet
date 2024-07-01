@@ -63,7 +63,8 @@ export default {
         :disabled="$machs.is_empty()")
 
   .view-body
-    MachineView(v-for="mach in machs", :mach="mach")
+    template(v-for="mach in machs")
+      MachineView(v-if="!mach.is_hidden()", :mach="mach")
 
     .no-data(v-if="$machs.is_empty()")
       p No folding machines found.

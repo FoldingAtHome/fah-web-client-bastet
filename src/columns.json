@@ -1,0 +1,18 @@
+{
+  "Project":     {"enabled": true},
+  "CPUs":        {},
+  "GPUs":        {},
+  "Status":      {"enabled": true},
+  "Progress":    {"enabled": true},
+  "PPD":         {"enabled": true},
+  "ETA":         {},
+  "TPF":         {},
+  "Core":        {},
+  "Deadline":    {},
+  "Timeout":     {},
+  "RCG":         {},
+  "Run Time":    {},
+  "Base Credit": {},
+  "Assign Time": {},
+  "Number":      {}
+}

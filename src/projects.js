@@ -27,7 +27,6 @@
 \******************************************************************************/
 
 import {watchEffect, reactive} from 'vue'
-import util from './util.js'
 
 
 class Projects {

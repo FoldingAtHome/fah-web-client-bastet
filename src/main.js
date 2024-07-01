@@ -32,6 +32,8 @@ import router         from './router'
 import Button         from './Button.vue'
 import Dialog         from './Dialog.vue'
 import ProgressBar    from './ProgressBar.vue'
+import PopupMenu      from './PopupMenu.vue'
+import DragList       from './DragList.vue'
 import InfoItem       from './InfoItem.vue'
 import Award          from './Award.vue'
 import HelpBalloon    from './HelpBalloon.vue'
@@ -43,8 +45,8 @@ import ProjectView    from './ProjectView.vue'
 import Cache          from './cache.js'
 import API            from './api.js'
 import Account        from './account.js'
-import util           from './util.js'
-import crypto         from './crypto.js'
+import Util           from './util.js'
+import Crypto         from './crypto.js'
 import Node           from './node.js'
 import Machines       from './machines.js'
 import Stats          from './stats.js'
@@ -62,8 +64,9 @@ function add_components(app, components) {
 async function main(url) {
   const app     = createApp(App);
   const ctx     = app.config.globalProperties
-  ctx.$util     = util
-  ctx.$crypto   = crypto
+  ctx.$ctx      = ctx
+  ctx.$util     = new Util
+  ctx.$crypto   = new Crypto(ctx)
   ctx.$cache    = new Cache('fah')
   ctx.$api      = new API(ctx, url)
   ctx.$account  = new Account(ctx)
@@ -74,14 +77,16 @@ async function main(url) {
   ctx.$stats    = new Stats(ctx)
   ctx.$news     = new News(ctx)
 
-  console.debug({account: Object.assign({}, ctx.$adata)})
 
-  new DirectMachConn(ctx, 'local', util.default_address())
+  let addr = ctx.$util.get_direct_address()
+  ctx.$direct   = new DirectMachConn(ctx, 'local', addr)
+
+  console.debug({account: Object.assign({}, ctx.$adata)})
 
   app.use(router)
   add_components(app, {
-    Button, Dialog, ProgressBar, Award, HelpBalloon, FAHLogo, ClientVersion,
-    ViewHeader, MainHeader, ProjectView, InfoItem
+    Button, Dialog, ProgressBar, PopupMenu, Award, HelpBalloon, FAHLogo,
+    ClientVersion, ViewHeader, MainHeader, ProjectView, InfoItem, DragList
   })
 
   app.mount('#app')

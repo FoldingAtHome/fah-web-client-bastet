@@ -27,8 +27,6 @@
 -->
 
 <script>
-import util from './util'
-
 
 export default {
   name: 'Button',
@@ -68,14 +66,15 @@ export default {
     link() {
       if (!this.disabled) {
         if (this.href) return this.href
-        if (util.isObject(this.route)) return this.route.path
+        if (this.$util.isObject(this.route)) return this.route.path
         return this.route
       }
     },
 
 
     content() {
-      return this.text == undefined ? util.capitalize(this.name) : this.text
+      return this.text == undefined ?
+        this.$util.capitalize(this.name) : this.text
     }
   },
 

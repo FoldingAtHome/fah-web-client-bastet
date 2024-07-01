@@ -131,6 +131,7 @@ export default {
     display flex
     gap 1em
     flex-wrap wrap
+    justify-content center
 
     > *
       flex 1

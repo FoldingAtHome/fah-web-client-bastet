@@ -34,6 +34,7 @@ class Machines {
   constructor(ctx) {
     this.ctx      = ctx
     this.machines = reactive({})
+    this.units    = reactive({})
 
     watchEffect(() => {
       if (!ctx.$account.data.machines) return
@@ -49,10 +50,10 @@ class Machines {
 
       // Erase removed machines
       for (let mach of this)
-        if (!found[mach.id]) {
+        if (!found[mach.get_id()]) {
           if (mach.is_direct()) continue // Don't remove direct connections
           mach.close()
-          this.del(mach.id)
+          this.del(mach.get_id())
         }
     })
   }
@@ -75,6 +76,7 @@ class Machines {
     }
 
     this.machines[id] = mach
+    mach.wus_enable(this.wus_enabled)
   }
 
 
@@ -85,15 +87,21 @@ class Machines {
   create(id) {return new Machine(id, this.ctx)}
 
 
-  get_local() {
+  get_direct_id() {
+    let mach = this.get_direct()
+    if (mach) return mach.get_id()
+  }
+
+
+  get_direct() {
     for (let mach of this)
       if (mach.is_direct()) return mach
   }
 
 
-  get_local_config(group) {
-    let local = this.get_local()
-    return local ? local.get_config(group) : {}
+  get_direct_config(group) {
+    let mach = this.get_direct()
+    return mach ? mach.get_config(group) : {}
   }
 
 
@@ -107,6 +115,17 @@ class Machines {
       if (mach.is_direct())
         await mach.set_state(state)
   }
+
+
+  wus_enable(enable) {
+    for (let mach of this)
+      mach.wus_enable(enable)
+
+    this.wus_enabled = enable
+  }
+
+
+  get_unit(id) {return this.units[id] || {}}
 }
 
 export default Machines

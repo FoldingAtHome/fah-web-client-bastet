@@ -57,7 +57,7 @@ export default {
 </script>
 
 <template lang="pug">
-fieldset.project.view-panel(v-if="project.description", @click="toggle")
+fieldset.project.view-panel(@click="toggle")
   legend Project {{project.id}}
 
   .project-title
