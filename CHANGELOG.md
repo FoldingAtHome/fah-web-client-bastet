@@ -1,11 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
-## v8.3.18
- - Use broadcast messages to detect account config changes.
-
 ## v8.3.17
  - Fixes for account (un)linking and node changes.
+ - Use broadcast messages to detect account config changes.
 
 ## v8.3.13
  - Fix local machine log/viz enable on page reload.
