@@ -56,5 +56,5 @@ Dialog.connect-dialog(:buttons="buttons", ref="dialog")
 .connect-dialog
   .dialog-body
     display flex
-    gap 0.5em
+    gap var(--gap)
 </style>

@@ -63,17 +63,17 @@ export default {
 .news-view .view-body
   display flex
   flex-direction column
-  gap 1em
+  gap var(--gap)
 
   article
     display flex
     flex-direction row-reverse
-    gap 0.5em
+    gap var(--gap)
 
     .article-content
       display flex
       flex-direction column
-      gap 0.5em
+      gap var(--gap)
       flex 1
 
     .article-title .header-title:hover
@@ -86,6 +86,9 @@ export default {
       max-width 20em
       max-height 10em
       border-radius var(--border-radius)
+
+    .read-more
+      font-size 90%
 
 @media (max-width 650px)
   .news-view .view-body article

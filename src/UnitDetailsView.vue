@@ -90,10 +90,4 @@ export default {
 </template>
 
 <style lang="stylus">
-.unit-details-view
-  fieldset.view-body
-    margin 0
-    display flex
-    flex-direction column
-    gap 1em
 </style>

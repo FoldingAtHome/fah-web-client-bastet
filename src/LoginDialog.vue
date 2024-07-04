@@ -212,12 +212,11 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
   display flex
   flex-direction column
   text-align center
-  gap 1em
+  gap var(--gap)
 
   fieldset.settings
     border none
-    margin-bottom 0
-    padding 0.5em
+    padding var(--gap)
     width 100%
 
     > .setting
@@ -226,14 +225,14 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
 
   .bar
     border-bottom 1px solid
-    width calc(100% - 4em)
-    margin 1em 2em
+    width calc(100% - 4 * var(--gap))
+    margin var(--gap) calc(2 * var(--gap))
 
   .text-bar
     font-weight bold
     display flex
     flex-direction row
-    padding 0 2em
+    padding 0 var(--gap)
 
     &:before, &:after
       content ""
@@ -242,20 +241,17 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
       margin auto
 
     &:before
-      margin-right: 1em
+      margin-right var(--gap)
 
     &:after
-      margin-left: 1em
+      margin-left var(--gap)
 
   .actions
     display flex
-    gap 1em
+    gap var(--gap)
     margin auto
     max-width 25em
 
   .required
     text-align right
-
-  p
-    margin 0.25em 1em
 </style>

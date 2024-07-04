@@ -83,6 +83,4 @@ export default {
   fieldset
     display flex
     flex-direction column
-    padding 0.5em
-    width 100%
 </style>

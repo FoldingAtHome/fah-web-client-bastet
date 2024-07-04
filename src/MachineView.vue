@@ -43,6 +43,14 @@ export default {
     info()      {return this.mach.get_info()},
     version()   {return this.info.version},
     units()     {return Array.from(this.mach)},
+    no_work()   {return !this.units.length},
+
+    status() {
+      if (this.loading)    return 'Loading...'
+      if (!this.connected) return 'Disconnected'
+      if (this.outdated)   return 'Outdated'
+      if (this.no_work)    return 'No work'
+    },
 
 
     outdated()  {
@@ -77,22 +85,19 @@ export default {
   :title="connected ? undefined : 'Disconnected'")
   .machine-header
     .machine-name.header-title(:title="mach.get_title()")
-      .fa.fa-dot-circle-o(v-if="mach.is_direct()")
       | {{mach.get_name()}}
+      .fa.fa-dot-circle-o(v-if="mach.is_direct()")
 
-    ClientVersion(:mach="mach")
-
-    .machine-status(v-if="loading") Loading...
-    .machine-status(v-else-if="!connected") DISCONNECTED
-    .machine-status(v-else-if="outdated") UPGRADE REQUIRED
-    .machine-status(v-else-if="!units.length") NO WORK UNITS
-
-    a(v-if="web_control", :href="web_control")
-      | Old Web Control #[.fa.fa-arrow-right]
+    ClientVersion.machine-version(:mach="mach")
 
     .machine-resources.header-subtitle(
       v-if="one_group && !outdated", :title="mach.get_resources()")
       | {{mach.get_resources('', 50)}}
+
+    .machine-status(v-if="status") {{status}}
+
+    a(v-if="web_control", :href="web_control")
+      | Old Web Control #[.fa.fa-arrow-right]
 
     .machine-actions(v-if="!outdated")
       Button.button-icon(:route="mach.get_url('/settings')",
@@ -105,18 +110,17 @@ export default {
         icon="info-circle", :disabled="!version",
         title="View Machine details")
 
-      template(v-if="one_group")
-        Button.button-icon(v-if="mach.is_paused()", @click="fold()",
-          icon="play", title="Start folding on this machine",
-            :disabled="!connected")
-
-        Button.button-icon(v-else, @click="pause()", icon="pause",
-          title="Pause folding on this machine",
+      Button.button-icon(v-if="mach.is_paused()", @click="fold()",
+        icon="play", title="Start folding on this machine",
           :disabled="!connected")
 
-  .machine-units(v-if="connected && !outdated")
+      Button.button-icon(v-else, @click="pause()", icon="pause",
+        title="Pause folding on this machine",
+        :disabled="!connected")
+
+  .machine-units(v-if="connected && !outdated && (!no_work || !one_group)")
     table.view-table
-      tr
+      tr(v-if="!no_work")
         th(v-for="col in $account.get_columns()",
           :class="'column-' + col.toLowerCase()") {{col}}
         th.column-actions Actions
@@ -147,33 +151,52 @@ export default {
 
 <style lang="stylus">
 .machine-view
+  padding calc(var(--gap) / 2) 0
+  overflow hidden
   display flex
   flex-direction column
-  gap 0.5em
+  gap var(--gap)
 
   &.disconnected
     filter contrast(0.6) brightness(0.5)
 
+  .machine-header
+    padding 0 var(--gap)
+
   .machine-header, .machine-group-header
     display flex
     flex-direction row
-    gap 1em
+    gap var(--gap)
     align-items baseline
     width 100%
-    white-space normal
+    white-space nowrap
 
-  .machine-name .fa
-    margin 0.5em
-    font-size 70%
+  .machine-name
+    width 8em
+    min-width 4em
+    overflow hidden
+    text-overflow ellipsis
+
+    .fa
+      margin calc(var(--gap) / 2)
+      font-size 70%
+
+  .machine-version
+    width 3em
 
   .machine-status
+    color var(--warn-color)
     font-weight bold
-    font-size 120%
 
   .group-header
     display flex
     flex-direction row
-    gap 1em
+    gap var(--gap)
+
+    .group-name
+      width 10em
+      overflow hidden
+      text-overflow ellipsis
 
   .machine-units
     width 100%
@@ -183,9 +206,10 @@ export default {
       width 100%
 
       .column-progress
-        width 100%
+        width 50%
 
       .column-actions
+        width 99%
         text-align right
 
   .machine-actions, .machine-group-actions
@@ -193,10 +217,7 @@ export default {
     display flex
     flex-direction row
     justify-content end
-    gap 0.5em
-
-  .machine-actions
-    margin-right 8px
+    gap var(--gap)
 
 @media (max-width 800px)
   .machine-view

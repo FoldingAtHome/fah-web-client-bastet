@@ -101,11 +101,11 @@ Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
 .new-account
   display flex
   flex-direction column
-  gap 1em
+  gap var(--gap)
 
   fieldset
     display grid
-    gap 1em
+    gap var(--gap)
     align-items center
     grid-template-columns 6em 1fr 1.5em
 
@@ -113,10 +113,7 @@ Dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
       text-align right
       white-space nowrap
 
-    a.button
-      margin 0
-
     > div
       display flex
-      gap 0.5em
+      gap var(--gap)
 </style>

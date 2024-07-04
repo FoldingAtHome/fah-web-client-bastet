@@ -109,7 +109,7 @@ class Machine {
   get_info()    {return this.get_data().info || {}}
   get_version() {return this.get_info().version}
   get_groups()  {return Object.keys(this.get_data().groups || {'': null})}
-  get_group(name = '') {return this.get_groups()[name] || {}}
+  get_group(name = '') {return (this.get_data().groups || {})[name] || {}}
 
 
   get_title() {
@@ -195,7 +195,7 @@ class Machine {
     if (group != undefined) return this.get_config(group).paused
 
     for (let group of this.get_groups())
-      if (!this.get_config(group).paused)
+      if (!this.is_paused(group))
         return false
 
     return true
@@ -298,6 +298,7 @@ class Machine {
     console.debug(this.get_name() + ':', msg)
 
     if (this.first) {
+      this.first = false
       this.state.connected = true
       this.state.data = msg
 
@@ -342,8 +343,6 @@ class Machine {
         log.splice(0, log.length / 3) // Drop a 3rd so the log stops shifting
       }
     }
-
-    this.first = false
   }
 
 

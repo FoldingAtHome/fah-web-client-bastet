@@ -70,33 +70,36 @@ export default {
 </script>
 
 <template lang="pug">
-.wus-view.page-view
+.wus-view.page-view.fixed-view
   MainHeader
 
   .view-body
-    table.view-table
-      tr
-        th(v-for="col in columns") {{col}}
-        th
+    .wus
+      table.view-table
+        tr
+          th(v-for="col in columns") {{col}}
+          th
 
-      tr(v-for="unit in wus")
-        UnitRow(:data="unit", v-if="unit.id", :key="unit.id",
-          :columns="columns")
+        tr(v-for="unit in wus")
+          UnitRow(:data="unit", v-if="unit.id", :key="unit.id",
+            :columns="columns")
 
-        td
-          Button.button-icon(icon="info-circle", :route="'/unit/' + unit.id")
+          td
+            Button.button-icon(icon="info-circle", :route="'/unit/' + unit.id")
 </template>
 
 <style lang="stylus">
-.wus-view .view-body
-  display flex
-  flex-direction column
-  gap 1em
-  font-family var(--mono-font)
-  overflow-x auto
-  width 100%
+.wus-view
+  .view-body
+    font-family var(--mono-font)
 
-  .view-table .button
-    margin 0
-    font-size 12pt
+    .wus
+      overflow auto
+      flex 1
+
+      .view-table
+        width 100%
+
+        .button
+          font-size 12pt
 </style>

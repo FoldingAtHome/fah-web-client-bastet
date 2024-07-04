@@ -65,7 +65,6 @@ export default {
   color var(--header-fg)
   background var(--header-bg)
   border var(--header-border)
-  margin-top 4px
   border-radius var(--border-radius)
   overflow hidden
 
@@ -73,26 +72,23 @@ export default {
     display flex
     justify-content space-between
     align-items center
-    gap 1em
-    padding 1em
+    gap var(--gap)
+    padding var(--gap) calc(var(--gap) * 1.5)
 
     a:hover
       text-decoration none
 
-    a.button
-      margin 0
-
     .header-center
       display flex
       flex-direction column
-      gap 0.25em
+      gap var(--gap)
 
     .header-actions
       align-items end
       display flex
       flex-direction row
       justify-content right
-      gap 0.5em
+      gap var(--gap)
 
       .button-icon
         width 1.25em

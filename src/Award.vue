@@ -86,7 +86,7 @@ export default {
     padding 0
 
     h2
-      padding 1em
+      padding var(--gap)
       text-align center
 
     img

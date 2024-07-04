@@ -73,29 +73,24 @@ export default {
     check_wide() {this.set_wide((this.$adata.config || {}).wide)},
 
 
-    set_theme(theme) {
-      theme = theme.toLowerCase()
-
-      // Remove old theme classes
+    set_dark(dark) {
       let cl = document.body.classList
-      for (let name of cl)
-        if (name.startsWith('theme-')) cl.remove(name)
-
-      // Add new theme class
-      cl.add('theme-' + theme)
+      cl.add(`theme-${dark ? 'dark' : 'light'}`)
+      cl.remove(`theme-${dark ? 'light' : 'dark'}`)
     },
 
 
-    check_theme() {
-      let theme = this.$util.retrieve('fah-theme')
-      theme = (this.$adata.config || {}).theme || theme || 'Light'
-      this.$util.store('fah-theme', theme)
-      this.set_theme(theme)
+    check_dark() {
+      let dark = this.$util.retrieve_bool('fah-dark-mode')
+
+      dark = (this.$adata.config || {}).dark || dark
+      this.$util.store_bool('fah-dark-mode', dark)
+      this.set_dark(dark)
     },
 
 
     check_appearance() {
-      this.check_theme()
+      this.check_dark()
       this.check_wide()
     },
 

@@ -29,14 +29,12 @@
 <script>
 import CommonSettings from './CommonSettings.vue'
 
-let themes = 'Light Dark'.split(' ')
-
 
 function copy_config(config = {}) {
   return {
-    theme: config.theme || 'light',
+    dark:    config.dark,
     columns: (config.columns || []).concat([]),
-    wide: !!config.wide,
+    wide:    !!config.wide,
   }
 }
 
@@ -78,14 +76,13 @@ export default {
 
   watch: {
     '$adata'() {if (this.$adata) this.init()},
-    'account_new.config.theme'(theme) {this.$root.set_theme(theme)},
-    'account_new.config.wide'(wide)   {this.$root.set_wide(wide)},
+    'account_new.config.dark'(dark) {this.$root.set_dark(dark)},
+    'account_new.config.wide'(wide) {this.$root.set_wide(wide)},
   },
 
 
   computed: {
     small()   {return document.body.clientWidth <= 800},
-    themes()  {return themes},
     columns() {return this.account_new.config.columns || []},
 
 
@@ -265,12 +262,11 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
             These settings change Web Control's appearance.  Note, some
             settings are only available on wide screens.
 
-      .setting.theme-setting
-        HelpBalloon(name="Theme"): p.
-          Defines Web Control's visual theme.
+      .setting.dark-setting
+        HelpBalloon(name="Dark mode"): p.
+          Enables the dark mode theme.
 
-        select(v-model="account_new.config.theme")
-          option(v-for="theme in themes", :value="theme") {{theme}}
+        input(v-model="account_new.config.dark", type="checkbox")
 
       .setting.wide-setting(v-if="!small")
         HelpBalloon(name="Wide Display"): p Use full screen width.
@@ -286,6 +282,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
             Button.button-icon(icon="refresh", @click="reset_columns",
               title="Reset columns to default")
             DragList(:list="columns")
+
           .drag-zone(title="Move disabled columns here")
             .fa.fa-trash
             DragList(:list="unused_cols", :removable="false")
@@ -307,10 +304,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
   .actions
     display flex
-    gap 1em
-
-  .theme-setting option
-    text-transform capitalize
+    gap var(--gap)
 
   .columns-setting
     width 100%
@@ -321,13 +315,13 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
     .drag-zones
       display flex
-      gap 1em
+      gap var(--gap)
       flex-direction column
-      margin 0.5em 0
+      margin var(--gap) 0
 
       .drag-zone
         display flex
-        gap 0.5em
+        gap var(--gap)
         align-items center
 
         .fa
@@ -336,4 +330,8 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
         .drag-list
           flex 1
+          flex-wrap wrap
+
+          li
+            white-space nowrap
 </style>

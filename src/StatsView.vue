@@ -128,19 +128,18 @@ export default {
 <style lang="stylus">
 .stats-view
   .view-body
-    display flex
-    gap 1em
+    flex-direction row
     flex-wrap wrap
     justify-content center
 
     > *
       flex 1
-      max-width 29.5em
+      max-width calc(50% - var(--gap) / 2)
 
     .user-header, .team-header
       display flex
-      padding 0.5em
-      gap 1em
+      padding var(--gap)
+      gap var(--gap)
       flex-direction row
       align-items center
 
@@ -167,16 +166,16 @@ export default {
       font-size 40px
 
     .user-top, .team-top
-      padding 0.125em 1.25em
-      margin 0 calc(-1em - 1px) 1em -1.3em
+      padding var(--gap)
+      margin var(--gap) calc(var(--gap) * -1.2) var(--gap) \
+        calc(var(--gap) * -1.5)
       white-space nowrap
       background var(--success-color)
-      box-shadow -3px 3px 8px rgba(0, 0, 0, 0.25)
       color #fff
 
   .user-awards, .team-awards
     display flex
-    gap 0.5em
+    gap var(--gap)
 
   .no-info
     display flex
@@ -187,10 +186,4 @@ export default {
 @media (max-width 60em)
   .stats-view .view-body > *
     max-width 100vw
-
-@media (max-width 800px)
-  .stats-view
-    .view-body
-      .user-top, .team-top
-        margin 0.5em -0.75em
 </style>

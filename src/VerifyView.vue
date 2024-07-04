@@ -70,5 +70,5 @@ export default {
 
 <style lang="stylus">
   .verify-view .view-body
-    padding 1em
+    padding var(--gap)
 </style>

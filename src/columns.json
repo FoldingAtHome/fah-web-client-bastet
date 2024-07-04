@@ -3,6 +3,7 @@
   "CPUs":        {},
   "GPUs":        {},
   "Status":      {"enabled": true},
+  "Status Text": {},
   "Progress":    {"enabled": true},
   "PPD":         {"enabled": true},
   "ETA":         {},

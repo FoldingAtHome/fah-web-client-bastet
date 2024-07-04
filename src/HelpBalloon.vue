@@ -44,9 +44,9 @@ export default {
 label.help-balloon(@click="active = !active")
   .help-overlay(v-show="active", @click.stop="active = false")
   .help-name {{name}}
-  span
-    .fa(:class="active ? 'fa-caret-left' : 'fa'")
-    .help-content.view-panel(v-if="active", @click.stop="true")
+  span(v-if="active")
+    .fa.fa-caret-left
+    .help-content.view-panel(@click.stop="true")
       .help-header
         h2.help-title {{name}} Help
         Button.button-icon(icon="times", @click="active=false")
@@ -67,7 +67,6 @@ label.help-balloon(@click="active = !active")
 
   .help-name
     display inline
-    margin-right 0.25em
     cursor help
 
     &:hover
@@ -79,43 +78,43 @@ label.help-balloon(@click="active = !active")
 
     > .fa
       display inline-block
-      height 1em
+      height 20px
       vertical-align unset
       font-size 100%
 
-  > span > .fa-caret-left
-    transform scale(2.5)
+  > span
+    margin-left 0.5em
 
-  .help-content
-    display inline-block
-    position absolute
-    margin-top -6px
-    margin-left 3px
-    font-size 12pt
-    white-space normal
-    text-align left
-    width 30em
-    max-width 80vw
-    font-weight normal
-    padding 1em
-    box-shadow var(--shadow)
+    > .fa-caret-left
+      transform scale(2.5)
 
-    .help-header
-      display flex
-      gap 1em
+    .help-content
+      display inline-block
+      position absolute
+      margin-top -6px
+      margin-left 3px
+      font-size 12pt
+      white-space normal
+      text-align left
+      width 30em
+      max-width 80vw
+      font-weight normal
+      padding var(--gap)
+      box-shadow var(--shadow)
 
-      .help-title
-        flex 1
-        margin 0
+      .help-header
+        display flex
+        gap var(--gap)
 
-      .button
-        margin 0
+        .help-title
+          flex 1
+          margin 0
 
-    p:first-child
-      margin-top 0
+      p:first-child
+        margin-top 0
 
-    p:last-child
-      margin-bottom 0
+      p:last-child
+        margin-bottom 0
 
 @media (max-width 800px)
   .help-balloon .help-content

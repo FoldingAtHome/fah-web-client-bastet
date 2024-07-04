@@ -74,10 +74,6 @@ export default {
 
 <style lang="stylus">
 .machines-view .view-body
-  display flex
-  flex-direction column
-  gap 1em
-
   .no-data
     text-align center
 </style>

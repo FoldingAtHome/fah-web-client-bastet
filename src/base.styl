@@ -39,6 +39,17 @@ body
 
 *
   box-sizing border-box
+  padding 0
+  margin 0
+
+p
+  margin var(--gap) 0
+
+h1, h2, h3, h4
+  margin var(--gap) 0
+
+ul
+  margin-left var(--gap)
 
 .fa
   font-size 130%
@@ -71,14 +82,12 @@ a.fa
 tt
   color var(--code-fg)
   background-color var(--code-bg)
-  padding 0 0.25em
+  padding 0 var(--gap)
   font-family var(--mono-font)
 
-input
-  line-height 1.5em
-  padding 0 0 0 0.5em
-
 input, select
+  line-height 1.5em
+  padding 0 0 0 var(--gap)
   color var(--body-fg)
   background-color var(--input-bg)
   border var(--input-border)
@@ -96,48 +105,60 @@ input:invalid
   font-family password
 
 body
-  width 100%
-  margin 0
+  width 100vw
+  padding 2px
   overflow-y scroll
   background var(--body-bg)
+  display flex
+  flex-direction column
+  align-items center
 
   #app
     display flex
     flex-direction column
+    width 100%
     align-items center
+
+.page-view
+  display flex
+  flex-direction column
+  width 100%
+  gap var(--gap)
+
+  .view-body
+    color var(--body-fg)
+    display flex
+    flex-direction column
+    flex 1
+    gap var(--gap)
+
+  &.fixed-view
+    height calc(100vh - 4px)
+    overflow hidden
+
+    .view-body
+      overflow hidden
 
 body:not(.wide-view) .page-view
   max-width 60em
 
-.page-view
-  width calc(100% - 4px)
-  display flex
-  flex-direction column
-
-  .view-body
-    color var(--body-fg)
-    padding 1em 0
-
 fieldset
-  margin 0 auto 1em auto
-  padding 2em 1em
+  width 100%
+  padding var(--gap)
   align-items start
   border-radius var(--border-radius)
-
-  &:last-child
-    margin-bottom 0
 
   &.settings
     display flex
     flex-direction column
-    gap 1em
+    gap var(--gap)
 
     .setting
       width 100%
       display flex
       flex-direction row
       flex-wrap wrap
-      gap 0.5em
+      gap var(--gap)
 
       label
         @extends .header-subtitle
@@ -147,7 +168,6 @@ fieldset
         text-align right
 
       > :nth-child(2):not(input[type=checkbox])
-        max-width 600px
         flex 1
 
       > input[type=checkbox]
@@ -156,15 +176,13 @@ fieldset
       .setting-actions
         display flex
         flex-direction row
-        gap 0.5em
-
-        .button
-          margin 0
+        gap var(--gap)
 
   label
     white-space nowrap
 
   legend
+    margin-left var(--gap)
     @extends .header-title
 
 .dialog-body fieldset.settings .setting
@@ -173,7 +191,7 @@ fieldset
     flex none
 
 .view-panel
-  padding 0.5em 1em
+  padding var(--gap)
   background var(--panel-bg)
   color var(--panel-fg)
   border var(--border)
@@ -196,12 +214,12 @@ fieldset
   td, th
     text-align left
     border var(--table-border)
-    padding 0.25em 0.5em
+    padding calc(var(--gap) / 2) var(--gap)
     white-space nowrap
 
     &.actions > div
       display flex
-      gap 0.5em
+      gap var(--gap)
 
       .button
         text-align center
@@ -209,19 +227,12 @@ fieldset
   .no-data
     p
       text-align center
-      margin 0.5em
+      margin var(--gap)
 
 
 @media (max-width 800px)
   body
     font-size 85%
-
-  .view-panel
-    padding 0.25em 0.5em
-
-  .view-table
-    td, th
-      padding 0.125em 0.25em
 
   fieldset.settings .setting
     flex-direction column

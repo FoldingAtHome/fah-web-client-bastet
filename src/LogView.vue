@@ -210,7 +210,7 @@ export default {
 </script>
 
 <template lang="pug">
-.log-view.page-view
+.log-view.page-view.fixed-view
   ViewHeader(title="Machine Log", :subtitle="mach.get_name()")
 
   .view-body
@@ -221,7 +221,7 @@ export default {
         #[input(v-model="errors", type="checkbox")] Errors
       label(title="Filter log for warning messages").
         #[input(v-model="warnings", type="checkbox")] Warnings
-      Button(text="Reset", icon="repeat", @click="reset")
+      Button.button-icon(title="Reset search", icon="repeat", @click="reset")
 
     .log-percent.fade-out(ref="percent")
       div {{scroll_percent}}%
@@ -238,15 +238,7 @@ export default {
 
 <style lang="stylus">
 .log-view
-  height 100vh
-  overflow hidden
-
   .view-body
-    display flex
-    flex-direction column
-    flex 1
-    gap 1em
-    overflow hidden
     position relative
     font-family var(--mono-font)
 
@@ -257,9 +249,8 @@ export default {
     .log-controls
       display flex
       flex-wrap wrap
-      gap 0.5em
+      gap var(--gap)
       align-items center
-      padding 0 1em
 
       input[type=text]
         flex 1
@@ -283,14 +274,8 @@ export default {
     .log.view-panel
       flex 1
       overflow auto
-      padding 1em
+      padding var(--gap)
 
       .log-line
         white-space nowrap
-
-@keyframes fadeOut
-	0%
-		opacity 1
-	100%
-		opacity 0
 </style>

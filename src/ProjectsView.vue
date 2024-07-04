@@ -50,7 +50,7 @@ export default {
 .projects-view .view-body
   display flex
   flex-direction column
-  gap 1em
+  gap var(--gap)
 
   .project
     width 100%

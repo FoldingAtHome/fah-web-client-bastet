@@ -595,20 +595,17 @@ export default {
   .controls
     position absolute
     opacity 0.9
-    padding 1em
-    top 1em
-    right 1em
+    padding var(--gap)
+    top var(--gap)
+    right var(--gap)
     display flex
-    gap 2em
+    gap var(--gap)
 
     .control
       display flex
-      gap 0.25em
+      gap var(--gap)
       white-space nowrap
       align-items center
-
-      a.button
-        margin 0
 
       .frames
         font-family var(--mono-font)
@@ -616,7 +613,7 @@ export default {
 
 @media (max-width 800px)
   .visualization .controls
-    gap 1em
+    gap var(--gap)
 
     .fa-times + .button-content, label
       display none

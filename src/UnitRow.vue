@@ -55,9 +55,12 @@ template(v-for="col in columns")
   td(:class="klass(col)", v-if="col == 'CPUs'") {{unit.cpus}}
   td(:class="klass(col)", v-if="col == 'GPUs'") {{unit.gpus}}
 
-  td(:class="klass(col) + ' ' + unit.state.toLowerCase()",
+  td(:class="klass(col) + ' state-' + unit.state.toLowerCase()",
     v-if="col == 'Status'", :title="unit.status")
-    | #[.fa(:class="'fa-' + unit.icon")] #[span.status-text {{unit.status}}]
+    .fa(:class="'fa-' + unit.icon")
+
+  td(:class="klass(col) + ' state-' + unit.state.toLowerCase()",
+    v-if="col == 'Status Text'") {{unit.status}}
 
   td(:class="klass(col)", v-if="col == 'Progress'", :title="'ETA ' + unit.eta")
     ProgressBar(:progress="unit.progress")
@@ -104,15 +107,18 @@ template(v-for="col in columns")
     text-align left
 
 td.column-status
-  width 10em
+  text-align center
 
-  &.run, &.finish
+  &.state-run, &.state-finish
     .fa
       color green
 
-  &.pause .fa
+  &.state-clean .fa
+    color gold
+
+  &.state-pause .fa
     color #e8cf01
 
-  &.finish .fa
+  &.state-finish .fa
     color orange
 </style>

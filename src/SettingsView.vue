@@ -309,7 +309,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
             Machine names can be from 1 to 64 charcters in length and may
             include a-z, 0-9, dashes (-) and dots (.).
           p.
-            If the local machine is linked to another account you can link it to 
+            If the local machine is linked to another account you can link it to
             this account by clicking on the #[.fa.fa-link] icon.
 
       .setting
@@ -351,7 +351,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
           :gpus="gpus", :advanced="advanced", :version="version")
 
   .actions
-    Button.button-icon(v-if="!advanced && connected", @click="unlock", 
+    Button.button-icon(v-if="!advanced && connected", @click="unlock",
       icon="lock", title="Unlock advanced settings")
 </template>
 
@@ -360,35 +360,33 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
   .view-body .view-pane
     display flex
     flex-direction row
-    gap 0.5em
+    gap var(--gap)
 
     .resource-groups
-      margin 0
       flex-direction column
-      gap 0.5em
+      gap var(--gap)
       align-items stretch
       display flex
+      width auto
 
       > .button
         justify-content left
-        margin 0
 
       .actions
         flex 1
         flex-direction row
         align-items end
-        margin-top 1em
 
     .group-settings
+      display flex
+      flex-direction column
+      gap var(--gap)
       flex 1
 
   .actions
     display flex
     justify-content end
-    gap 0.5em
-
-    .button
-      margin 0
+    gap var(--gap)
 
   > .actions
     opacity 0.4
@@ -396,7 +394,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
   fieldset
    .cpus-input
       display flex
-      gap 0.5em
+      gap var(--gap)
 
       > :first-child
         flex 1
@@ -421,7 +419,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
 
 .new-group-dialog .dialog-body
   display flex
-  gap 0.5em
+  gap var(--gap)
 
   input
     flex 1

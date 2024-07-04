@@ -101,16 +101,12 @@ fieldset.project.view-panel(@click="toggle")
   .project-details, .project-manager
     display flex
     flex-direction column
-    gap 0.5em
-
-    .project-description, .project-manager-description
-      p
-        margin 0.25em 0 1em 0
+    gap var(--gap)
 
   .read-more
     color var(--link-color)
     cursor pointer
-    padding 0.25em 0
+    padding var(--gap) 0
 
   img
     max-height 200px

@@ -32,7 +32,6 @@ import router         from './router'
 import Button         from './Button.vue'
 import Dialog         from './Dialog.vue'
 import ProgressBar    from './ProgressBar.vue'
-import PopupMenu      from './PopupMenu.vue'
 import DragList       from './DragList.vue'
 import InfoItem       from './InfoItem.vue'
 import Award          from './Award.vue'
@@ -85,8 +84,8 @@ async function main(url) {
 
   app.use(router)
   add_components(app, {
-    Button, Dialog, ProgressBar, PopupMenu, Award, HelpBalloon, FAHLogo,
-    ClientVersion, ViewHeader, MainHeader, ProjectView, InfoItem, DragList
+    Button, Dialog, ProgressBar, Award, HelpBalloon, FAHLogo, ClientVersion,
+    ViewHeader, MainHeader, ProjectView, InfoItem, DragList
   })
 
   app.mount('#app')

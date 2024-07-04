@@ -154,14 +154,14 @@ Teleport(to="body")
     border-radius var(--border-radius)
 
     > *
-      padding 1em
+      padding var(--gap)
 
     .dialog-header
       background var(--header-bg)
       color var(--header-fg)
       border-bottom 1px solid var(--border-color)
       display flex
-      gap 0.5em
+      gap var(--gap)
 
       > :first-child
         flex 1
@@ -180,8 +180,5 @@ Teleport(to="body")
     .dialog-footer
       display flex
       justify-content right
-      gap 1em
-
-      a.button
-        margin 0
+      gap var(--gap)
 </style>

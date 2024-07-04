@@ -79,8 +79,8 @@ tr.unit-view
 
 <style lang="stylus">
 .unit-view
-  td.column-actions
+  .column-actions
     display flex
-    gap 0.5em
+    gap var(--gap)
     justify-content end
 </style>

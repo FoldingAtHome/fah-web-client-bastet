@@ -99,5 +99,5 @@ Dialog.message-dialog(:buttons="buttons", ref="dialog", :allowCancel="false")
 .message-dialog
   .dialog-header-slot
     display flex
-    gap 0.5em
+    gap var(--gap)
 </style>

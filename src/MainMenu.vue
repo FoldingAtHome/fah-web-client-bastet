@@ -47,11 +47,11 @@ export default {
   justify-content space-between
   background var(--header-bg)
   font-size 12pt
-  padding 0 1em
+  padding 0 var(--gap)
 
   > a
     display block
-    padding 0 0.5em 0.3em 0.5em
+    padding 0 var(--gap) calc(var(--gap) / 4) var(--gap)
     border-bottom 3px solid var(--header-bg)
     white-space nowrap
     color var(--header-fg)

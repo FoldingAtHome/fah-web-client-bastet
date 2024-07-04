@@ -47,7 +47,7 @@ const icons = {
   'RUN':      'refresh',
   'FINISH':   'refresh',
   'UPLOAD':   'upload',
-  'CLEAN':    'stop',
+  'CLEAN':    'star',
   'WAIT':     'clock-o',
   'PAUSE':    'hourglass-o',
 }
@@ -143,6 +143,8 @@ class Unit {
       // Use "progress" to force updates
       return this.util.time_interval(eta / 1000, this.progress)
     }
+
+    if (this.wu_progress == 1) return '0s'
 
     let eta = this.unit.eta
     return (typeof eta == 'string') ? eta : this.util.time_interval(eta)

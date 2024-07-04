@@ -57,7 +57,7 @@ export default {
     background var(--panel-bg)
 
     > *
-      padding 0.5em 0.3em
+      padding calc(var(--gap) / 2) var(--gap)
       width 7em
 
     label

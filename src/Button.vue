@@ -102,15 +102,14 @@ a.button(@click="click", :href="link", :target="href ? '_blank' : ''",
 <style lang="stylus">
 a.button
   cursor pointer
-  margin 0.5em 0
   font-weight bold
-  padding 0.75em 1.5em
+  padding var(--gap) calc(var(--gap) * 2)
   border 0
   color var(--button-fg)
   background var(--button-bg)
   white-space nowrap
   display inline-flex
-  gap 0.5em
+  gap var(--gap)
   flex-direction row
   justify-content center
   align-items center
@@ -149,7 +148,6 @@ a.button
       border-color var(--link-color)
 
   img
-    margin 0
     max-width 48px
     max-height 48px
 
@@ -170,5 +168,6 @@ a.button
 
 @media (max-width 800px)
   a.button
-    padding 0.5em 0.75em
+    padding calc(var(--gap) * 0.5) calc(var(--gap) * 0.75)
+    gap calc(var(--gap) * 0.5)
 </style>
