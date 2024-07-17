@@ -68,6 +68,7 @@ export default {
     .no-data(v-if="$machs.is_empty()")
       p No folding machines found.
       p Login or install the Folding@home client software.
+      p If you are using Brave browser, please use "Shields Down" for this site.
 </template>
 
 <style lang="stylus">
