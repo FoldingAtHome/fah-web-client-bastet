@@ -93,10 +93,7 @@ class Machines {
   }
 
 
-  get_direct() {
-    for (let mach of this)
-      if (mach.is_direct()) return mach
-  }
+  get_direct() {return this.machines['__direct__']}
 
 
   get_direct_config(group) {
@@ -105,7 +102,18 @@ class Machines {
   }
 
 
-  *get_units() {for (let mach of this) yield* mach}
+  *get_units() {
+    let found = {}
+    for (let mach of this) {
+      let units = Array.from(mach).concat(mach.get_data().wus || [])
+
+      for (let unit of units)
+        if (unit.id && unit.assignment && !found[unit.id]) {
+          found[unit.id] = true
+          yield unit
+        }
+    }
+  }
 
 
   async set_state(state) {

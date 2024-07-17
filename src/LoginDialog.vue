@@ -150,11 +150,31 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
 
       fieldset.settings
         .setting
-          label {{mode != 'register' ? '' : '* '}}Email
+          HelpBalloon(:name="`${mode != 'register' ? '' : '* '}Email`")
+            p Enter your email address here.
+            p.
+              A validation email will be sent to this address.  You must
+              click the link in this email to activate your Folding@home
+              account.
+
           input(v-model="email", name="email", autocomplete="username")
 
         .setting(v-if="mode != 'reset'")
-          label {{mode != 'register' ? '' : '* '}}Passphrase
+          HelpBalloon(:name="`${mode != 'register' ? '' : '* '}Passphrase`")
+            p.
+              Your passphrase or password is a secret phrase that grants
+              access to your account.  Never share your passphrase with anyone.
+              No one at Folding@home will ever ask for your passphrase.  Only
+              ever enter your passphrase on foldingathome.org websites.
+
+            p.
+              When registering your Folding@home account you can generate
+              a secure passphrase by clicking the #[.fa.fa-refresh] icon.
+              Make sure you save this passphrase somewhere safe, preferably in
+              a password manager.
+
+            p: strong A passphrase is not the same as a passkey.
+
           input(v-model="passphrase", :type="show ? 'text' : 'password'",
             @keyup.enter="do_login", name="password",
             autocomplete="current-password")
@@ -177,16 +197,42 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
                 title="Copy passphrase to clipboard")
 
           .setting
-            label Username
-            input(v-model="user")
+            HelpBalloon(name="Username")
+              p.
+                You may optionally choose a user name to identify yourself on
+                Folding@home.  User names may contain any characters other than
+                #[tt &lt;&gt;&semi;&amp;:] and can be anywhere from 2 to 100
+                characters long.
+
+              p Leave this field blank to fold anonymously.
+
+            input(v-model="user", pattern="[^<>;&:]{2,100}")
 
           .setting
-            label Team
+            HelpBalloon(name="Team")
+              p You may optionally enter a team number here.
+              p Folding@home teams work together to earn folding points.
+              p You can join an existing team or start your own.
+              p Enter #[tt 0] for no team.
+
             input(v-model="team", type="number")
 
           .setting
-            label Passkey
-            input(v-model="passkey", :class="{password: !show_passkey}")
+            HelpBalloon(name="Passkey")
+              p.
+                A passkey is different from your passphrase.  It is a unique
+                identifier that differentiates points you earn from points
+                earned by others who could be using the same Folding@home user
+                name.
+
+              p.
+                A passkey must be 31 or 32 characters long and consist of only
+                hexadecimal characters.
+
+              p A passkey is optional.
+
+            input(v-model="passkey", :class="{password: !show_passkey}",
+              pattern="[\\da-fA-F]{31,32}")
             .setting-actions
               Button.button-icon(:icon="'eye' + (show_passkey ? '' : '-slash')",
                 @click="show_passkey = !show_passkey",
@@ -200,10 +246,13 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
           Button(icon="sign-in", text="Login", @click="do_login", success,
             :disabled="!valid", title="Login to your Folding@home account")
 
-        p: a(href="#", @click="mode = 'reset'") Forgot your passphrase?
+        div: a(href="#", @click="mode = 'reset'") Forgot your passphrase?
 
       template(v-if="mode == 'register'")
-        p.required * Required
+        div * Required
+
+      template(v-if="mode == 'register' || mode == 'login'")
+        div Do not use your passkey as your passphrase.
 
 </template>
 

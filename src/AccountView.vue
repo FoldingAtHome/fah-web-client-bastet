@@ -27,6 +27,7 @@
 -->
 
 <script>
+import Unit           from './unit.js'
 import CommonSettings from './CommonSettings.vue'
 
 
@@ -35,6 +36,7 @@ function copy_config(config = {}) {
     dark:    config.dark,
     columns: (config.columns || []).concat([]),
     wide:    !!config.wide,
+    compact: !!config.compact,
   }
 }
 
@@ -76,8 +78,9 @@ export default {
 
   watch: {
     '$adata'() {if (this.$adata) this.init()},
-    'account_new.config.dark'(dark) {this.$root.set_dark(dark)},
-    'account_new.config.wide'(wide) {this.$root.set_wide(wide)},
+    'account_new.config.dark'(x)    {this.$root.set_dark(x)},
+    'account_new.config.wide'(x)    {this.$root.set_wide(x)},
+    'account_new.config.compact'(x) {this.$root.set_compact(x)},
   },
 
 
@@ -90,7 +93,7 @@ export default {
       let used = this.columns
       let l = []
 
-      for (let col of this.$account.get_all_columns())
+      for (let col of Unit.column_names)
         if (used.indexOf(col) == -1) l.push(col)
 
       return l
@@ -184,9 +187,7 @@ export default {
         })
     },
 
-    reset_columns() {
-      this.account_new.config.columns = this.$account.get_default_columns()
-    }
+    reset_columns() {this.account_new.config.columns = Unit.default_columns}
   }
 }
 </script>
@@ -238,7 +239,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
             are already linked to you account will remain linked.
 
           p.
-            If a client is running localy on the same machine you've logged in
+            If a client is running locally on the same machine you've logged in
             to your Folding@home account on, it will automatically be linked to
             your account.
 
@@ -263,10 +264,12 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
             settings are only available on wide screens.
 
       .setting.dark-setting
-        HelpBalloon(name="Dark mode"): p.
-          Enables the dark mode theme.
-
+        HelpBalloon(name="Dark mode"): p Enables the dark mode theme.
         input(v-model="account_new.config.dark", type="checkbox")
+
+      .setting.compact-setting
+        HelpBalloon(name="Compact"): p Decrease gaps between display elements.
+        input(v-model="account_new.config.compact", type="checkbox")
 
       .setting.wide-setting(v-if="!small")
         HelpBalloon(name="Wide Display"): p Use full screen width.
@@ -310,14 +313,14 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
     width 100%
 
     label
-      font-size 105%
       color var(--subtitle-color)
 
     .drag-zones
       display flex
       gap var(--gap)
       flex-direction column
-      margin var(--gap) 0
+      margin-top var(--gap)
+      font-size 90%
 
       .drag-zone
         display flex

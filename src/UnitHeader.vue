@@ -1,4 +1,4 @@
-/******************************************************************************\
+<!--
 
                   This file is part of the Folding@home Client.
 
@@ -24,50 +24,27 @@
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
-\******************************************************************************/
+-->
 
-body.theme-dark
-  --highlight-color    #ffbe42
-  --secondary-color    #82cdb1
+<script>
+import Unit from './unit.js'
 
-  --body-bg            #0b121d
-  --body-fg            #fff
 
-  --header-fg          #fff
-  --header-bg          #0d0d0f
+export default {
+  name: 'UnitHeader',
+  props: {columns: Array},
+  computed: {Unit() {return Unit}},
+}
+</script>
 
-  --input-bg           #0b121d
-  --input-border-color #666
+<template lang="pug">
+.column-header(v-for="col in columns",
+  :class="Unit.get_column_header_class(col)",
+  :title="Unit.get_column_title(col)") {{col}}
 
-  --panel-bg           #0d0d0f
+.column-header.column-actions
+  slot
+</template>
 
-  --code-bg            #888
-  --code-fg            #eee
-
-  --border-color       #223c5f
-
-  --button-icon-fg     #eee
-  --button-disabled-fg #666
-
-  --title-color        #8cb5f1
-
-  --log-fg             #7f7f7f
-  --log-bg             #000
-
-  --overlay-bg         rgba(64, 64, 64, 0.6)
-
-  --shadow-color       #000
-
-  --table-border-color #000
-  --table-header-bg    #13202c
-  --table-header-fg    #f1f1f1
-  --table-even         #101215
-  --table-odd          #161616
-
-  --border-radius      3px
-  --border             1px solid var(--border-color)
-
-  --disconnected-bg    #333
-
-  .machine-view .machine-group-header
-    border-top var(--border)
+<style lang="stylus">
+</style>

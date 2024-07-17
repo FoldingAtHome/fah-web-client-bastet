@@ -135,10 +135,12 @@ export default {
     > *
       flex 1
       max-width calc(50% - var(--gap) / 2)
+      display flex
+      flex-direction column
+      gap calc(var(--gap) / 2)
 
     .user-header, .team-header
       display flex
-      padding var(--gap)
       gap var(--gap)
       flex-direction row
       align-items center

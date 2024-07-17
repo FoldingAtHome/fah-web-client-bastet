@@ -64,7 +64,7 @@ export default {
   flex-direction column
   color var(--header-fg)
   background var(--header-bg)
-  border var(--header-border)
+  border var(--border)
   border-radius var(--border-radius)
   overflow hidden
 

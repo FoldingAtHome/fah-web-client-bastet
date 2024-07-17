@@ -58,7 +58,7 @@ export default {
 
 <template lang="pug">
 fieldset.project.view-panel(@click="toggle")
-  legend Project {{project.id}}
+  .header-title Project {{project.id}}
 
   .project-title
     .project-byline By {{project.manager}}, {{project.institution}}
@@ -81,6 +81,9 @@ fieldset.project.view-panel(@click="toggle")
 
 <style lang="stylus">
 .project
+  .header-title
+    margin-bottom var(--gap)
+
   .project-title
     display flex
     justify-content space-between

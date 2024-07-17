@@ -92,9 +92,9 @@ class Machine {
     this.aid   = ctx.$account.data.id
     this.cache = ctx.$cache
     this.util  = ctx.$util
-    this.name  = id
     this.state = reactive({
       id,
+      name:      id,
       connected: false,
       data:      {}
     })
@@ -102,7 +102,7 @@ class Machine {
 
 
   get_id()      {return this.state.id}
-  get_name()    {return this.name}
+  get_name()    {return this.state.name}
   get_data()    {return this.state.data}
   get_viz(unit) {return (this.get_data().viz || {})[clean_key(unit)] || {}}
   get_url(path) {return this.get_id() + path}
@@ -173,12 +173,13 @@ class Machine {
   }
 
 
-  set_name(name) {this.name = name}
+  set_name(name) {this.state.name = name}
 
 
-  save_name(name) {
-    this.name = name
-    this.ctx.$api.put('/account/machines/' + this.get_id(), {name})
+  async save_name(name) {
+    this.set_name(name)
+    await this.ctx.$api.put('/account/machines/' + this.get_id(), {name})
+    this.send_command('restart')
   }
 
 
@@ -250,7 +251,7 @@ class Machine {
 
 
   async link(token)       {
-    return this.send_command('link', {token, name: this.name})
+    return this.send_command('link', {token, name: this.get_name()})
   }
 
 

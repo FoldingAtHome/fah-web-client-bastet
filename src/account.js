@@ -28,6 +28,7 @@
 
 import {reactive} from 'vue'
 import columns    from './columns.json'
+import Unit       from './unit.js'
 
 
 function get_redirect() {return location.href.replace(/\/?#.*$/, '')}
@@ -54,20 +55,9 @@ class Account {
   }
 
 
-  get_all_columns() {return Object.keys(columns)}
-
-
-  get_default_columns() {
-    return Object.entries(columns).reduce((l, col) => {
-      if (col[1].enabled) l.push(col[0])
-      return l
-    }, [])
-  }
-
-
   get_columns() {
-    if (document.body.clientWidth <= 800) return this.get_default_columns()
-    return (this.data.config || {}).columns || this.get_default_columns()
+    if (document.body.clientWidth <= 800) return Unit.default_columns
+    return (this.data.config || {}).columns || Unit.default_columns
   }
 
 

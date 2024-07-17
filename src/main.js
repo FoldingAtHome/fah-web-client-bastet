@@ -41,6 +41,8 @@ import ClientVersion  from './ClientVersion.vue'
 import ViewHeader     from './ViewHeader.vue'
 import MainHeader     from './MainHeader.vue'
 import ProjectView    from './ProjectView.vue'
+import UnitHeader     from './UnitHeader.vue'
+import UnitsView      from './UnitsView.vue'
 import Cache          from './cache.js'
 import API            from './api.js'
 import Account        from './account.js'
@@ -85,7 +87,8 @@ async function main(url) {
   app.use(router)
   add_components(app, {
     Button, Dialog, ProgressBar, Award, HelpBalloon, FAHLogo, ClientVersion,
-    ViewHeader, MainHeader, ProjectView, InfoItem, DragList
+    ViewHeader, MainHeader, ProjectView, InfoItem, DragList, UnitHeader,
+    UnitsView
   })
 
   app.mount('#app')

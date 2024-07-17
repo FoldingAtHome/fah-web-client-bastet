@@ -60,7 +60,7 @@ export default {
       .info-group
         .info-item
           label Progress
-          span: progress-bar(:progress="unit.progress")
+          span: ProgressBar(:progress="unit.progress")
 
       .info-group
         info-item(label="ETA",      :content="unit.eta")
@@ -68,7 +68,7 @@ export default {
 
       .info-group
         info-item(label="Assign Time", :content="unit.assign_time",
-          :title="unit.assigned")
+          :title="unit.assign_time_title")
         info-item(label="Deadline",    :content="'in ' + unit.deadline",
           :title="unit.deadline_time")
         info-item(label="Timeout",     :content="'in ' + unit.timeout",

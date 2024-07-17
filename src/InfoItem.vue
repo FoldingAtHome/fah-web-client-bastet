@@ -58,13 +58,20 @@ export default {
 
     > *
       padding calc(var(--gap) / 2) var(--gap)
-      width 7em
+      width 10em
 
     label
       background var(--table-header-bg)
+      width 8em
 
     span
       flex 1
       overflow hidden
       text-overflow ellipsis
+      white-space nowrap
+
+@media (max-width 600px)
+  .info-group
+    flex-direction column
+    margin-bottom calc(var(--gap) / 2)
 </style>

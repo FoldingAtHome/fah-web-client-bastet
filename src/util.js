@@ -303,7 +303,8 @@ class Util {
     function div(x, y) {return (x / y) >> 0}
     function mod(x, y) {return (x % y) >> 0}
 
-    if (secs < 60) return parseInt(secs) + 's'
+    if (secs && secs < 0.9995) return Math.round(secs * 1000) + 'ms'
+    if (secs < 60) return Math.round(secs) + 's'
     if (secs < 60 * 60) return div(secs, 60) + 'm ' + zpad(mod(secs, 60)) + 's'
     if (secs < 60 * 60 * 24)
       return div(secs, 60 * 60) + 'h ' + zpad(div(mod(secs, 60 * 60), 60)) + 'm'
@@ -318,6 +319,12 @@ class Util {
     return t.getUTCFullYear() + '/' + zpad(t.getUTCMonth()) + '/' +
       zpad(t.getUTCDate())    + ' ' + zpad(t.getUTCHours()) + ':' +
       zpad(t.getUTCMinutes()) + ':' + zpad(t.getUTCSeconds())
+  }
+
+
+  since(t, when = new Date) {
+    let secs = (new Date(t).getTime() - new Date(when).getTime()) / 1000
+    return this.time_interval(-secs)
   }
 
 

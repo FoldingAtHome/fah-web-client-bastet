@@ -27,16 +27,19 @@
 -->
 
 <script>
-import UnitView from './UnitView.vue'
+import MachineGroup from './MachineGroup.vue'
+import Unit         from './unit.js'
+
 
 export default {
   name: 'MachView',
   props: ['mach'],
-  components: {UnitView},
+  components: {MachineGroup},
 
 
   computed: {
     loading()   {return !this.connected && this.$node.is_loading()},
+    title()     {if (!this.connected) return 'Disconnected'},
     one_group() {return this.mach.get_groups().length == 1},
     connected() {return this.mach.is_connected()},
     groups()    {return this.mach.get_groups()},
@@ -44,6 +47,13 @@ export default {
     version()   {return this.info.version},
     units()     {return Array.from(this.mach)},
     no_work()   {return !this.units.length},
+
+
+    show_units() {
+      return this.connected && !this.outdated &&
+        (!this.no_work || !this.one_group)
+    },
+
 
     status() {
       if (this.loading)    return 'Loading...'
@@ -53,14 +63,20 @@ export default {
     },
 
 
-    outdated()  {
-      return this.version && this.$util.version_less(this.version, '8.3.0')
+    columns() {return this.$account.get_columns()},
+
+
+    klass() {
+      return (this.connected ? '' : 'disconnected') +
+        (this.show_units ? '' : ' empty')
     },
 
 
-    web_control() {
-      if (this.version && this.$util.version_less(this.version, '8.2.0'))
-        return 'https://v8-1.foldingathome.org/'
+    unit_style() {return Unit.get_column_grid_style(this.columns, ' 1fr')},
+
+
+    outdated()  {
+      return this.version && this.$util.version_less(this.version, '8.3.0')
     }
   },
 
@@ -80,9 +96,7 @@ export default {
 </script>
 
 <template lang="pug">
-.machine-view.view-panel(
-  :class="{connected: connected, disconnected: !connected}",
-  :title="connected ? undefined : 'Disconnected'")
+.machine-view.view-panel(:class="klass", :title="title")
   .machine-header
     .machine-name.header-title(:title="mach.get_title()")
       | {{mach.get_name()}}
@@ -90,14 +104,10 @@ export default {
 
     ClientVersion.machine-version(:mach="mach")
 
-    .machine-resources.header-subtitle(
-      v-if="one_group && !outdated", :title="mach.get_resources()")
-      | {{mach.get_resources('', 50)}}
+    .machine-resources(v-if="one_group && !outdated",
+      :title="mach.get_resources()") {{mach.get_resources('', 50)}}
 
-    .machine-status(v-if="status") {{status}}
-
-    a(v-if="web_control", :href="web_control")
-      | Old Web Control #[.fa.fa-arrow-right]
+    .machine-status {{status}}
 
     .machine-actions(v-if="!outdated")
       Button.button-icon(:route="mach.get_url('/settings')",
@@ -118,111 +128,63 @@ export default {
         title="Pause folding on this machine",
         :disabled="!connected")
 
-  .machine-units(v-if="connected && !outdated && (!no_work || !one_group)")
-    table.view-table
-      tr(v-if="!no_work")
-        th(v-for="col in $account.get_columns()",
-          :class="'column-' + col.toLowerCase()") {{col}}
-        th.column-actions Actions
+  .units-view(:style="unit_style", v-if="show_units")
+    UnitHeader(v-if="!no_work", :columns="columns") Actions
 
-      template(v-for="group in groups")
-        tr(v-if="!one_group")
-          td(colspan="99")
-            .machine-group-header
-              .group-header
-                .group-name(v-if="group") Group {{group}}
-                .group-name(v-else) Default Group
-                .group-resources.header-subtitle(
-                  :title="mach.get_resources(group)")
-                  | {{mach.get_resources(group, 50)}}
-
-              .machine-group-actions
-                Button.button-icon(v-if="mach.is_paused(group)", icon="play",
-                  @click="fold(group)", :disabled="!connected",
-                  title="Start folding in this group")
-
-                Button.button-icon(v-else, @click="pause(group)", icon="pause",
-                  title="Pause folding in this group", :disabled="!connected")
-
-        template(v-for="unit in units", :key="unit.number")
-          UnitView(v-if="unit.group == group || one_group", :unit="unit",
-            :mach="mach")
+    template(v-for="group in groups")
+      MachineGroup(:group="group", :mach="mach", :columns="columns",
+        :units="units.filter(unit => unit.group == group || one_group)",
+        :header="!one_group", @fold="fold(group)", @pause="pause(group)")
 </template>
 
 <style lang="stylus">
 .machine-view
-  padding calc(var(--gap) / 2) 0
+  padding calc(var(--gap) / 1) 0
   overflow hidden
   display flex
   flex-direction column
-  gap var(--gap)
+  gap calc(var(--gap) / 2)
 
   &.disconnected
     filter contrast(0.6) brightness(0.5)
 
+  &:not(.empty)
+    padding-bottom 0
+
   .machine-header
-    padding 0 var(--gap)
-
-  .machine-header, .machine-group-header
     display flex
     flex-direction row
-    gap var(--gap)
     align-items baseline
-    width 100%
     white-space nowrap
+    padding 0 var(--gap)
+    gap calc(var(--gap) * 2)
 
-  .machine-name
-    width 8em
-    min-width 4em
-    overflow hidden
-    text-overflow ellipsis
-
-    .fa
-      margin calc(var(--gap) / 2)
-      font-size 70%
-
-  .machine-version
-    width 3em
-
-  .machine-status
-    color var(--warn-color)
-    font-weight bold
-
-  .group-header
-    display flex
-    flex-direction row
-    gap var(--gap)
-
-    .group-name
-      width 10em
+    .machine-name
+      width 8em
+      min-width 4em
       overflow hidden
       text-overflow ellipsis
 
-  .machine-units
+      .fa
+        margin calc(var(--gap) / 2)
+        font-size 70%
+
+    .machine-version
+      width 3em
+
+    .machine-status
+      text-align right
+      flex 1
+      color var(--warn-color)
+      font-weight bold
+
+    .machine-actions
+      display flex
+      flex-direction row
+      justify-content end
+      gap var(--gap)
+
+  .units-view
     width 100%
     overflow-x auto
-
-    > .view-table
-      width 100%
-
-      .column-progress
-        width 50%
-
-      .column-actions
-        width 99%
-        text-align right
-
-  .machine-actions, .machine-group-actions
-    flex 1
-    display flex
-    flex-direction row
-    justify-content end
-    gap var(--gap)
-
-@media (max-width 800px)
-  .machine-view
-    .machine-units
-      td, th
-        .status-text
-          display none
 </style>

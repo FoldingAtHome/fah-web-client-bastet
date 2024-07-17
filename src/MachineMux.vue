@@ -32,7 +32,11 @@ export default {
 
 
   computed: {
-    mach() {return this.$machs.get(this.machID)}
+    mach() {
+      let machs = this.$machs
+      if (this.machID == machs.get_direct_id()) return machs.get_direct()
+      return machs.get(this.machID)
+    }
   }
 }
 </script>

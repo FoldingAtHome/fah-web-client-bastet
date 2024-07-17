@@ -39,7 +39,7 @@ class DirectMachConn extends MachConnection {
 
     this.mach.set_conn(this)
     this.set_address(address)
-    this.ctx.$machs.set('', this.mach)
+    this.ctx.$machs.set('__direct__', this.mach)
   }
 
 

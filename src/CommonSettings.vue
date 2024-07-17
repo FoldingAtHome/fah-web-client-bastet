@@ -87,8 +87,8 @@ export default {
 
 .setting
   HelpBalloon(name="Cause"): p.
-    You may choose a prefered cause to support.  Folding@home will try to
-    assign you more work supporting your prefered cause.
+    You may choose a preferred cause to support.  Folding@home will try to
+    assign you more work supporting your preferred cause.
 
   select(v-model="config.cause")
     option(v-for="name in causes", :value="name") {{name}}

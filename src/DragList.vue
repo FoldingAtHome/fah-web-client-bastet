@@ -193,11 +193,10 @@ ul.drag-list(@dragleave="dragleave", @dragenter="dragenter",
 <style lang="stylus">
 ul.drag-list
   display flex
-  gap var(--gap)
-  min-height 3em
+  gap calc(var(--gap) / 2)
   width 100%
   margin 0
-  padding var(--gap)
+  padding calc(var(--gap) / 2)
   border var(--border)
   border-radius var(--border-radius)
   background var(--table-header-bg)
@@ -205,7 +204,7 @@ ul.drag-list
   li
     cursor grab
     list-style none
-    padding calc(var(--gap) / 2) var(--gap)
+    padding calc(var(--gap) / 2)
     border var(--border)
     border-radius var(--border-radius)
     background var(--panel-bg)

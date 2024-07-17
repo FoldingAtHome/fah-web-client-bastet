@@ -26,6 +26,8 @@
 
 \******************************************************************************/
 
+import columns from './columns.json'
+
 
 const status = {
   'ASSIGN':   'Assigning',
@@ -53,36 +55,35 @@ const icons = {
 }
 
 
+function clean_column(name) {return name.toLowerCase().replaceAll(' ', '_')}
+
+
 class Unit {
   constructor(ctx, unit) {
     this.util = ctx.$util
     this.unit = unit
   }
 
+  get id()      {return this.unit.id}
   get assign()  {return this.unit.assignment || {}}
   get number()  {return this.unit.number}
   get core()    {return (this.assign.core || {}).type}
   get project() {return this.assign.project}
   get wu()      {return this.unit.wu || {}}
-
-
-  get unit_id() {
-    if (this.wu)
-      return `Work Unit #${this.unit.number} Project ${this.project} ` +
-        `Run ${this.wu.run} Clone ${this.wu.clone} Gen ${this.wu.gen}`
-  }
-
-
-  get cpus()   {return this.unit.cpus}
-  get gpus()   {return this.unit.gpus.length}
-  get paused() {return !!this.unit.pause_reason}
-
-
+  get cpus()    {return this.unit.cpus}
+  get gpus()    {return this.unit.gpus.length}
+  get paused()  {return !!this.unit.pause_reason}
   get cpus_description() {return this.assign.cpus}
 
 
   get gpus_description() {
-    return this.assign.gpus ? this.assign.gpus.join(' ') : 'None'
+    return this.assign.gpus ? this.assign.gpus.join(' ') : 'none'
+  }
+
+
+  get description() {
+    return 'project:' + this.project + ' cpus:' + this.assign.cpus +
+      ' gpus:' + (this.assign.gpus || []).join(' ')
   }
 
 
@@ -96,10 +97,17 @@ class Unit {
 
   get icon() {return icons[this.state]}
   get ppd()  {return (this.unit.ppd || 0).toLocaleString()}
-  get tpf()  {
+
+
+  get tpf_secs()  {
     let frames   = (this.unit.wu_progress || 0) * 100
     let run_time = this.run_time_secs
-    return frames ? this.util.time_interval(run_time / frames) : '???'
+    return run_time / frames
+  }
+
+
+  get tpf() {
+    return this.tpf_secs ? this.util.time_interval(this.tpf_secs) : '???'
   }
 
 
@@ -113,15 +121,8 @@ class Unit {
   }
 
 
-  get assigned() {
-    let secs = (new Date(this.assign.time) - new Date().getTime()) / 1000
-    return this.util.time_interval(-secs) + ' ago'
-  }
-
-
-  get assign_time() {
-    return this.util.format_time(this.assign.time)
-  }
+  get assign_time() {return this.util.since(this.assign.time) + ' ago'}
+  get assign_time_title() {return this.util.format_time(this.assign.time)}
 
 
   get deadline_time() {
@@ -168,8 +169,10 @@ class Unit {
     return this.util.time_interval(this.run_time_secs, this.progress)
   }
 
+  get status() {return `<div class="fa fa-${this.icon}"/>`}
 
-  get status() {
+
+  get status_text() {
     if (this.waiting) return status[this.unit.state]
     return this.unit.pause_reason || status[this.state]
   }
@@ -194,7 +197,7 @@ class Unit {
   }
 
 
-  get progress() {
+   get progress() {
     let p = this.unit.progress
     if ((this.paused || this.unit.state == 'RUN' ||
       this.unit.state == 'CLEAN')) p = this.wu_progress
@@ -206,7 +209,54 @@ class Unit {
   get credit() {return (this.assign.credit || 0).toLocaleString()}
 
 
-  get assign_time() {return this.util.format_time(this.assign.time)}
+  static get_column(name)   {return columns[name] || {}}
+  static get column_names() {return Object.keys(columns)}
+
+
+  static get default_columns() {
+    return Object.entries(columns).reduce((l, col) => {
+      if (col[1].enabled) l.push(col[0])
+      return l
+    }, [])
+  }
+
+
+  static get_column_grid_template(cols) {
+    return cols.map(name => columns[name].size || 'auto').join(' ')
+  }
+
+
+  static get_column_grid_style(cols, append = '') {
+    let tmpl = Unit.get_column_grid_template(cols)
+    return {'grid-template-columns': tmpl + append}
+  }
+
+
+  get_column_content(name)      {return this[clean_column(name)]}
+  static get_column_title(name) {return Unit.get_column(name).desc}
+
+
+  get_column_data_title(name) {
+    return this[clean_column(name) + '_title'] || Unit.get_column_title(name)
+  }
+
+
+  static get_column_header_class(name) {
+    return 'column-' + name.toLowerCase().replace(' ', '-')
+  }
+
+
+  get_column_class(name, odd) {
+    let klass = Unit.get_column_header_class(name)
+
+    if (name == 'Status' || 'Status Text')
+      klass += ` state-${this.state.toLowerCase()}`
+
+    klass += ` column-${Unit.get_column(name).left ? 'left' : 'right'}`
+    if (odd != undefined) klass += ` row-${odd ? 'odd' : 'even'}`
+
+    return klass
+  }
 }
 
 export default Unit

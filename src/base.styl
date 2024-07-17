@@ -29,13 +29,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap')
 
 body
+  font-family Raleway, sans-serif
+  --gap       1em
   --mono-font courier
+
+body.theme-compact
+  --gap 0.4em
 
 @import('dark.styl')
 @import('light.styl')
-
-body
-  font-family Raleway, sans-serif
 
 *
   box-sizing border-box
@@ -43,10 +45,10 @@ body
   margin 0
 
 p
-  margin var(--gap) 0
+  margin calc(var(--gap) / 2) 0
 
 h1, h2, h3, h4
-  margin var(--gap) 0
+  margin calc(var(--gap) / 2) 0
 
 ul
   margin-left var(--gap)
@@ -139,7 +141,7 @@ body
     .view-body
       overflow hidden
 
-body:not(.wide-view) .page-view
+body:not(.theme-wide) .page-view
   max-width 60em
 
 fieldset

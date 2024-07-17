@@ -43,7 +43,7 @@ export default {
 <template lang="pug">
 label.help-balloon(@click="active = !active")
   .help-overlay(v-show="active", @click.stop="active = false")
-  .help-name {{name}}
+  .help-name {{name}}#[.fa.fa-question-circle]
   span(v-if="active")
     .fa.fa-caret-left
     .help-content.view-panel(@click.stop="true")
@@ -69,21 +69,26 @@ label.help-balloon(@click="active = !active")
     display inline
     cursor help
 
+    .fa
+      font-size 50%
+      vertical-align super
+      margin-left 0.125em
+
     &:hover
-      opacity 0.5
+      color var(--highlight-color)
 
   > span
+    position fixed
     display inline-block
     width 0.5em
+    margin-left 0.5em
 
     > .fa
       display inline-block
       height 20px
       vertical-align unset
       font-size 100%
-
-  > span
-    margin-left 0.5em
+      color var(--panel-fg)
 
     > .fa-caret-left
       transform scale(2.5)

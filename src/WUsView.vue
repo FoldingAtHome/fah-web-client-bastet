@@ -27,7 +27,7 @@
 -->
 
 <script>
-import UnitRow from './UnitRow.vue'
+import Unit    from './unit.js'
 
 
 function cmp_wus(a, b) {
@@ -38,34 +38,67 @@ function cmp_wus(a, b) {
 
 export default {
   name: 'WUsView',
-  components: {UnitRow},
 
 
   computed: {
     columns() {
-      return ['Number', 'Project', 'Progress', 'Status', 'Core',
+      return ['Number', 'Project', 'Core', 'Status', 'Progress',
         'TPF', 'PPD', 'Assign Time']
     },
 
 
-    wus() {
-      let wus = []
+    Unit() {return Unit},
+    wus() {return Array.from(this.$machs.get_units()).sort(cmp_wus)},
 
-      for (let mach of this.$machs) {
-        let data = mach.get_data()
-        if (data.wus)   wus = wus.concat(data.wus)
-        if (data.units) wus = wus.concat(data.units)
+
+    performance() {
+      let r = {}
+
+      for (let unit of this.$machs.get_units()) {
+        unit = new Unit(this.$ctx, unit)
+        let progress = unit.wu_progress
+        if (isNaN(progress)) continue
+
+        let time = new Date(unit.assign.time).getTime()
+        let desc = unit.description
+
+        let d = r[desc]
+        if (d) {
+          if (d.time < time) d.time = time
+          d.tpf      += unit.tpf_secs * progress
+          d.ppd      += (unit.unit.ppd || 0) * progress
+          d.run_time += unit.run_time_secs || 0
+          d.progress += progress
+
+        } else
+          r[desc] = {
+            id:       desc,
+            project:  unit.project,
+            core:     unit.core,
+            cpus:     unit.cpus,
+            gpus:     unit.unit.gpus,
+            tpf:      unit.tpf_secs * progress,
+            ppd:      (unit.unit.pdd || 0) * progress,
+            run_time: unit.run_time_secs || 0,
+            time,
+            progress,
+          }
       }
 
-      wus = wus.filter((wu) => wu.assignment)
+      return Object.values(r).map(d => {
+        d.tpf /= d.progress
+        d.ppd /= d.progress
+        return d
 
-      return wus.sort(cmp_wus)
-    },
+      }).sort((a, b) => {
+        if (a.time != b.time) return b.time - a.time
+        return a.project - b.project
+      })
+    }
   },
 
 
   mounted() {this.$machs.wus_enable(true)},
-  unmounted(to, from) {this.$machs.wus_enable(false)},
 }
 </script>
 
@@ -75,17 +108,40 @@ export default {
 
   .view-body
     .wus
+      .header-title Work Unit Averages
       table.view-table
         tr
-          th(v-for="col in columns") {{col}}
-          th
+          th Project
+          th Core
+          th CPUs
+          th GPUs
+          th TPF
+          th PPD
+          th Run Time
+          th Units
+          th Last Assigned
 
-        tr(v-for="unit in wus")
-          UnitRow(:data="unit", v-if="unit.id", :key="unit.id",
-            :columns="columns")
+        tr(v-for="p in performance")
+          td {{p.project}}
+          td {{p.core}}
+          td {{p.cpus}}
+          td(:title="p.gpus.join(' ')") {{p.gpus.length}}
+          td(title="Average Time Per Frame")
+            | {{p.tpf ? $util.time_interval(p.tpf) : '???'}}
+          td(title="Average Points Per Day")
+            | {{Math.round(p.ppd || 0).toLocaleString()}}
+          td(title="Total run time") {{$util.time_interval(p.run_time)}}
+          td(title="Total Work Units including partials")
+            | {{p.progress.toLocaleString()}}
+          td(:title="$util.format_time(p.time)") {{$util.since(p.time)}} ago
 
-          td
-            Button.button-icon(icon="info-circle", :route="'/unit/' + unit.id")
+      .header-title Work Unit History
+      .units-view(:style="Unit.get_column_grid_style(columns, ' 1fr')")
+        UnitHeader(:columns="columns") Info
+
+        UnitsView(:units="wus", :columns="columns", v-slot="{unit}")
+          Button.button-icon(icon="info-circle",
+            :route="`/unit/${unit.id}`", title="View Work Unit details")
 </template>
 
 <style lang="stylus">
@@ -97,9 +153,16 @@ export default {
       overflow auto
       flex 1
 
-      .view-table
+      table
         width 100%
+        margin-bottom var(--gap)
 
-        .button
-          font-size 12pt
+        td, th
+          text-align right
+
+      .button
+        font-size 12pt
+
+      :not(.column-header).column-actions
+        justify-content center
 </style>

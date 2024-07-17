@@ -76,7 +76,7 @@ class Node extends Sock {
     // Update our machines list
     if (!mach) {
       await this.ctx.$account.update()
-      mach = this.ctx.$machs.get(id)
+      mach = this.ctx.$machs.get(id, false)
     }
 
     if (mach) {

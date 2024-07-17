@@ -36,6 +36,11 @@ import ConnectDialog    from './ConnectDialog.vue'
 import {watchEffect}    from 'vue'
 
 
+function set_doc_class(enable, name) {
+  document.body.classList[enable ? 'add' : 'remove'](name)
+}
+
+
 export default {
   components: {
     Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog,
@@ -64,34 +69,32 @@ export default {
     },
 
 
-    set_wide(wide) {
-      if (wide) document.body.classList.add('wide-view')
-      else document.body.classList.remove('wide-view')
-    },
-
-
+    set_wide(wide) {set_doc_class(wide, 'theme-wide')},
     check_wide() {this.set_wide((this.$adata.config || {}).wide)},
 
 
     set_dark(dark) {
-      let cl = document.body.classList
-      cl.add(`theme-${dark ? 'dark' : 'light'}`)
-      cl.remove(`theme-${dark ? 'light' : 'dark'}`)
+      set_doc_class( dark, 'theme-dark')
+      set_doc_class(!dark, 'theme-light')
     },
 
 
     check_dark() {
-      let dark = this.$util.retrieve_bool('fah-dark-mode')
-
-      dark = (this.$adata.config || {}).dark || dark
+      let dark = (this.$adata.config || {}).dark
+      if (dark == undefined) dark = this.$util.retrieve_bool('fah-dark-mode')
       this.$util.store_bool('fah-dark-mode', dark)
       this.set_dark(dark)
     },
 
 
+    set_compact(compact) {set_doc_class(compact, 'theme-compact')},
+    check_compact() {this.set_compact((this.$adata.config || {}).compact)},
+
+
     check_appearance() {
       this.check_dark()
       this.check_wide()
+      this.check_compact()
     },
 
 

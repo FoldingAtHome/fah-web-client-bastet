@@ -103,13 +103,13 @@ a.button(@click="click", :href="link", :target="href ? '_blank' : ''",
 a.button
   cursor pointer
   font-weight bold
-  padding var(--gap) calc(var(--gap) * 2)
+  padding calc(var(--gap) * 0.75) var(--gap)
   border 0
   color var(--button-fg)
   background var(--button-bg)
   white-space nowrap
   display inline-flex
-  gap var(--gap)
+  gap calc(var(--gap) / 2)
   flex-direction row
   justify-content center
   align-items center
