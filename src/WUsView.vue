@@ -57,7 +57,7 @@ export default {
       for (let unit of this.$machs.get_units()) {
         unit = new Unit(this.$ctx, unit)
         let progress = unit.wu_progress
-        if (isNaN(progress)) continue
+        if (!isFinite(progress)) continue
 
         let time = new Date(unit.assign.time).getTime()
         let desc = unit.description
@@ -126,8 +126,7 @@ export default {
           td {{p.core}}
           td {{p.cpus}}
           td(:title="p.gpus.join(' ')") {{p.gpus.length}}
-          td(title="Average Time Per Frame")
-            | {{p.tpf ? $util.time_interval(p.tpf) : '???'}}
+          td(title="Average Time Per Frame") {{$util.time_interval(p.tpf)}}
           td(title="Average Points Per Day")
             | {{Math.round(p.ppd || 0).toLocaleString()}}
           td(title="Total run time") {{$util.time_interval(p.run_time)}}
@@ -135,7 +134,7 @@ export default {
             | {{p.progress.toLocaleString()}}
           td(:title="$util.format_time(p.time)") {{$util.since(p.time)}} ago
 
-      .header-title Work Unit History
+      .header-title Recent Work Unit History
       .units-view(:style="Unit.get_column_grid_style(columns, ' 1fr')")
         UnitHeader(:columns="columns") Info
 

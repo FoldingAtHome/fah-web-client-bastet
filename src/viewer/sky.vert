@@ -19,7 +19,7 @@ const float pi = 3.141592653589793238462643383279502884197169;
 // wavelength of used primaries, according to preetham
 const vec3 lambda = vec3(680E-9, 550E-9, 450E-9);
 
-// this pre-calcuation replaces older TotalRayleigh(vec3 lambda) function:
+// this pre-calculation replaces older TotalRayleigh(vec3 lambda) function:
 // (8.0 * pow(pi, 3.0) * pow(pow(n, 2.0) - 1.0, 2.0) *
 // (6.0 + 3.0 * pn)) / (3.0 * N * pow(lambda, vec3(4.0)) * (6.0 - 7.0 * pn))
 const vec3 totalRayleigh =
@@ -65,7 +65,7 @@ void main() {
 
   float rayleighCoefficient = rayleigh - (1.0 * (1.0 - vSunfade));
 
-  // extinction (absorbtion + out scattering) rayleigh coefficients
+  // extinction (absorption + out scattering) rayleigh coefficients
   vBetaR = totalRayleigh * rayleighCoefficient;
 
   // mie coefficients

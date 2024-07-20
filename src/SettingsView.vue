@@ -168,13 +168,14 @@ export default {
     },
 
     get_group_config(config) {
-      let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key']
+      let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key', 'cuda']
       let copy = copy_keys(config, keys)
 
       copy.on_idle = !!copy.on_idle
       copy.cpus    = copy.cpus || 0
       copy.beta    = !!copy.beta
       copy.key     = copy.key || 0
+      copy.cuda    = copy.cuda == undefined ? true : copy.cuda
 
       if (this.$util.version_less('8.3.1', this.version)) {
         copy.on_battery = !!config.on_battery
@@ -306,7 +307,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
         HelpBalloon(name="Machine")
           p You can rename the machine or unlink a machine you no longer use.
           p.
-            Machine names can be from 1 to 64 charcters in length and may
+            Machine names can be from 1 to 64 characters in length and may
             include a-z, 0-9, dashes (-) and dots (.).
           p.
             If the local machine is linked to another account you can link it to
@@ -390,32 +391,6 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
 
   > .actions
     opacity 0.4
-
-  fieldset
-   .cpus-input
-      display flex
-      gap var(--gap)
-
-      > :first-child
-        flex 1
-
-      > span
-        white-space nowrap
-
-    .gpus-input
-      .gpu-row
-        &.unsupported td
-          opacity 0.4
-
-        .gpu-enabled
-          text-align center
-
-      .gpu-description
-        width 100%
-        white-space normal
-
-    .setting > :first-child
-      width 9em
 
 .new-group-dialog .dialog-body
   display flex

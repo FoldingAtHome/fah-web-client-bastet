@@ -47,7 +47,7 @@ template(v-for="(_unit, index) in units", :key="_unit.id")
   template(v-for="unit in [new Unit($ctx, _unit)]")
     div(v-for="col in columns",
       :class="unit.get_column_class(col, index & 1)",
-      :title="Unit.get_column_title(col)")
+      :title="unit.get_column_title(col)")
       ProgressBar(v-if="col == 'Progress'", :progress="unit.progress")
       span(v-else, v-html="unit.get_column_content(col)")
 

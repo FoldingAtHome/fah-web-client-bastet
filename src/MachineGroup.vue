@@ -64,7 +64,7 @@ export default {
 
 UnitsView(:units="units", :columns="columns", v-slot="{unit}")
   Button.button-icon(:disabled="!unit.paused || !connected",
-    @click="dump(unit.id)",
+    @click="mach.dump(unit.id)",
     icon="trash", title="Dump this Work Unit")
 
   Button.button-icon(:disabled="!connected",

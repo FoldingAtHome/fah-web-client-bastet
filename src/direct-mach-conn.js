@@ -88,7 +88,7 @@ class DirectMachConn extends MachConnection {
     if (this.ctx.$util.version_less('8.1.17', this.mach.get_version())) {
       this._clear_ping()
       this._ping_timer = setTimeout(() => {
-        console.log(this.mach.get_name() + ': timedout')
+        console.log(this.mach.get_name() + ': timed out')
         this.sock.close()
       }, 30000)
     }

@@ -102,19 +102,17 @@ fieldset.settings.view-panel
 
     table.gpus-input.view-table
       tr
-        th ID
         th Description
         th Enabled
 
       tr.gpu-row(v-for="gpu in gpus",
         :class="{unsupported: !gpu.supported}",
-        :title="!gpu.supported ? 'Unsupported GPU' : ''")
-        td.gpu-id {{gpu.id.substr(4)}}
+        :title="gpu.supported ? `${gpu.id} ${gpu.description}` : \
+          'Unsupported GPU'")
         td.gpu-description {{gpu.description}}
 
         td.gpu-enabled
-          input(type="checkbox", v-model="config.gpus[gpu.id].enabled",
-            :title="''")
+          input(type="checkbox", v-model="config.gpus[gpu.id].enabled")
 
 fieldset.settings.view-panel(v-if="advanced")
   legend
@@ -132,11 +130,47 @@ fieldset.settings.view-panel(v-if="advanced")
   .setting
     HelpBalloon(name="Project Key"): p.
       Project keys are used for internal testing of folding projects.
-      Unless you are specically instructed by a Folding@home researcher to
+      Unless you are specially instructed by a Folding@home researcher to
       use a project key, leave this field set to zero.
 
     input(v-model="config.key", type="number", title="Project key")
+
+  .setting
+    HelpBalloon(name="Enable CUDA"): p.
+      Enable CUDA support.  Normally this should be left enabled.  Disabling
+      CUDA is used for testing purposes.
+
+    input(v-model="config.cuda", type="checkbox", title="Enable CUDA")
 </template>
 
 <style lang="stylus">
+.settings-view
+  fieldset
+   .cpus-input
+      display flex
+      gap var(--gap)
+
+      > :first-child
+        flex 1
+
+      > span
+        white-space nowrap
+
+    .gpus-input
+      .gpu-row
+        &.unsupported td
+          opacity 0.4
+
+        .gpu-enabled, .cuda-enabled
+          text-align center
+
+      .gpu-description
+        max-width 10em
+        width 100%
+        white-space nowrap
+        overflow hidden
+        text-overflow ellipsis
+
+    .setting > :first-child
+      width 9em
 </style>

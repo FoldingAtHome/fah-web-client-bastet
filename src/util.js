@@ -298,6 +298,7 @@ class Util {
 
 
   time_interval(secs) {
+    if (!isFinite(secs)) return '???'
     if (secs < 0) return '-' + this.time_interval(-secs)
 
     function div(x, y) {return (x / y) >> 0}

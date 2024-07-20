@@ -305,6 +305,9 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
   legend > a
     display inline
 
+  fieldset.settings .setting label
+    width 7em
+
   .actions
     display flex
     gap var(--gap)

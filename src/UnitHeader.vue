@@ -40,7 +40,7 @@ export default {
 <template lang="pug">
 .column-header(v-for="col in columns",
   :class="Unit.get_column_header_class(col)",
-  :title="Unit.get_column_title(col)") {{col}}
+  :title="Unit.get_column_desc(col)") {{col}}
 
 .column-header.column-actions
   slot

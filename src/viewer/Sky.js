@@ -38,7 +38,7 @@
  *
  * Improved by Martin Upitis
  * http://blenderartists.org/forum/showthread.php?
- *   245954-preethams-sky-impementation-HDR
+ *   245954-preethams-sky-implementation-HDR
  *
  * Three.js integration by zz85 http://twitter.com/blurspline
  *

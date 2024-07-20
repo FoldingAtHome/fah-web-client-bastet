@@ -170,6 +170,7 @@ class Unit {
   }
 
   get status() {return `<div class="fa fa-${this.icon}"/>`}
+  get status_title() {return this.status_text}
 
 
   get status_text() {
@@ -187,13 +188,14 @@ class Unit {
 
   get wait_progress() {
     if (!this.waiting) return 0
-    return 1 - (this.wait_until - this.util.now) / 1000 / this.unit.delay
+    let p = 1 - (this.wait_until - this.util.now) / 1000 / this.unit.delay
+    return (0 <= p && p <= 1) ? p : 0
   }
 
 
   get wu_progress() {
     let p = this.unit.wu_progress
-    return p == undefined ? this.unit.progress || 0 : p
+    return (0 <= p && p <= 1) ? p : (this.unit.progress || 0)
   }
 
 
@@ -202,7 +204,7 @@ class Unit {
     if ((this.paused || this.unit.state == 'RUN' ||
       this.unit.state == 'CLEAN')) p = this.wu_progress
     if (this.waiting) p = this.wait_progress
-    return isNaN(p) ? 0 : (p * 100).toFixed(1)
+    return (0 <= p && p <= 1) ? (p * 100).toFixed(1) : 0
   }
 
 
@@ -233,11 +235,11 @@ class Unit {
 
 
   get_column_content(name)      {return this[clean_column(name)]}
-  static get_column_title(name) {return Unit.get_column(name).desc}
+  static get_column_desc(name) {return Unit.get_column(name).desc}
 
 
-  get_column_data_title(name) {
-    return this[clean_column(name) + '_title'] || Unit.get_column_title(name)
+  get_column_title(name) {
+    return this[clean_column(name) + '_title'] || Unit.get_column_desc(name)
   }
 
 

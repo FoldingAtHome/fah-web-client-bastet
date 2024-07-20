@@ -175,7 +175,7 @@ class Account {
     //  7. H, W & P are sent to the DB.
     //  8. The DB stores password = SHA256(H), secret = W, pubkey = P
     //
-    // After unlocking the secret key, account to remote machine communcation
+    // After unlocking the secret key, account to remote machine communication
     // proceeds as follows:
     //
     //  1. E = AES_CBC.new()
@@ -219,7 +219,7 @@ class Account {
     //  Request secret from the DB by passing derived password hash.
     //  The DB compares SHA256(password) and returns secret on match.
     let W = await this.ctx.$api.get(
-      '/account/secret', {password}, 'Retreiving account secret')
+      '/account/secret', {password}, 'Retrieving account secret')
 
     // Decrypt private key
     W = this.util.base64_decode(W.secret)
