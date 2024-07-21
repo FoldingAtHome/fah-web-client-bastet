@@ -137,6 +137,9 @@ class Account {
     await this.save_credentials(email, passphrase)
     await this.retrieve_secret(hash, key, salt)
     await this.update()
+
+    const mach = this.ctx.$machs.get_direct()
+    if (mach) await mach.auto_link()
   }
 
 

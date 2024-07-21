@@ -56,10 +56,18 @@ export default {
 
 
     status() {
-      if (this.loading)    return 'Loading...'
-      if (!this.connected) return 'Disconnected'
-      if (this.outdated)   return 'Outdated'
-      if (this.no_work)    return 'No work'
+      let l = []
+
+      if (this.loading) l.push(['Loading...'])
+      else if (!this.connected) l.push(['Disconnected'])
+      else {
+        if (this.outdated) l.push(['Outdated', 'Client version too old'])
+        if (this.unlinked)
+          l.push(['Unlinked', 'Machine not linked to F@H account'])
+        if (this.no_work)  l.push(['No work', 'Start folding to download work'])
+      }
+
+      return l
     },
 
 
@@ -77,6 +85,12 @@ export default {
 
     outdated()  {
       return this.version && this.$util.version_less(this.version, '8.3.0')
+    },
+
+
+    unlinked() {
+      let aid = this.mach.get_info().account
+      return this.$adata.id ? aid != this.$adata.id : !aid
     }
   },
 
@@ -107,7 +121,8 @@ export default {
     .machine-resources(v-if="one_group && !outdated",
       :title="mach.get_resources()") {{mach.get_resources('', 50)}}
 
-    .machine-status {{status}}
+    .machine-status
+      span(v-for="t in status", :title="t[1]", v-html="t[0]")
 
     .machine-actions(v-if="!outdated")
       Button.button-icon(:route="mach.get_url('/settings')",
@@ -173,10 +188,12 @@ export default {
       width 3em
 
     .machine-status
-      text-align right
       flex 1
       color var(--warn-color)
       font-weight bold
+      display flex
+      gap var(--gap)
+      justify-content end
 
     .machine-actions
       display flex

@@ -139,9 +139,7 @@ class DirectMachConn extends MachConnection {
         // Update machine name
         if (info.mach_name) this.mach.set_name(info.mach_name)
 
-        // Auto link local machine if not already linked to an account
-        let token = this.ctx.$account.data.token
-        if (token && !info.account) this.mach.link(token)
+        this.mach.auto_link()
       }
     }
   }

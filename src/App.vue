@@ -49,6 +49,8 @@ export default {
 
 
   mounted() {
+    this.$ctx.$root = this.$root
+
     window.addEventListener('keyup', this.on_key_up)
     watchEffect(() => this.check_appearance())
     this.$api.set_error_handler(this.error_handler)

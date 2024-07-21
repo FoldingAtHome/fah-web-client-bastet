@@ -33,9 +33,8 @@ export default {
 
 
   computed: {
-    latest()       {return this.$api.get_latest_version()},
     version()      {return this.mach.get_version()},
-    outdated()     {return this.mach.is_outdated(this.latest)},
+    outdated()     {return this.mach.is_outdated()},
     download_url() {return this.$api.get_download_url()}
   }
 }

@@ -183,9 +183,10 @@ class Machine {
   }
 
 
-  is_outdated(latest) {
+  is_outdated() {
+    const latest  = this.ctx.$api.get_latest_version()
     const current = this.get_version()
-    return current && this.util.version_less(current, latest)
+    return latest && current && this.util.version_less(current, latest)
   }
 
 
@@ -243,6 +244,22 @@ class Machine {
     let data = {state}
     if (group != undefined) data.group = group
     return this.send_command('state', data)
+  }
+
+
+  async auto_link() {
+    // Auto link if not already linked
+    let token = this.ctx.$adata.token
+    if (!token || this.get_info().account) return
+
+    await this.link(token)
+
+    return this.ctx.$root.message('info', 'Auto-linking client',
+      `<p>The directly connected machine named ${this.get_name()} ` +
+      `has been automatically linked to the currently logged in ` +
+      `Folding@home account.</p>` +
+      `<p>Once linked, its configuration will be synchronized ` +
+      `with the account.</p>`)
   }
 
 

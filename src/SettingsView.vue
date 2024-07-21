@@ -163,9 +163,15 @@ export default {
 
 
     async unlink() {
+      let response = await this.$root.message('confirm', 'Unlink machine?',
+        '<p>If you unlink this machine you will loose remote access.</p>' +
+        '<p>Are you sure you want to unlink?', ['no', 'yes'])
+      if (response != 'yes') return
       await this.mach.unlink()
       await this.$account.update()
+      this.$router.back()
     },
+
 
     get_group_config(config) {
       let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key', 'cuda']

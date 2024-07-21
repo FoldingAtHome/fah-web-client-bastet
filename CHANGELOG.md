@@ -6,11 +6,19 @@ Folding@home Web Control Changelog
  - Moved dark/light theme selection to account settings.
  - Show WU TPF.  #43
  - Support wide display.
+ - Support compact mode.
  - Moved machine unlink and name editing to machine settings.
  - Show "target" icon next to directly connected client.
  - CTRL-C to change direct client address.
  - Improved log view performance for very large log files.
  - WU history. #133
+ - Added WU TPF benchmarking information. #153
+ - Show ``Unlinked`` if machine is not linked to the logged in account.
+ - Show info dialog when auto-linking occurs.
+ - Confirm machine unlinking.
+ - Added disable CUDA option.
+ - CTRL-C opens direct client connection dialog.
+ - Added per WU log button.  #125
 
 ## v8.3.18
  - Added notice about Brave browser.

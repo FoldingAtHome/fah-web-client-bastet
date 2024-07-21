@@ -78,7 +78,6 @@ async function main(url) {
   ctx.$stats    = new Stats(ctx)
   ctx.$news     = new News(ctx)
 
-
   let addr = ctx.$util.get_direct_address()
   ctx.$direct   = new DirectMachConn(ctx, 'local', addr)
 
