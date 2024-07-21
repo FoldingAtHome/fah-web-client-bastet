@@ -255,11 +255,9 @@ class Machine {
     await this.link(token)
 
     return this.ctx.$root.message('info', 'Auto-linking client',
-      `<p>The directly connected machine named ${this.get_name()} ` +
-      `has been automatically linked to the currently logged in ` +
-      `Folding@home account.</p>` +
-      `<p>Once linked, its configuration will be synchronized ` +
-      `with the account.</p>`)
+      'The local machine has been automatically linked to your ' +
+      'Folding@home account.  Its configuration will remain ' +
+      'synchronized with the account.')
   }
 
 
