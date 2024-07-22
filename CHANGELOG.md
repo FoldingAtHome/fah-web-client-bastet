@@ -1,6 +1,13 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.1
+ - Fix ``Finishing`` display bug.
+ - Updated auto-link dialog wording.
+ - Fix ``Base Credit`` display.
+ - Fix GPU description display.
+ - Fix scrollbar problem with wide mode on Chrome.
+
 ## v8.4.0
  - Configurable WU columns. #128
  - Moved dark/light theme selection to account settings.

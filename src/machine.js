@@ -27,63 +27,8 @@
 \******************************************************************************/
 
 import {reactive} from 'vue'
-
-
-function is_object(o) {return o != null && typeof o === 'object'}
-
-
-function clean_key(key) {
-  if (typeof key == 'string') return key.replace('-', '_')
-  return key
-}
-
-
-function clean_keys(data) {
-  if (Array.isArray(data)) {
-    let r = []
-
-    for (const value of data)
-      r.push(clean_keys(value))
-
-    return r
-  }
-
-  if (is_object(data)) {
-    let r = {}
-
-    for (const [key, value] of Object.entries(data))
-      r[clean_key(key)] = clean_keys(value)
-
-    return r
-  }
-
-  return data
-}
-
-
-function update_obj(obj, update) {
-  let i = 0
-
-  while (i < update.length - 2) {
-    let key = clean_key(update[i++])
-
-    if (obj[key] == undefined)
-      obj[key] = Number.isInteger(update[i]) ? [] : {}
-
-    obj = obj[key]
-  }
-
-  let is_array = Array.isArray(obj)
-  let key      = clean_key(update[i++])
-  let value    = update[i]
-
-  if      (is_array && key   === -1)   obj.push(value)
-  else if (is_array && key   === -2)   obj.splice(obj.length, 0, ...value)
-  else if (is_array && value === null) obj.splice(key, 1)
-  else if (value === null)             delete obj[key]
-  else                                 obj[key] = value
-}
-
+import Updatable from './updatable.js'
+import Unit      from './unit.js'
 
 
 class Machine {
@@ -104,7 +49,7 @@ class Machine {
   get_id()      {return this.state.id}
   get_name()    {return this.state.name}
   get_data()    {return this.state.data}
-  get_viz(unit) {return (this.get_data().viz || {})[clean_key(unit)] || {}}
+  get_viz(unit) {return (this.get_data().viz || {})[unit] || {}}
   get_url(path) {return this.get_id() + path}
   get_info()    {return this.get_data().info || {}}
   get_version() {return this.get_info().version}
@@ -147,9 +92,9 @@ class Machine {
   is_direct() {return this.get_conn() && this.get_conn().is_direct()}
 
 
-  *[Symbol.iterator]() {
-    for (let unit of (this.get_data().units || []))
-      yield unit
+  get_units() {
+    return (this.get_data().units || []).map(
+      unit => new Unit(this.ctx, unit, this))
   }
 
 
@@ -161,18 +106,7 @@ class Machine {
   }
 
 
-  is_empty() {
-    for (let unit of this) return false
-    return true
-  }
-
-
-  get_unit(id) {
-    for (let unit of this)
-      if (unit.id == id) return unit
-  }
-
-
+  is_empty() {!this.get_units().length}
   set_name(name) {this.state.name = name}
 
 
@@ -207,7 +141,7 @@ class Machine {
   is_active() {
     if (!this.is_connected()) return false
 
-    for (let unit of this)
+    for (let unit of this.get_units())
       if (!unit.paused) return true
 
     return false
@@ -248,6 +182,8 @@ class Machine {
 
 
   async auto_link() {
+    if (!this.is_connected()) return
+
     // Auto link if not already linked
     let token = this.ctx.$adata.token
     if (!token || this.get_info().account) return
@@ -310,45 +246,25 @@ class Machine {
 
 
   async on_message(msg) {
-    msg = clean_keys(msg)
     console.debug(this.get_name() + ':', msg)
 
     if (this.first) {
       this.first = false
       this.state.connected = true
-      this.state.data = msg
+      this.state.data = new Updatable(msg)
 
       if (this.vizUnit)    this._send_viz_enable()
       if (this.logEnabled) this._send_log_enable()
       if (this.wusEnabled) this._send_wus_enable()
 
-      for (let unit of msg.units)
-        this.ctx.$machs.units[unit.id] = unit
-
     } else if (Array.isArray(msg)) {
-      update_obj(this.state.data, msg)
+      this.state.data.do_update(msg)
 
+      // Cache viz
       if (msg.length && msg[0] == 'viz') {
         let key   = msg.slice(0, -1).join('/')
         let value = msg.slice(-1)[0]
         await this.cache.set(key, value)
-      }
-
-      if (msg.length && msg[0] == 'wus' || msg[0] == 'units') {
-        let units = []
-        if (Array.isArray(msg[1])) units = msg[1]
-        if (Number.isInteger(msg[1])) {
-          if (msg[1] == -1) units = [msg[2]]
-          if (msg[1] == -2) units = msg[2]
-        }
-
-        for (let unit of units)
-          if (unit.id) this.ctx.$machs.units[unit.id] = unit
-
-        if (msg[2] == 'id') {
-          let unit = this.state.data.units[msg[1]]
-          this.ctx.$machs.units[unit.id] = unit
-        }
       }
 
       // Trim log
@@ -385,7 +301,7 @@ class Machine {
         viz.frames[i] = frame
       }
 
-      data.viz[clean_key(unit)] = viz
+      data.viz[unit] = viz
     }
 
     return viz.frames.length

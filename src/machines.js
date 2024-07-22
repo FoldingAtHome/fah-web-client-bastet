@@ -28,13 +28,13 @@
 
 import {watchEffect, reactive, toRaw} from 'vue'
 import Machine from './machine.js'
+import Unit    from './unit.js'
 
 
 class Machines {
   constructor(ctx) {
     this.ctx      = ctx
     this.machines = reactive({})
-    this.units    = reactive({})
 
     watchEffect(() => {
       if (!ctx.$account.data.machines) return
@@ -105,14 +105,24 @@ class Machines {
   *get_units() {
     let found = {}
     for (let mach of this) {
-      let units = Array.from(mach).concat(mach.get_data().wus || [])
+      let units = mach.get_units().concat(mach.get_data().wus || [])
 
-      for (let unit of units)
-        if (unit.id && unit.assignment && !found[unit.id]) {
+      for (let unit of units) {
+        if (!(unit instanceof Unit)) unit = new Unit(this.ctx, unit, mach)
+
+        if (unit.id && unit.assign && !found[unit.id]) {
           found[unit.id] = true
           yield unit
         }
+      }
     }
+  }
+
+
+  get_unit(id) {
+    for (let unit of this.get_units())
+      if (unit.id == id) return unit
+    return {}
   }
 
 
@@ -131,9 +141,6 @@ class Machines {
 
     this.wus_enabled = enable
   }
-
-
-  get_unit(id) {return this.units[id] || {}}
 }
 
 export default Machines

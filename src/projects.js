@@ -56,10 +56,8 @@ class Projects {
   _update_ids() {
     let projects = {}
 
-    for (let mach of this.ctx.$machs)
-      for (let unit of mach)
-        if (unit.assignment)
-          projects[unit.assignment.project] = true
+    for (let unit of this.ctx.$machs.get_units())
+      if (unit.assign.project) projects[unit.project] = true
 
     projects = Object.keys(projects)
 

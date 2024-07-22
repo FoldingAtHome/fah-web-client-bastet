@@ -31,8 +31,7 @@ import Unit    from './unit.js'
 
 
 function cmp_wus(a, b) {
-  return new Date(b.assignment.time).getTime() -
-    new Date(a.assignment.time).getTime()
+  return new Date(b.assign.time).getTime() - new Date(a.assign.time).getTime()
 }
 
 
@@ -54,8 +53,7 @@ export default {
     performance() {
       let r = {}
 
-      for (let unit of this.$machs.get_units()) {
-        unit = new Unit(this.$ctx, unit)
+      for (let unit of this.wus) {
         let progress = unit.wu_progress
         if (!isFinite(progress)) continue
 

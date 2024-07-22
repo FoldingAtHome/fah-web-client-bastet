@@ -27,15 +27,12 @@
 -->
 
 <script>
-import Unit from './unit.js'
-
-
 export default {
   props: ['unitID'],
 
 
   computed: {
-    unit() {return new Unit(this.$ctx, this.$machs.get_unit(this.unitID))},
+    unit() {return this.$machs.get_unit(this.unitID)},
     project() {return this.$projects.get(this.unit.project) || {}},
   }
 }
@@ -51,7 +48,7 @@ export default {
 
       .info-group
         info-item(label="PPD",         :content="unit.ppd")
-        info-item(label="Base Credit", :content="unit.credit")
+        info-item(label="Base Credit", :content="unit.base_credit")
 
       .info-group
         info-item(label="CPUs", :content="unit.cpus_description")
@@ -63,6 +60,7 @@ export default {
           span: ProgressBar(:progress="unit.progress")
 
       .info-group
+        info-item(label="TPF", :content="unit.tpf")
         info-item(label="ETA",      :content="unit.eta")
         info-item(label="Run Time", :content="unit.run_time")
 

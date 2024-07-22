@@ -45,7 +45,7 @@ export default {
     groups()    {return this.mach.get_groups()},
     info()      {return this.mach.get_info()},
     version()   {return this.info.version},
-    units()     {return Array.from(this.mach)},
+    units()     {return this.mach.get_units()},
     no_work()   {return !this.units.length},
 
 

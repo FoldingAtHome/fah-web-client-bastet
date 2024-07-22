@@ -27,32 +27,25 @@
 -->
 
 <script>
-import Unit from './unit.js'
-
-
 export default {
   name: 'UnitsView',
   props: {
     units: Array,
     columns: Array
-  },
-
-
-  computed: {Unit() {return Unit}},
+  }
 }
 </script>
 
 <template lang="pug">
-template(v-for="(_unit, index) in units", :key="_unit.id")
-  template(v-for="unit in [new Unit($ctx, _unit)]")
-    div(v-for="col in columns",
-      :class="unit.get_column_class(col, index & 1)",
-      :title="unit.get_column_title(col)")
-      ProgressBar(v-if="col == 'Progress'", :progress="unit.progress")
-      span(v-else, v-html="unit.get_column_content(col)")
+template(v-for="(unit, index) in units", :key="unit.id")
+  div(v-for="col in columns",
+    :class="unit.get_column_class(col, index & 1)",
+    :title="unit.get_column_title(col)")
+    ProgressBar(v-if="col == 'Progress'", :progress="unit.progress")
+    span(v-else, v-html="unit.get_column_content(col)")
 
-    .column-actions(:class="`row-${index & 1 ? 'odd' : 'even'}`")
-      slot(:unit="unit")
+  .column-actions(:class="`row-${index & 1 ? 'odd' : 'even'}`")
+    slot(:unit="unit")
 </template>
 
 <style lang="stylus">

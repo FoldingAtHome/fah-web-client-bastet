@@ -59,12 +59,14 @@ function clean_column(name) {return name.toLowerCase().replaceAll(' ', '_')}
 
 
 class Unit {
-  constructor(ctx, unit) {
+  constructor(ctx, unit, mach) {
     this.util = ctx.$util
     this.unit = unit
+    this.mach = mach
   }
 
   get id()      {return this.unit.id}
+  get group()   {return this.unit.group}
   get assign()  {return this.unit.assignment || {}}
   get number()  {return this.unit.number}
   get core()    {return (this.assign.core || {}).type}
@@ -73,11 +75,24 @@ class Unit {
   get cpus()    {return this.unit.cpus}
   get gpus()    {return this.unit.gpus.length}
   get paused()  {return !!this.unit.pause_reason}
+
+
+  get finish()  {
+    return this.unit.state == 'RUN' && this.mach.get_config(this.group).finish
+  }
+
+
   get cpus_description() {return this.assign.cpus}
 
 
   get gpus_description() {
-    return this.assign.gpus ? this.assign.gpus.join(' ') : 'none'
+    let gpus = []
+    let info = this.mach.get_info().gpus || {}
+
+    for (let gpu of this.assign.gpus)
+      if (gpu in info) gpus.push(info[gpu].description)
+
+    return gpus.length ? gpus.join(' ') : 'none'
   }
 
 
@@ -89,9 +104,18 @@ class Unit {
 
   get state() {
     if (this.waiting) return 'WAIT'
-    if (this.unit.pause_reason) return 'PAUSE'
-    if (this.unit.state == 'RUN' && this.finish) return 'FINISH'
+    if (this.finish)  return 'FINISH'
+    if (this.paused)  return 'PAUSE'
     return this.unit.state
+  }
+
+  get status() {return `<div class="fa fa-${this.icon}"/>`}
+  get status_title() {return this.status_text}
+
+
+  get status_text() {
+    if (this.waiting) return status[this.unit.state]
+    return this.unit.pause_reason || status[this.state]
   }
 
 
@@ -169,15 +193,6 @@ class Unit {
     return this.util.time_interval(this.run_time_secs, this.progress)
   }
 
-  get status() {return `<div class="fa fa-${this.icon}"/>`}
-  get status_title() {return this.status_text}
-
-
-  get status_text() {
-    if (this.waiting) return status[this.unit.state]
-    return this.unit.pause_reason || status[this.state]
-  }
-
 
   get cs() {return (this.wu.cs || []).join(', ')}
 
@@ -208,7 +223,7 @@ class Unit {
   }
 
 
-  get credit() {return (this.assign.credit || 0).toLocaleString()}
+  get base_credit() {return (this.assign.credit || 0).toLocaleString()}
 
 
   static get_column(name)   {return columns[name] || {}}
