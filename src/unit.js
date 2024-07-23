@@ -89,7 +89,7 @@ class Unit {
     let gpus = []
     let info = this.mach.get_info().gpus || {}
 
-    for (let gpu of this.assign.gpus)
+    for (let gpu of (this.assign.gpus || []))
       if (gpu in info) gpus.push(info[gpu].description)
 
     return gpus.length ? gpus.join(' ') : 'none'
