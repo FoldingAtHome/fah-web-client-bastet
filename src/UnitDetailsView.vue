@@ -31,9 +31,40 @@ export default {
   props: ['unitID'],
 
 
+  data() {
+    return {
+      loading: true,
+      credits: []
+    }
+  },
+
+
   computed: {
     unit() {return this.$machs.get_unit(this.unitID)},
     project() {return this.$projects.get(this.unit.project) || {}},
+  },
+
+
+  watch: {
+    'unit.project'() {this.load_credits()}
+  },
+
+
+  mounted() {this.load_credits()},
+
+
+  methods: {
+    async load_credits() {
+      let u = this.unit
+      if (!u || !u.project) return
+      let path =
+        `/project/${u.project}/run/${u.run}/clone/${u.clone}/gen/${u.gen}`
+      this.credits = await this.$api.fetch({
+        path, expire: 10 * 60 * 1000,
+        action: 'Loading Work Unit logged credits'
+      })
+      this.loading = false
+    }
   }
 }
 </script>
@@ -84,8 +115,36 @@ export default {
         info-item(label="Clone",      :content="unit.wu.clone")
         info-item(label="Generation", :content="unit.wu.gen")
 
+    fieldset.view-panel
+      legend Logged Credits
+
+      div(v-if="loading") Loading...
+      div(v-else-if="!credits.length") No credits logged
+      table.view-table(v-else)
+        tr
+          th Code
+          th User
+          th Team
+          th Credit
+          th Assigned
+          th Credited
+
+        tr(v-for="credit in credits")
+          td.code {{credit.code}}
+          td.user {{credit.user}}
+          td.team {{credit.team}}
+          td.credit {{(credit.credit || 0).toLocaleString()}}
+          td.assigned {{credit.assign_time}}
+          td.credited {{credit.credit_time}}
+
     ProjectView(v-if="project.description", :project="project", :full="true")
 </template>
 
 <style lang="stylus">
+.unit-details-view
+  .view-table
+    .user
+      max-width 20em
+      overflow hidden
+      text-overflow ellipsis
 </style>

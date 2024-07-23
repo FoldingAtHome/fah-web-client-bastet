@@ -58,7 +58,7 @@ export default {
 
 <template lang="pug">
 fieldset.project.view-panel(@click="toggle")
-  .header-title Project {{project.id}}
+  legend Project {{project.id}}
 
   .project-title
     .project-byline By {{project.manager}}, {{project.institution}}

@@ -71,6 +71,9 @@ class Unit {
   get number()  {return this.unit.number}
   get core()    {return (this.assign.core || {}).type}
   get project() {return this.assign.project}
+  get run()     {return this.wu.run}
+  get clone()   {return this.wu.clone}
+  get gen()     {return this.wu.gen}
   get wu()      {return this.unit.wu || {}}
   get cpus()    {return this.unit.cpus}
   get gpus()    {return this.unit.gpus.length}
