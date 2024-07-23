@@ -1,6 +1,11 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.2
+ - Fixed client version checking.
+ - Fixed GPUs display with zero GPUs.
+ - Fixed Work Unit Details timeout / deadline text.  #161
+
 ## v8.4.1
  - Fix ``Finishing`` display bug.
  - Updated auto-link dialog wording.

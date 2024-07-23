@@ -60,16 +60,16 @@ export default {
           span: ProgressBar(:progress="unit.progress")
 
       .info-group
-        info-item(label="TPF", :content="unit.tpf")
+        info-item(label="TPF",      :content="unit.tpf")
         info-item(label="ETA",      :content="unit.eta")
         info-item(label="Run Time", :content="unit.run_time")
 
       .info-group
         info-item(label="Assign Time", :content="unit.assign_time",
           :title="unit.assign_time_title")
-        info-item(label="Deadline",    :content="'in ' + unit.deadline",
+        info-item(label="Deadline in", :content="unit.deadline",
           :title="unit.deadline_time")
-        info-item(label="Timeout",     :content="'in ' + unit.timeout",
+        info-item(label="Timeout in",  :content="unit.timeout",
           :title="unit.timeout_time")
 
       .info-group
