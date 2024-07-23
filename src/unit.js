@@ -162,7 +162,10 @@ class Unit {
   }
 
 
-  get rcg() {return this.wu.run + ',' + this.wu.clone + ',' + this.wu.gen}
+  get rcg() {
+    if (this.run == undefined) return '?.?.?'
+    return `${this.run},${this.clone},${this.gen}`
+  }
 
 
   get eta() {

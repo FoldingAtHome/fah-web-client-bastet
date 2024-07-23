@@ -7,6 +7,7 @@ Folding@home Web Control Changelog
  - Fixed Work Unit Details timeout / deadline text.  #161
  - Use monospaced font for info items.  #110
  - Show logged credits in WU view.
+ - Fixed RCG display before WU download.  #165
 
 ## v8.4.1
  - Fix ``Finishing`` display bug.
