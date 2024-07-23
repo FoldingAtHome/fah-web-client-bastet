@@ -5,6 +5,7 @@ Folding@home Web Control Changelog
  - Fixed client version checking.
  - Fixed GPUs display with zero GPUs.
  - Fixed Work Unit Details timeout / deadline text.  #161
+ - Use monospaced font for info items.  #110
 
 ## v8.4.1
  - Fix ``Finishing`` display bug.

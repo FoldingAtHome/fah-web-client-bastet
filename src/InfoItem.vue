@@ -69,6 +69,7 @@ export default {
       overflow hidden
       text-overflow ellipsis
       white-space nowrap
+      font-family var(--mono-font)
 
 @media (max-width 600px)
   .info-group

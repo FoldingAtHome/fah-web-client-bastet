@@ -38,7 +38,7 @@ export default {
 
 <template lang="pug">
 template(v-for="(unit, index) in units", :key="unit.id")
-  div(v-for="col in columns",
+  .unit-cell(v-for="col in columns",
     :class="unit.get_column_class(col, index & 1)",
     :title="unit.get_column_title(col)")
     ProgressBar(v-if="col == 'Progress'", :progress="unit.progress")
@@ -66,6 +66,9 @@ template(v-for="(unit, index) in units", :key="unit.id")
   > .column-header
     color var(--table-header-fg)
     background var(--table-header-bg)
+
+  > .unit-cell
+    font-family var(--mono-font)
 
   > .column-right
     justify-content right

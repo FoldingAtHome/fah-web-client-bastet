@@ -26,12 +26,14 @@
 
 \******************************************************************************/
 
-@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap')
+font-url = 'https://fonts.googleapis.com/css2?family=%s&display=swap'
+@import url(s(font-url, Raleway))
+@import url(s(font-url, Source Code Pro))
 
 body
   font-family Raleway, sans-serif
   --gap       1em
-  --mono-font courier
+  --mono-font Source Code Pro, mono
 
 body.theme-compact
   --gap 0.4em
