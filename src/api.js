@@ -60,14 +60,7 @@ class API {
   }
 
 
-  get_release() {
-    switch (location.hostname) {
-    case 'alpha.foldingathome.org': return 'alpha'
-    case 'beta.foldingathome.org':  return 'beta'
-    case 'app.foldingathome.org':   return 'beta'
-    default:                        return 'public'
-    }
-  }
+  get_release() {return 'public'} // TODO
 
 
   get_download_url() {
@@ -87,19 +80,21 @@ class API {
     if (this.data.latest_version != undefined) return
 
     const release = this.get_release()
-    const url = 'https://download.foldingathome.org/?release=' + release
-    let r = await fetch(url)
-    let downloads = await r.json()
+    const base = 'https://download.foldingathome.org'
+    const url  = `${base}/releases/${release}/fah-client/meta.json`
+    const r    = await fetch(url)
+    const data = await r.json()
 
-    for (let download of downloads)
-      for (let group of (download.groups || []))
-        for (let file of (group.files || []))
-          if (file.version != undefined && file.version.length == 3) try {
-            let version = file.version.join('.')
-            this.cache.set('latest-version', version)
-            this.data.latest_version = version
-            return
-          } catch (e) {}
+    if (data.length) {
+      let version = data[0].version
+
+      if (version != undefined && version.length == 3) try {
+        version = version.join('.')
+        this.cache.set('latest-version', version)
+        this.data.latest_version = version
+        return
+      } catch (e) {}
+    }
   }
 
 
