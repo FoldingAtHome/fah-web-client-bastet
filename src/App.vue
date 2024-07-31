@@ -60,7 +60,8 @@ export default {
 
   methods: {
     async on_key_up(e) {
-      if (!e.ctrlKey || e.key != 'c') return
+      console.log(e)
+      if (!e.ctrlKey || e.key != 'L') return
 
       let dialog = this.$refs.connect_dialog
       let response = await dialog.exec()

@@ -8,6 +8,7 @@ Folding@home Web Control Changelog
  - Use monospaced font for info items.  #110
  - Show logged credits in WU view.
  - Fixed RCG display before WU download.  #165
+ - Change direct client address hotkey to CTRL+SHIFT+L.  #166
 
 ## v8.4.1
  - Fix ``Finishing`` display bug.
