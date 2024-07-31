@@ -29,6 +29,17 @@
 <script>
 import Unit    from './unit.js'
 
+function cmp(a, b, config) {
+  [a, b] = [a[config.key], b[config.key]]
+
+  let x = 0
+  if (config.key == 'time') x = new Date(a).getTime() - new Date(b).getTime()
+  else if (typeof a == 'string') x = a.localeCompare(b)
+  else x = a - b
+
+  return config.dir * x
+}
+
 
 function cmp_wus(a, b) {
   return new Date(b.assign.time).getTime() - new Date(a.assign.time).getTime()
@@ -39,9 +50,32 @@ export default {
   name: 'WUsView',
 
 
+  data() {
+    return {
+      avg: {key: 'time', dir:  -1},
+      hst: {key: 'time', dir:  -1},
+    }
+  },
+
+
   computed: {
+    avg_columns() {
+      return [
+        {name: 'Project', title: 'Folding project ID', key: 'project'},
+        {name: 'Core', title: 'Folding core ID', key: 'core'},
+        {name: 'Resources', title: 'Compute resources used', key: 'resources'},
+        {name: 'TPF', title: 'Average Time Per Frame', key: 'tpf'},
+        {name: 'PPD', title: 'Average Points Per Day', key: 'ppd'},
+        {name: 'Units', title: 'Total Work Units including partials',
+          key: 'progress'},
+        {name: 'Last Assigned', title: 'Last time this WU was assigned',
+          key: 'time'},
+      ]
+    },
+
+
     columns() {
-      return ['Number', 'Project', 'Core', 'Status', 'Progress',
+      return ['Machine', 'Project', 'Core', 'Status', 'Progress',
         'TPF', 'PPD', 'Assign Time']
     },
 
@@ -70,25 +104,32 @@ export default {
 
         } else
           r[desc] = {
-            id:       desc,
-            project:  unit.project,
-            core:     unit.core,
-            cpus:     unit.cpus,
-            gpus:     unit.unit.gpus,
-            tpf:      unit.tpf_secs * progress,
-            ppd:      (unit.unit.pdd || 0) * progress,
-            run_time: unit.run_time_secs || 0,
+            id:        desc,
+            project:   unit.project,
+            core:      unit.core,
+            resources: unit.resources,
+            cpus:      unit.cpus,
+            gpus:      unit.unit.gpus,
+            tpf:       unit.tpf_secs * progress,
+            ppd:       (unit.unit.pdd || 0) * progress,
+            run_time:  unit.run_time_secs || 0,
             time,
             progress,
           }
       }
 
       return Object.values(r).map(d => {
-        d.tpf /= d.progress
-        d.ppd /= d.progress
+        d.tpf      /= d.progress
+        d.ppd      /= d.progress
+        d.run_time /= d.progress
+
+        if (!isFinite(d.tpf)) d.tpf = 0
+
         return d
 
       }).sort((a, b) => {
+        const x = cmp(a, b, this.avg)
+        if (x) return x
         if (a.time != b.time) return b.time - a.time
         return a.project - b.project
       })
@@ -97,42 +138,67 @@ export default {
 
 
   mounted() {this.$machs.wus_enable(true)},
+
+
+  methods: {
+    column_class(col, config) {
+      if (col.key == config.key)
+        return 'fa fa-caret-' + (config.dir < 0 ? 'down' : 'up')
+    },
+
+    column_format(name, value) {
+      switch (name) {
+      case 'tpf':      return value ? this.$util.time_interval(value) : '???'
+      case 'ppd':      return Math.round(value || 0).toLocaleString()
+      case 'progress': return value.toLocaleString()
+      case 'time':     return this.$util.since(value)
+      default:         return value
+      }
+    },
+
+
+    sort(name, key) {
+      let table = this[name]
+      if (table.key == key) table.dir *= -1
+      else table.key = key
+    },
+
+
+  }
 }
 </script>
 
 <template lang="pug">
-.wus-view.page-view.fixed-view
+.wus-view.page-view
   MainHeader
 
   .view-body
     .wus
-      .header-title Work Unit Averages
+      HelpBalloon.header-title(name="Work Unit Averages")
+        p.
+          Each row contains average values computed over multiple Work Unit
+          runs of the same project using the same compute resources.
+          Compute resources consist of CPUs and GPUs.
+
+        p.
+          Average Time Per Frame and Points Per Day are estimates of WU
+          performance.
+
       table.view-table
         tr
-          th Project
-          th Core
-          th CPUs
-          th GPUs
-          th TPF
-          th PPD
-          th Run Time
-          th Units
-          th Last Assigned
+          th(v-for="col in avg_columns", :class="'column-' + col.key",
+            @click="sort('avg', col.key)", :title="col.title")
+            | {{col.name}}
+            .fa(:class="column_class(col, avg)")
 
         tr(v-for="p in performance")
-          td {{p.project}}
-          td {{p.core}}
-          td {{p.cpus}}
-          td(:title="p.gpus.join(' ')") {{p.gpus.length}}
-          td(title="Average Time Per Frame") {{$util.time_interval(p.tpf)}}
-          td(title="Average Points Per Day")
-            | {{Math.round(p.ppd || 0).toLocaleString()}}
-          td(title="Total run time") {{$util.time_interval(p.run_time)}}
-          td(title="Total Work Units including partials")
-            | {{p.progress.toLocaleString()}}
-          td(:title="$util.format_time(p.time)") {{$util.since(p.time)}} ago
+          td(v-for="col in avg_columns", :title="col.title",
+            :class="'column-' + col.key")
+            | {{column_format(col.key, p[col.key])}}
 
-      .header-title Recent Work Unit History
+      HelpBalloon.header-title(name="Recent Work Unit History"): p.
+        A log of recent work WUs completed by your machines.
+
       .units-view(:style="Unit.get_column_grid_style(columns, ' 1fr')")
         UnitHeader(:columns="columns") Info
 
@@ -144,18 +210,27 @@ export default {
 <style lang="stylus">
 .wus-view
   .view-body
-    font-family var(--mono-font)
-
     .wus
-      overflow auto
-      flex 1
-
       table
         width 100%
         margin-bottom var(--gap)
 
+        th
+          vertical-align unset
+
+          > .fa
+            width 0.75em
+            text-align center
+
         td, th
           text-align right
+
+          &.column-resources
+            text-align left
+            overflow hidden
+            text-overflow ellipsis
+            max-width 10em
+            width 100%
 
       .button
         font-size 12pt

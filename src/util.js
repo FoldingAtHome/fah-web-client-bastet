@@ -297,6 +297,33 @@ class Util {
   }
 
 
+  parse_interval(t) {
+    let re = '(?<num>\\d+(\\.\\d+)?) *(?<unit>[a-zA-Z]+) *'
+    if (!new RegExp(`^(${re})+$`).test(t)) throw `Invalid time interval "${t}"`
+    re = new RegExp(re, 'g')
+
+    let secs = 0
+    let match
+
+    while ((match = re.exec(t)) !== null) {
+      let num = match.groups.num
+
+      switch (match.groups.unit[0]) {
+      case 'y': num *= 365
+      case 'd': num *= 24
+      case 'h': num *= 60
+      case 'm': num *= 60
+      case 's': num *= 1; break
+      default: throw `Invalid time interval "${t}"`
+      }
+
+      secs += num
+    }
+
+    return secs
+  }
+
+
   time_interval(secs) {
     if (!isFinite(secs)) return '???'
     if (secs < 0) return '-' + this.time_interval(-secs)

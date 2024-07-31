@@ -9,7 +9,14 @@ Folding@home Web Control Changelog
  - Show logged credits in WU view.
  - Fixed RCG display before WU download.  #165
  - Change direct client address hotkey to CTRL+SHIFT+L.  #166
- - Added direct address validation.
+ - Added direct address dialog input validation.
+ - Prevent negative ETA.  #167
+ - Added help on Work Units page. #169
+ - Show WU Average resources.  #169
+ - Removed WU Average total run time.  #169
+ - Removed double scroll bar on WU page.  #169
+ - Sortable Work Unit Averages.
+ - Show machine name instead of WU number in WU history.  #160
 
 ## v8.4.1
  - Fix ``Finishing`` display bug.

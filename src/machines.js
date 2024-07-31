@@ -104,13 +104,14 @@ class Machines {
 
   *get_units() {
     let found = {}
+
     for (let mach of this) {
-      let units = mach.get_units().concat(mach.get_data().wus || [])
+      let units = (mach.get_data().wus || []).concat(mach.get_units())
 
       for (let unit of units) {
         if (!(unit instanceof Unit)) unit = new Unit(this.ctx, unit, mach)
 
-        if (unit.id && unit.assign && !found[unit.id]) {
+        if (unit.id && unit.project && !found[unit.id]) {
           found[unit.id] = true
           yield unit
         }

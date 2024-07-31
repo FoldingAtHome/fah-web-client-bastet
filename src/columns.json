@@ -16,5 +16,6 @@
   "Run Time":    {"desc": "Total Work Unit run time"},
   "Base Credit": {"desc": "Work Unit base credit"},
   "Assign Time": {"desc": "Work Unit assignment time in UTC"},
-  "Number":      {"desc": "Work Unit number assigned by the machine it's on"}
+  "Number":      {"desc": "Work Unit number assigned by the machine it's on"},
+  "Machine":     {"desc": "The name of the machine", "left": true}
 }

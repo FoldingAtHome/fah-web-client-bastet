@@ -58,7 +58,7 @@ label.help-balloon(@click="active = !active")
   display inline-block
 
   .help-overlay
-    position absolute
+    position fixed
     top 0
     left 0
     width 100vw

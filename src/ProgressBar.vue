@@ -35,12 +35,11 @@ export default {
 <template lang="pug">
 .progress-bar
   div(:style="{width: progress + '%'}")
-    span {{progress}}%
+  div {{progress}}%
 </template>
 
 <style lang="stylus">
 .progress-bar
-  position relative
   width 100%
   height 1.3rem
   border-radius var(--border-radius)
@@ -48,7 +47,7 @@ export default {
   background var(--progress-bg)
   color var(--progress-fg)
 
-  > div
+  :nth-child(1)
     height 100%
     display flex
     text-align center
@@ -58,10 +57,8 @@ export default {
     background-image var(--progress-img)
     background-size 1rem 1rem
 
-    > span
-      position absolute
-      top 0
-      width 100%
-      text-align center
-      z-index 2
+  :nth-child(2)
+    width 100%
+    text-align center
+    margin-top -1.3rem
 </style>

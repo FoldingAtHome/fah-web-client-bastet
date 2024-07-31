@@ -66,6 +66,7 @@ class Unit {
   }
 
   get id()      {return this.unit.id}
+  get machine() {return this.mach.get_name()}
   get group()   {return this.unit.group}
   get assign()  {return this.unit.assignment || {}}
   get number()  {return this.unit.number}
@@ -99,9 +100,21 @@ class Unit {
   }
 
 
+  get resources() {
+    let cpus = this.cpus_description
+    let gpus = this.gpus_description
+
+    let parts = []
+    if (1 < cpus || gpus == 'none') parts.push(`${cpus} CPUs`)
+    if (gpus != 'none') parts.push(gpus)
+
+    return parts.join(' ')
+  }
+
+
   get description() {
-    return 'project:' + this.project + ' cpus:' + this.assign.cpus +
-      ' gpus:' + (this.assign.gpus || []).join(' ')
+    let {project, cpus, gpus_description} = this
+    return `project:${project} cpus:${cpus} gpus:${gpus_description}`
   }
 
 
@@ -172,13 +185,13 @@ class Unit {
     if (this.waiting) {
       let eta = new Date(this.unit.wait).getTime() - (new Date).getTime()
       // Use "progress" to force updates
-      return this.util.time_interval(eta / 1000, this.progress)
+      return this.util.time_interval(0 < eta ? eta / 1000 : 0, this.progress)
     }
 
-    if (this.wu_progress == 1) return '0s'
+    let eta = this.wu_progress < 1 ? this.unit.eta : 0
+    if (typeof eta == 'string') eta = this.util.parse_interval(eta)
 
-    let eta = this.unit.eta
-    return (typeof eta == 'string') ? eta : this.util.time_interval(eta)
+    return this.util.time_interval(0 < eta ? eta : 0)
   }
 
 
