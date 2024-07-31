@@ -28,18 +28,26 @@
 
 <script>
 export default {
-  data() {
-    return {
-      address: this.$direct.address,
-      buttons: [
-        {name: 'connect', icon: 'check', success: true}
+  data() {return {address: ''}},
+
+
+  computed: {
+    buttons() {
+      return [
+        {name: 'Connect', icon: 'check', success: true, disabled: !this.valid}
       ]
-    }
+    },
+
+
+    valid() {return /^[\w-]+(\.[\w-]+)*(:\d+)?$/.test(this.address)}
   },
 
 
   methods: {
-    exec() {return this.$refs.dialog.exec()}
+    async exec() {
+      this.address = this.$direct.address
+      return this.$refs.dialog.exec()
+    }
   }
 }
 </script>
