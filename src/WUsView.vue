@@ -186,8 +186,8 @@ export default {
 
       table.view-table
         tr
-          th(v-for="col in avg_columns", :class="'column-' + col.key",
-            @click="sort('avg', col.key)", :title="col.title")
+          th.column-sortable(v-for="col in avg_columns", :title="col.title",
+            :class="'column-' + col.key", @click="sort('avg', col.key)")
             | {{col.name}}
             .fa(:class="column_class(col, avg)")
 
@@ -217,6 +217,9 @@ export default {
 
         th
           vertical-align unset
+
+          &.column-sortable
+            cursor pointer
 
           > .fa
             width 0.75em
