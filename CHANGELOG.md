@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.3
+ - Hide scrollbar in full screen mode.
+
 ## v8.4.2
  - Fixed client version checking.
  - Fixed GPUs display with zero GPUs.

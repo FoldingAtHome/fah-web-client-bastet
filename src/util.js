@@ -425,6 +425,11 @@ class Util {
     if (!addr) localStorage.removeItem('fah-direct-address')
     else localStorage.setItem('fah-direct-address', addr)
   }
+
+
+  set_body_class(enable, name) {
+    document.body.classList[enable ? 'add' : 'remove'](name)
+  }
 }
 
 export default Util

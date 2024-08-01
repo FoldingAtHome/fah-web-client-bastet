@@ -74,6 +74,7 @@ export default {
 
 
   mounted() {
+    this.$util.set_body_class(true, 'fullscreen')
     this.graphics()
     this.mach.visualize_unit(this.unitID)
     this.load()
@@ -86,6 +87,7 @@ export default {
     window.removeEventListener('keyup',  this.on_key_up)
     window.cancelAnimationFrame(this.animate)
     this.renderer.dispose()
+    this.$util.set_body_class(false, 'fullscreen')
   },
 
 

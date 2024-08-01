@@ -184,6 +184,8 @@ export default {
           Average Time Per Frame and Points Per Day are estimates of WU
           performance.
 
+        p Columns can be sorted by clicking on the column header.
+
       table.view-table
         tr
           th.column-sortable(v-for="col in avg_columns", :title="col.title",

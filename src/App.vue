@@ -36,11 +36,6 @@ import ConnectDialog    from './ConnectDialog.vue'
 import {watchEffect}    from 'vue'
 
 
-function set_doc_class(enable, name) {
-  document.body.classList[enable ? 'add' : 'remove'](name)
-}
-
-
 export default {
   components: {
     Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog,
@@ -72,13 +67,13 @@ export default {
     },
 
 
-    set_wide(wide) {set_doc_class(wide, 'theme-wide')},
+    set_wide(wide) {this.$util.set_body_class(wide, 'theme-wide')},
     check_wide() {this.set_wide((this.$adata.config || {}).wide)},
 
 
     set_dark(dark) {
-      set_doc_class( dark, 'theme-dark')
-      set_doc_class(!dark, 'theme-light')
+      this.$util.set_body_class( dark, 'theme-dark')
+      this.$util.set_body_class(!dark, 'theme-light')
     },
 
 
@@ -90,7 +85,7 @@ export default {
     },
 
 
-    set_compact(compact) {set_doc_class(compact, 'theme-compact')},
+    set_compact(compact) {this.$util.set_body_class(compact, 'theme-compact')},
     check_compact() {this.set_compact((this.$adata.config || {}).compact)},
 
 

@@ -111,11 +111,13 @@ input:invalid
 body
   width 100%
   padding 2px
-  overflow-y scroll
   background var(--body-bg)
   display flex
   flex-direction column
   align-items center
+
+  &:not(.fullscreen)
+    overflow-y scroll
 
   #app
     display flex
