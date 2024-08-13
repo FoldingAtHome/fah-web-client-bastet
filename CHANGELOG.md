@@ -3,6 +3,13 @@ Folding@home Web Control Changelog
 
 ## v8.4.3
  - Hide scrollbar in full screen mode.
+ - Moved global fold/pause buttons.
+ - Show machine, cpu, gpu and ppd totals on machines page.
+ - Team logo and homepage link in header.
+ - Account settings split in to multiple tabs.
+ - Team creation and editing via account settings.
+ - User avatar.
+ - Prevent saving invalid account or machine settings.
 
 ## v8.4.2
  - Fixed client version checking.

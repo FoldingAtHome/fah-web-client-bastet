@@ -55,25 +55,78 @@ export default {
 <template lang="pug">
 .machines-view.page-view
   MainHeader
-    template(v-slot:center)
-      Button(text="Fold", @click="$root.fold()", success,
-        icon="play", :disabled="$machs.is_empty()")
-
-      Button(text="Pause", @click="$root.pause()", icon="pause",
-        :disabled="$machs.is_empty()")
 
   .view-body
+    .machines-view-header.view-panel
+      .no-data(v-if="$machs.is_empty()")
+        p No folding machines found.
+        p Login or install the Folding@home client software.
+        p.
+         If you are using Brave browser, please use "Shields Down" for
+         this site.
+
+      template(v-else)
+        <!--plot-view(:x="$machs.ppd", :min="1000000")-->
+
+        table.machines-info.view-table
+          tr
+            th Machines
+            th CPUs
+            th GPUs
+            th PPD
+            th Actions
+
+          td(title="Active machine count")
+            | {{$machs.get_count().toLocaleString()}}
+          td(title="Active CPU count") {{$machs.active_cpus.toLocaleString()}}
+          td(title="Active GPU count") {{$machs.active_gpus.toLocaleString()}}
+          td(title="Current total Points Per Day")
+            | {{$machs.ppd.toLocaleString()}}
+          td
+            .machines-actions
+              Button(text="Fold All",
+              @click="$root.fold()", success, icon="play",
+              :disabled="$machs.is_empty()",
+              title="Start folding on all machines")
+
+              Button(text="Pause All",
+                @click="$root.pause()", icon="pause",
+                :disabled="$machs.is_empty()",
+                title="Pause folding on all machines")
+
     template(v-for="mach in machs")
       MachineView(v-if="!mach.is_hidden()", :mach="mach")
-
-    .no-data(v-if="$machs.is_empty()")
-      p No folding machines found.
-      p Login or install the Folding@home client software.
-      p If you are using Brave browser, please use "Shields Down" for this site.
 </template>
 
 <style lang="stylus">
 .machines-view .view-body
-  .no-data
-    text-align center
+  .machines-view-header
+    display flex
+    flex-direction column
+    padding 0
+
+    .no-data
+      text-align center
+
+    .plot-view
+      height 100px
+
+    .machines-info
+      th, td
+        text-align right
+
+      > tr > :last-child
+        width 100%
+
+      .machines-actions
+        justify-content end
+        display flex
+        gap var(--gap)
+
+@media (max-width 600px)
+  .machines-view .view-body
+    .machines-view-header .machines-info
+      .machines-actions
+        .button > span
+          display none
 </style>

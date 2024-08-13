@@ -239,7 +239,4 @@ export default {
 
       .button
         font-size 12pt
-
-      :not(.column-header).column-actions
-        justify-content center
 </style>

@@ -114,6 +114,7 @@ export default {
 
     modified() {
       if (!this.valid_name) return false
+      if (!(this.$refs.common || {valid: true}).valid) return false
       if (this.name_modified) return true
       if (!this.config) return false
       return this.config_modified
@@ -321,7 +322,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
 
       .setting
         label Name
-        input(v-model="name", pattern="[\\w.\\-]{1,64}")
+        input(v-model="name", :class="{error: !valid_name}")
 
         .setting-actions
           Button.button-icon(v-if="linked", @click="unlink",
@@ -332,7 +333,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
 
     fieldset.settings.view-panel(v-if="!have_account && config")
       legend Account Settings
-      CommonSettings(:config="config")
+      CommonSettings(:config="config", ref="common")
 
     .view-pane(v-if="connected && config")
       fieldset.view-panel.resource-groups(v-if="advanced")

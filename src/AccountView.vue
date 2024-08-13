@@ -27,8 +27,9 @@
 -->
 
 <script>
-import Unit           from './unit.js'
-import CommonSettings from './CommonSettings.vue'
+import AccountSettings   from './AccountSettings.vue'
+import AccountAppearance from './AccountAppearance.vue'
+import AccountTeams      from './AccountTeams.vue'
 
 
 function copy_config(config = {}) {
@@ -49,7 +50,7 @@ function copy_account(data) {
     team:    data.team    || 0,
     passkey: data.passkey || undefined,
     cause,
-    avatar:  data.avatar  || undefined,
+    avatar:  data.avatar  || '',
     node:    data.node    || undefined,
     config:  copy_config(data.config),
   }
@@ -58,14 +59,15 @@ function copy_account(data) {
 
 export default {
   inheritAttrs: false,
-  components: {CommonSettings},
+  components: {AccountSettings, AccountAppearance, AccountTeams},
 
 
   data() {
     return {
+      mounted:     false,
+      tab:         'account',
       account_new: {config: {}},
       confirmed:   false,
-      show:        {},
 
       confirm_dialog_buttons: [
         {name: 'cancel',  icon: 'times'},
@@ -78,30 +80,27 @@ export default {
 
   watch: {
     '$adata'() {if (this.$adata) this.init()},
-    'account_new.config.dark'(x)    {this.$root.set_dark(x)},
-    'account_new.config.wide'(x)    {this.$root.set_wide(x)},
-    'account_new.config.compact'(x) {this.$root.set_compact(x)},
   },
 
 
   computed: {
-    small()   {return document.body.clientWidth <= 800},
-    columns() {return this.account_new.config.columns || []},
-
-
-    unused_cols() {
-      let used = this.columns
-      let l = []
-
-      for (let col of Unit.column_names)
-        if (used.indexOf(col) == -1) l.push(col)
-
-      return l
+    tabs() {
+      return [
+        {name: 'account',    icon: 'cog'},
+        {name: 'appearance', icon: 'window-maximize'},
+        {name: 'teams',      icon: 'users'},
+      ]
     },
 
+
+    valid() {
+      return this.mounted && this.$adata && this.$refs.settings.is_valid()
+    },
+
+
     modified() {
-      return !this.$util.isEqual(copy_account(this.account_new),
-                                 copy_account(this.$adata))
+      return !this.$util.isEqual(
+        copy_account(this.account_new), copy_account(this.$adata))
     }
   },
 
@@ -113,17 +112,14 @@ export default {
   },
 
 
-  async mounted() {this.init()},
+  async mounted() {
+    this.mounted = true
+    this.init()
+  },
 
 
   methods: {
     init() {this.account_new = copy_account(this.$adata)},
-
-
-    async logout() {
-      await this.$root.logout()
-      this.close()
-    },
 
 
     async confirm_leave(to) {
@@ -162,32 +158,7 @@ export default {
       this.confirmed = true
       this.$root.check_appearance()
       this.$router.back()
-    },
-
-
-    async reset_token() {this.$account.reset_token()},
-    copy_token() {navigator.clipboard.writeText(this.$adata.token)},
-
-
-    async confirm_delete() {
-      let response = await this.$root.message(
-        'confirm', 'Delete Account?',
-        'Deleted accounts cannot be recovered. ' +
-          'Are you sure you want to delete this account?',
-        [
-          {name: 'delete', icon: 'trash', text: 'Delete Account',
-           class: 'button-caution'},
-          {name: 'cancel', icon: 'times'}
-        ])
-
-      if (response == 'delete')
-        return this.$root.pacify(async () => {
-          await this.$account.delete()
-          this.close()
-        })
-    },
-
-    reset_columns() {this.account_new.config.columns = Unit.default_columns}
+    }
   }
 }
 </script>
@@ -202,142 +173,48 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 .account-view.page-view
   ViewHeader(title="Account Settings")
     template(v-slot:actions)
-      Button(@click="cancel", text="Cancel", icon="times",
-        title="Leave Account Settings with out making changes")
+      Button(@click="cancel", :text="modified ? 'Cancel' : 'Close'",
+        icon="times",
+        title="Leave Account Settings with out making further changes")
 
-      Button(:disabled="!modified", @click="save", text="Save", success,
-        icon="save", title="Save your changes and go back to the main page")
+      Button(:disabled="!modified || !valid", @click="save", text="Save",
+        success, icon="save",
+        title="Save your changes and go back to the main page")
 
   .view-body(v-if="$adata")
-    fieldset.settings.view-panel
-      legend
-        HelpBalloon(name="Account"): p.
-          These settings affect all of the machines linked to your account.
+    .account-menu
+      Button(v-for="t in tabs", @click="tab = t.name", :icon="t.icon",
+        :text="t.name", :class="{'tab-active': tab == t.name}")
 
-      CommonSettings(:config="account_new")
-
-      .setting
-        HelpBalloon(name="Node"): p.
-          A Folding@home node helps you connect to your remote clients.
-          Unless otherwise instructed, it's best to leave the default value.
-
-        input(v-model="account_new.node", pattern="[\\w\\-]+(\\.[\\w\\-]+)+")
-
-      .setting
-        HelpBalloon(name="Token")
-          p.
-            A token is used to connect your remote clients to your account.  You
-            can pass your account token to a client to cause it to link to your
-            account.  Once a machine is linked it will show up as one of your
-            machines in your account.
-
-          p.
-            Anyone with your account token can link machines to your
-            account.  Once you've used an account token it's a good idea to
-            generate a new one.  Anytime you generate a new account token the
-            previous account tokens are no longer valid.  But any machines which
-            are already linked to you account will remain linked.
-
-          p.
-            If a client is running locally on the same machine you've logged in
-            to your Folding@home account on, it will automatically be linked to
-            your account.
-
-        input(v-model="$adata.token", :class="{password: !show.token}",
-          readonly)
-
-        .setting-actions
-          Button.button-icon(:icon="'eye' + (show.token ? '' : '-slash')",
-            @click="show.token = !show.token",
-            :title="(show.token ? 'Hide' : 'Show') + ' account token'")
-
-          Button.button-icon(icon="refresh", @click="reset_token",
-            title="Generate a new account token")
-
-          Button.button-icon(icon="copy", @click="copy_token",
-            title="Copy account token to clipboard")
-
-    fieldset.settings.view-panel
-      legend
-          HelpBalloon(name="Appearance"): p.
-            These settings change Web Control's appearance.  Note, some
-            settings are only available on wide screens.
-
-      .setting.dark-setting
-        HelpBalloon(name="Dark mode"): p Enables the dark mode theme.
-        input(v-model="account_new.config.dark", type="checkbox")
-
-      .setting.compact-setting
-        HelpBalloon(name="Compact"): p Decrease gaps between display elements.
-        input(v-model="account_new.config.compact", type="checkbox")
-
-      .setting.wide-setting(v-if="!small")
-        HelpBalloon(name="Wide Display"): p Use full screen width.
-        input(v-model="account_new.config.wide", type="checkbox")
-
-      .columns-setting(v-if="!small")
-        HelpBalloon(name="Work Unit Columns"): p.
-          Drag and drop columns to change their position and visibility.
-          Note, only the default columns are displayed on small screens.
-
-        .drag-zones
-          .drag-zone
-            Button.button-icon(icon="refresh", @click="reset_columns",
-              title="Reset columns to default")
-            DragList(:list="columns")
-
-          .drag-zone(title="Move disabled columns here")
-            .fa.fa-trash
-            DragList(:list="unused_cols", :removable="false")
-
-  .actions
-      Button(@click="logout", text="Logout", icon="sign-out")
-
-      Button.button-caution(@click="confirm_delete", text="Delete Account",
-        icon="trash", title="Permanently delete this account")
+    AccountSettings(v-if="tab == 'account'", :account="account_new",
+      ref="settings")
+    AccountAppearance(v-if="tab == 'appearance'", :config="account_new.config")
+    AccountTeams(v-if="tab == 'teams'")
 </template>
 
 <style lang="stylus">
-.account-view
-  .view-body > .actions
+.account-view .view-body
+  flex-direction row
+
+  .account-menu
     display flex
+    flex-direction column
+    gap calc(var(--gap) / 2)
 
-  legend > a
-    display inline
+    > .button
+      justify-content left
+      text-transform capitalize
+      color var(--panel-fg)
+      background 0
+      border-radius 0
+      border-bottom 3px solid var(--header-bg)
 
-  fieldset.settings .setting label
+      &:hover
+        border-color var(--link-alt)
+
+      &.tab-active
+        border-color var(--link-color)
+
+  fieldset.settings .setting > label
     width 7em
-
-  .actions
-    display flex
-    gap var(--gap)
-
-  .columns-setting
-    width 100%
-
-    label
-      color var(--subtitle-color)
-
-    .drag-zones
-      display flex
-      gap var(--gap)
-      flex-direction column
-      margin-top var(--gap)
-      font-size 90%
-
-      .drag-zone
-        display flex
-        gap var(--gap)
-        align-items center
-
-        .fa
-          font-size 20pt
-          width 1em
-
-        .drag-list
-          flex 1
-          flex-wrap wrap
-
-          li
-            white-space nowrap
 </style>

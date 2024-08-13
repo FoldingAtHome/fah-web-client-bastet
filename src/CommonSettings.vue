@@ -36,6 +36,14 @@ export default {
       show_key: false,
       causes:   this.$api.get_causes(),
     }
+  },
+
+
+  computed: {
+    user_valid()    {return /^(|[^<>;&:]{2,100})$/.test(this.config.user)},
+    team_valid()    {return /^\d+$/.test(this.config.team)},
+    passkey_valid() {return /^(|[a-f0-9]{30,32})$/i.test(this.config.passkey)},
+    valid() {return this.user_valid && this.team_valid && this.passkey_valid}
   }
 }
 </script>
@@ -51,34 +59,27 @@ export default {
 
     p If you wish to remain anonymous enter #[tt Anonymous].
 
-  input(v-model="config.user")
+  input(v-model="config.user", :class="{error: !user_valid}")
 
 .setting
   HelpBalloon(name="Team")
     p.
       You may wish to join a Folding@home team.  If you do not already have
-      a team you can create a new one.
+      a team you can create a new one via your F@H account settings.
 
     p Enter #[tt 0] for no team.
 
-    Button(text="Create a Team", icon="plus",
-      href="https://apps.foldingathome.org/team")
-
-  input(v-model.number="config.team", type="number")
+  input(v-model.number="config.team", :class="{error: !team_valid}",
+    type="number")
 
 .setting
   HelpBalloon(name="Passkey")
     p.
       A passkey allows you to collect bonus points.  Enter a passkey if you
-      have one.  You may leave this field blank.  Click the button to obtain
-      a passkey.
-
-    Button(text="Get a Passkey", icon="key",
-      href="https://apps.foldingathome.org/getpasskey")
-
+      have one, otherwise leave this field blank.
 
   input(v-model="config.passkey", pattern="[\\da-fA-F]{31,32}",
-    :class="{password: !show_key}")
+    :class="{password: !show_key, error: !passkey_valid}")
 
   .setting-actions
     Button.button-icon(:icon="'eye' + (show_key ? '' : '-slash')",

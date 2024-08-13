@@ -133,7 +133,8 @@ fieldset.settings.view-panel(v-if="advanced")
       Unless you are specially instructed by a Folding@home researcher to
       use a project key, leave this field set to zero.
 
-    input(v-model="config.key", type="number", title="Project key")
+    input(v-model="config.key", type="number", title="Project key",
+      pattern="\\d+")
 
   .setting
     HelpBalloon(name="Enable CUDA"): p.

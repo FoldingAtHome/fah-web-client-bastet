@@ -59,9 +59,15 @@ class Stats {
 
 
   get_team() {
+    let ateam
+    for (let team of (this.adata.teams || []))
+      if (team.team == this.state.team) ateam = team
+
     for (let team of this.state.stats.teams || [])
-      if (team.team == this.state.team)
+      if (team.team == this.state.team) {
+        if (ateam != undefined) return Object.assign({}, team, ateam)
         return team
+      }
 
     return {}
   }

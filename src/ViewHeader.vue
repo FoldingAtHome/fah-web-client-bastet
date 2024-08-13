@@ -32,6 +32,11 @@ export default {
   props: ['title', 'subtitle'],
 
 
+  computed: {
+    team()      {return this.$stats.get_team()},
+  },
+
+
   methods: {
     close() {
       this.$router.back()
@@ -43,7 +48,13 @@ export default {
 <template lang="pug">
 .view-header
   .header-top
-    FAHLogo
+    component.active-team(v-if="team.team", :is="team.url ? 'a' : 'div'",
+      :href="team.url", target="_blank",
+      :title="team.url ? `Visit your team's home page.` : ''")
+      img.team-logo(:src="team.logo")
+      .team-name.header-title {{team.name}}
+
+    FAHLogo(v-else)
 
     .header-center
       slot(name="center")
@@ -78,10 +89,26 @@ export default {
     a:hover
       text-decoration none
 
+    > *
+      width 33%
+
+    .active-team
+      display flex
+      align-items center
+      gap calc(var(--gap) / 2)
+      flex-wrap wrap
+
+      .team-logo
+        max-height 48px
+
+      .team-name
+        white-space nowrap
+
     .header-center
       display flex
       flex-direction column
       gap var(--gap)
+      justify-content center
 
     .header-actions
       align-items end
@@ -104,6 +131,9 @@ export default {
 
 @media (max-width 800px)
   .page-view .view-header
+    .header-top .active-team .team-logo
+      max-height 32px
+
     .control .button-content
       display none
 </style>

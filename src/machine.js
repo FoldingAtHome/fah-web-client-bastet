@@ -102,6 +102,7 @@ class Machine {
     if (this.is_direct())
       return !this.is_connected() && !this.ctx.$util.get_direct_address()
 
+    if (this.ctx.$machs == undefined) return false
     return this.get_id() == this.ctx.$machs.get_direct_id()
   }
 
@@ -125,6 +126,12 @@ class Machine {
 
 
   is_connected() {return this.state.connected}
+
+
+  is_recently_connected() {
+    return this.is_connected() ||
+      new Date().getTime() < this.last_connected + 5 * 60 * 1000
+  }
 
 
   is_paused(group) {
@@ -241,7 +248,14 @@ class Machine {
 
 
   on_open()  {this.first = true}
-  on_close() {this.state.connected = false}
+
+
+  on_close() {
+    this.state.connected = false
+    this.state.last_connected = new Date().getTime()
+  }
+
+
   close()    {if (this.get_conn()) this.get_conn().close()}
 
 

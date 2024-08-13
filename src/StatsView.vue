@@ -75,6 +75,7 @@ export default {
         .user-rank(v-if="stats.rank") Rank {{stats.rank.toLocaleString()}}
 
       .user-top(v-if="top(stats.rank)") Top {{top(stats.rank)}} Ranked Donor
+      .user-top(v-else) Unranked Ranked Donor
 
       .user-points {{stats.score.toLocaleString()}} points earned
       .user-wus {{stats.wus.toLocaleString()}} WUs completed
@@ -94,15 +95,15 @@ export default {
 
     .view-panel(v-if="team.team")
       .team-header
-        a(:href="team.url", target="_blank")
-          img.team-logo(v-if="team.logo", :src="team.logo")
-          .team-logo.fa.fa-users(v-else)
+        img.team-logo(v-if="team.logo", :src="team.logo")
+        .team-logo.fa.fa-users(v-else)
         .team-name(:title="team.name")
           a(:href="$stats.url + '/team/' + team.team", target="_blank")
             | {{team.name}}
         .team-rank(v-if="team.trank") Rank {{team.trank.toLocaleString()}}
 
       .team-top(v-if="top(team.trank)") Top {{top(team.trank)}} Ranked Team
+      .team-top(v-else) Unranked Team
 
       .team-points {{team.tscore.toLocaleString()}} points earned
       .team-wus {{team.twus.toLocaleString()}} WUs completed

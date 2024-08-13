@@ -65,7 +65,7 @@ class Machines {
 
   *[Symbol.iterator]() {
     for (let mach of Object.values(this.machines))
-      yield mach
+      if (!mach.is_hidden()) yield mach
   }
 
 
@@ -125,6 +125,24 @@ class Machines {
       if (unit.id == id) return unit
     return {}
   }
+
+
+  active_unit_sum(fn) {
+    return Array.from(this).reduce((sum, mach) => {
+      if (!mach.is_recently_connected) return sum
+
+      return mach.get_units().reduce((sum, unit) => {
+        if (unit.state != 'RUN') return sum
+        let value = fn(unit)
+        return sum + (isFinite(value) ? value : 0)
+      }, sum)
+    }, 0)
+  }
+
+
+  get ppd()         {return this.active_unit_sum(unit => unit.unit.ppd)}
+  get active_cpus() {return this.active_unit_sum(unit => unit.cpus)}
+  get active_gpus() {return this.active_unit_sum(unit => unit.gpus)}
 
 
   async set_state(state) {

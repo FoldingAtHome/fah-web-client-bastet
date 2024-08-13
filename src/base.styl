@@ -97,7 +97,7 @@ input, select
   border var(--input-border)
   border-radius var(--border-radius)
 
-input:invalid
+input:invalid, input.error
   outline none
   box-shadow 0 0 1px 2px #f44
 
@@ -166,7 +166,7 @@ fieldset
       flex-wrap wrap
       gap var(--gap)
 
-      label
+      > label
         @extends .header-subtitle
 
       > :first-child

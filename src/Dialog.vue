@@ -118,8 +118,8 @@ Teleport(to="body")
     .dialog(:class="class", @click.stop="true")
       .dialog-header
         .dialog-header-slot.header-title: slot(name="header") {{header}}
-        .dialog-close(v-if="allowCancel", @click="close('cancel')")
-          .fa.fa-times
+        Button.dialog-close.button-icon(v-if="allowCancel",
+          @click="close('cancel')", icon="times")
 
       .dialog-body
         slot(name="body")
@@ -168,10 +168,6 @@ Teleport(to="body")
 
       .dialog-close
         flex 0
-        cursor pointer
-
-        &:hover
-          color #888
 
     .dialog-body
       flex 1
