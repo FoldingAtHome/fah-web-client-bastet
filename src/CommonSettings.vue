@@ -79,7 +79,7 @@ export default {
       have one, otherwise leave this field blank.
 
   input(v-model="config.passkey", pattern="[\\da-fA-F]{31,32}",
-    :class="{password: !show_key, error: !passkey_valid}")
+    :type="show_key ? 'text' : 'password'" :class="{error: !passkey_valid}")
 
   .setting-actions
     Button.button-icon(:icon="'eye' + (show_key ? '' : '-slash')",

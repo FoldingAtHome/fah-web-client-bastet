@@ -231,7 +231,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
 
               p A passkey is optional.
 
-            input(v-model="passkey", :class="{password: !show_passkey}",
+            input(v-model="passkey", :type="show_passkey ? 'text' : 'password'",
               pattern="[\\da-fA-F]{31,32}")
             .setting-actions
               Button.button-icon(:icon="'eye' + (show_passkey ? '' : '-slash')",

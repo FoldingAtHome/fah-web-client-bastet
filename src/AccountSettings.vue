@@ -133,7 +133,7 @@ fieldset.settings.view-panel
         to your Folding@home account on, it will automatically be linked to
         your account.
 
-    input(v-model="$adata.token", :class="{password: !show.token}",
+    input(v-model="$adata.token", :type="show.token ? 'text' : 'password'",
       readonly)
 
     .setting-actions
