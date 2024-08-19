@@ -58,6 +58,12 @@ const icons = {
 function clean_column(name) {return name.toLowerCase().replaceAll(' ', '_')}
 
 
+function get_os_icon(os) {
+  if (os == 'macosx') os = 'apple'
+  return `<div class="fa fa-${os}"></div>`
+}
+
+
 class Unit {
   constructor(ctx, unit, mach) {
     this.util = ctx.$util
@@ -65,20 +71,22 @@ class Unit {
     this.mach = mach
   }
 
-  get id()      {return this.unit.id}
-  get machine() {return this.mach.get_name()}
-  get group()   {return this.unit.group}
-  get assign()  {return this.unit.assignment || {}}
-  get number()  {return this.unit.number}
-  get core()    {return (this.assign.core || {}).type}
-  get project() {return this.assign.project}
-  get run()     {return this.wu.run}
-  get clone()   {return this.wu.clone}
-  get gen()     {return this.wu.gen}
-  get wu()      {return this.unit.wu || {}}
-  get cpus()    {return this.unit.cpus}
-  get gpus()    {return this.unit.gpus.length}
-  get paused()  {return !!this.unit.pause_reason}
+  get id()       {return this.unit.id}
+  get machine()  {return this.mach.get_name()}
+  get group()    {return this.unit.group}
+  get assign()   {return this.unit.assignment || {}}
+  get number()   {return this.unit.number}
+  get core()     {return (this.assign.core || {}).type}
+  get project()  {return this.assign.project}
+  get run()      {return this.wu.run}
+  get clone()    {return this.wu.clone}
+  get gen()      {return this.wu.gen}
+  get wu()       {return this.unit.wu || {}}
+  get cpus()     {return this.unit.cpus}
+  get gpus()     {return this.unit.gpus.length}
+  get os()       {return get_os_icon(this.mach.get_os())}
+  get os_title() {return this.mach.get_os()}
+  get paused()   {return !!this.unit.pause_reason}
 
 
   get finish()  {
@@ -135,8 +143,9 @@ class Unit {
   }
 
 
-  get icon() {return icons[this.state]}
-  get ppd()  {return (this.unit.ppd || 0).toLocaleString()}
+  get icon()    {return icons[this.state]}
+  get ppd_raw() {return this.unit.ppd || 0}
+  get ppd()     {return (this.ppd_raw).toLocaleString()}
 
 
   get tpf_secs()  {

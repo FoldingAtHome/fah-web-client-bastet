@@ -120,22 +120,25 @@ export default {
 
       div(v-if="loading") Loading...
       div(v-else-if="!credits.length") No credits logged
-      table.view-table(v-else)
-        tr
-          th Code
-          th User
-          th Team
-          th Credit
-          th Assigned
-          th Credited
+      template(v-else)
+        table.view-table
+          tr
+            th Code
+            th User
+            th Team
+            th Credit
+            th Assigned
+            th Credited
 
-        tr(v-for="credit in credits")
-          td.code {{credit.code}}
-          td.user {{credit.user}}
-          td.team {{credit.team}}
-          td.credit {{(credit.credit || 0).toLocaleString()}}
-          td.assigned {{credit.assign_time}}
-          td.credited {{credit.credit_time}}
+          tr(v-for="credit in credits")
+            td.code {{credit.code}}
+            td.user {{credit.user}}
+            td.team {{credit.team}}
+            td.credit {{(credit.credit || 0).toLocaleString()}}
+            td.assigned {{credit.assign_time}}
+            td.credited {{credit.credit_time}}
+
+        p May included credits awarded to other users.
 
     ProjectView(v-if="project.description", :project="project", :full="true")
 </template>

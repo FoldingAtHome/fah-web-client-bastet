@@ -186,7 +186,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
       Button(v-for="t in tabs", @click="tab = t.name", :icon="t.icon",
         :text="t.name", :class="{'tab-active': tab == t.name}")
 
-    AccountSettings(v-if="tab == 'account'", :account="account_new",
+    AccountSettings(v-show="tab == 'account'", :account="account_new",
       ref="settings")
     AccountAppearance(v-if="tab == 'appearance'", :config="account_new.config")
     AccountTeams(v-if="tab == 'teams'")

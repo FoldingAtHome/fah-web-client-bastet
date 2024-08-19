@@ -27,22 +27,45 @@
 -->
 
 <script>
-import Unit    from './unit.js'
-
-function cmp(a, b, config) {
-  [a, b] = [a[config.key], b[config.key]]
-
-  let x = 0
-  if (config.key == 'time') x = new Date(a).getTime() - new Date(b).getTime()
-  else if (typeof a == 'string') x = a.localeCompare(b)
-  else x = a - b
-
-  return config.dir * x
-}
+import Unit from './unit.js'
 
 
 function cmp_wus(a, b) {
   return new Date(b.assign.time).getTime() - new Date(a.assign.time).getTime()
+}
+
+
+function unique_values(l, key) {
+  l = l.reduce((set, o) => {set[o[key]] = 1; return set}, {})
+  return Object.keys(l).sort()
+}
+
+
+function to_days(ts) {return new Date(ts).getTime() / (24 * 60 * 60 * 1000)}
+
+
+function array_reduce_num(a, key, f) {
+  return a.reduce((min, o) => {
+      let v = o[key]
+      if (isFinite(v) && (min == undefined || f(v, min))) return v
+      return min
+    }, undefined)
+}
+
+
+function array_min(a, key) {return array_reduce_num(a, key, (a, b) => a < b)}
+function array_max(a, key) {return array_reduce_num(a, key, (a, b) => b < a)}
+
+
+function array_avg(a, key) {
+  let sum = a.reduce((sum, o) => {
+    let v = o[key]
+    return isFinite(v) ? sum + v : sum
+  }, 0)
+
+  let count = a.reduce((count, o) => count + (isFinite(o[key]) ? 1 : 0), 0)
+
+  return sum / count
 }
 
 
@@ -52,88 +75,52 @@ export default {
 
   data() {
     return {
-      avg: {key: 'time', dir:  -1},
-      hst: {key: 'time', dir:  -1},
+      machine:  'Any',
+      project:  'Any',
+      os:       'Any',
+      resource: 'Any',
+      complete: false,
+      days:     '',
     }
   },
 
 
   computed: {
-    avg_columns() {
-      return [
-        {name: 'Project', title: 'Folding project ID', key: 'project'},
-        {name: 'Core', title: 'Folding core ID', key: 'core'},
-        {name: 'Resources', title: 'Compute resources used', key: 'resources'},
-        {name: 'TPF', title: 'Average Time Per Frame', key: 'tpf'},
-        {name: 'PPD', title: 'Average Points Per Day', key: 'ppd'},
-        {name: 'Units', title: 'Total Work Units including partials',
-          key: 'progress'},
-        {name: 'Last Assigned', title: 'Last time this WU was assigned',
-          key: 'time'},
-      ]
-    },
-
-
     columns() {
-      return ['Machine', 'Project', 'Core', 'Status', 'Progress',
+      return ['Machine', 'Project', 'Core', 'OS', 'Status', 'Progress',
         'TPF', 'PPD', 'Assign Time']
     },
 
 
     Unit() {return Unit},
-    wus() {return Array.from(this.$machs.get_units()).sort(cmp_wus)},
+    all_wus() {return Array.from(this.$machs.get_units()).sort(cmp_wus)},
 
 
-    performance() {
-      let r = {}
+    wus() {
+      let days = parseFloat(this.days)
 
-      for (let unit of this.wus) {
-        let progress = unit.wu_progress
-        if (!isFinite(progress)) continue
+      return this.all_wus.filter(unit =>
+        (this.machine  == 'Any' || this.machine  == unit.machine)   &&
+        (this.project  == 'Any' || this.project  == unit.project)   &&
+        (this.os       == 'Any' || this.os       == unit.os_title)  &&
+        (this.resource == 'Any' || this.resource == unit.resources) &&
+        (!this.days || !isFinite(this.days) ||
+          to_days(new Date()) - to_days(unit.assign.time) <= days) &&
+        (!this.complete || unit.wu_progress == 1)
+      )
+    },
 
-        let time = new Date(unit.assign.time).getTime()
-        let desc = unit.description
 
-        let d = r[desc]
-        if (d) {
-          if (d.time < time) d.time = time
-          d.tpf      += unit.tpf_secs * progress
-          d.ppd      += (unit.unit.ppd || 0) * progress
-          d.run_time += unit.run_time_secs || 0
-          d.progress += progress
-
-        } else
-          r[desc] = {
-            id:        desc,
-            project:   unit.project,
-            core:      unit.core,
-            resources: unit.resources,
-            cpus:      unit.cpus,
-            gpus:      unit.unit.gpus,
-            tpf:       unit.tpf_secs * progress,
-            ppd:       (unit.unit.pdd || 0) * progress,
-            run_time:  unit.run_time_secs || 0,
-            time,
-            progress,
-          }
-      }
-
-      return Object.values(r).map(d => {
-        d.tpf      /= d.progress
-        d.ppd      /= d.progress
-        d.run_time /= d.progress
-
-        if (!isFinite(d.tpf)) d.tpf = 0
-
-        return d
-
-      }).sort((a, b) => {
-        const x = cmp(a, b, this.avg)
-        if (x) return x
-        if (a.time != b.time) return b.time - a.time
-        return a.project - b.project
-      })
-    }
+    machines()  {return unique_values(this.all_wus, 'machine')},
+    projects()  {return unique_values(this.all_wus, 'project')},
+    oses()      {return unique_values(this.all_wus, 'os_title')},
+    resources() {return unique_values(this.all_wus, 'resources')},
+    tpf_min()   {return array_min(this.wus, 'tpf_secs')},
+    tpf_max()   {return array_max(this.wus, 'tpf_secs')},
+    tpf_avg()   {return array_avg(this.wus, 'tpf_secs')},
+    ppd_min()   {return array_min(this.wus, 'ppd_raw')},
+    ppd_max()   {return array_max(this.wus, 'ppd_raw')},
+    ppd_avg()   {return array_avg(this.wus, 'ppd_raw')},
   },
 
 
@@ -141,29 +128,11 @@ export default {
 
 
   methods: {
-    column_class(col, config) {
-      if (col.key == config.key)
-        return 'fa fa-caret-' + (config.dir < 0 ? 'down' : 'up')
-    },
-
-    column_format(name, value) {
-      switch (name) {
-      case 'tpf':      return value ? this.$util.time_interval(value) : '???'
-      case 'ppd':      return Math.round(value || 0).toLocaleString()
-      case 'progress': return value.toLocaleString()
-      case 'time':     return this.$util.since(value)
-      default:         return value
-      }
-    },
-
-
-    sort(name, key) {
-      let table = this[name]
-      if (table.key == key) table.dir *= -1
-      else table.key = key
-    },
-
-
+    reset_stats() {
+      this.machine = this.project = this.os = this.resource = 'Any'
+      this.days = ''
+      this.complete = false
+    }
   }
 }
 </script>
@@ -173,70 +142,104 @@ export default {
   MainHeader
 
   .view-body
-    .wus
-      HelpBalloon.header-title(name="Work Unit Averages")
-        p.
-          Each row contains average values computed over multiple Work Unit
-          runs of the same project using the same compute resources.
-          Compute resources consist of CPUs and GPUs.
+    HelpBalloon.header-title(name="Work Unit Stats"): p.
+      Filter Work Units to compute stats on different groups of units.
 
-        p.
-          Average Time Per Frame and Points Per Day are estimates of WU
-          performance.
+    table.view-table.wu-filters
+      tr
+        th Machine
+        th Project
+        th OS
+        th Resources
+        th With in
+        th Complete
+        th.actions Actions
 
-        p Columns can be sorted by clicking on the column header.
+      tr
+        td
+          select(v-model="machine")
+            option(value="Any") Any
+            option(v-for="machine in machines", :value="machine") {{machine}}
 
-      table.view-table
-        tr
-          th.column-sortable(v-for="col in avg_columns", :title="col.title",
-            :class="'column-' + col.key", @click="sort('avg', col.key)")
-            | {{col.name}}
-            .fa(:class="column_class(col, avg)")
+        td
+          select(v-model="project")
+            option(value="Any") Any
+            option(v-for="project in projects", :value="project") {{project}}
 
-        tr(v-for="p in performance")
-          td(v-for="col in avg_columns", :title="col.title",
-            :class="'column-' + col.key")
-            | {{column_format(col.key, p[col.key])}}
+        td
+          select(v-model="os")
+            option(value="Any") Any
+            option(v-for="os in oses", :value="os") {{os}}
 
-      HelpBalloon.header-title(name="Recent Work Unit History"): p.
-        A log of recent work WUs completed by your machines.
+        td
+          select(v-model="resource")
+            option(value="Any") Any
+            option(v-for="r in resources", :value="r") {{r}}
 
-      .units-view(:style="Unit.get_column_grid_style(columns, ' 1fr')")
-        UnitHeader(:columns="columns") Info
+        td(title="Only include units assigned with in this number of days.")
+          input(v-model="days", type=number, placeholder="days",
+            :class="{error: !isFinite(days)}")
 
-        UnitsView(:units="wus", :columns="columns", v-slot="{unit}")
-          Button.button-icon(icon="info-circle",
-            :route="`/unit/${unit.id}`", title="View Work Unit details")
+        td(title="Only include completed units.")
+          input(type="checkbox", v-model="complete")
+
+        td.actions
+          span
+            Button.button-icon(icon="refresh", @click="reset_stats",
+              title="Reset stats filter")
+
+    p(v-if="!wus.length") No matching work units.
+    table.view-table.wu-stats(v-else)
+      tr
+        th
+        th Average
+        th Min
+        th Max
+
+      tr(title="Time Per Frame.  Time to complete 1% of the unit.")
+        th TPF
+        td {{tpf_avg ? $util.time_interval(tpf_avg) : '???'}}
+        td {{tpf_min ? $util.time_interval(tpf_min) : '???'}}
+        td {{tpf_max ? $util.time_interval(tpf_max) : '???'}}
+
+      tr(title="Points Per Day")
+        th PPD
+        td {{isFinite(ppd_avg) ? Math.round(ppd_avg).toLocaleString() : '???'}}
+        td {{isFinite(ppd_min) ? ppd_min.toLocaleString() : '???'}}
+        td {{isFinite(ppd_max) ? ppd_max.toLocaleString() : '???'}}
+
+    HelpBalloon.header-title(name="Recent Work Unit History"): p.
+      A log of recent work WUs completed by your machines.
+
+    .units-view(:style="Unit.get_column_grid_style(columns, ' 1fr')")
+      UnitHeader(:columns="columns") Info
+
+      UnitsView(:units="wus", :columns="columns", v-slot="{unit}")
+        Button.button-icon(icon="info-circle",
+          :route="`/unit/${unit.id}`", title="View Work Unit details")
 </template>
 
 <style lang="stylus">
 .wus-view
   .view-body
-    .wus
-      table
-        width 100%
-        margin-bottom var(--gap)
+    .wu-filters
+      td
+        padding 0
 
-        th
-          vertical-align unset
+        select, input
+          width 100%
+          border-radius 0
 
-          &.column-sortable
-            cursor pointer
+      .actions
+        text-align center
 
-          > .fa
-            width 0.75em
-            text-align center
+      td.actions
+        padding 0 var(--gap)
 
-        td, th
-          text-align right
+    .wu-stats
+      td, th
+        text-align right
 
-          &.column-resources
-            text-align left
-            overflow hidden
-            text-overflow ellipsis
-            max-width 10em
-            width 100%
-
-      .button
-        font-size 12pt
+      tr > :not(:first-child)
+        width 33%
 </style>

@@ -9,6 +9,7 @@
   "PPD":         {"enabled": true, "desc": "Estimated Points Per Day"},
   "ETA":         {"desc": "Estimated time to Work Unit completion"},
   "TPF":         {"desc": "Time Per Frame"},
+  "OS":          {"desc": "Operating System"},
   "Core":        {"desc": "Folding core hexadecimal ID"},
   "Deadline":    {"desc": "Time until return deadline"},
   "Timeout":     {"desc": "Time until bonus timeout"},

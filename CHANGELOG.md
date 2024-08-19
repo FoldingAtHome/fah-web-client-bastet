@@ -2,7 +2,10 @@ Folding@home Web Control Changelog
 =================================
 
 ## v8.4.4
- - Include finishing WUs in total counts.
+ - Include finishing WUs in total PPD.
+ - Removed ``Work Unit Averages`` replaced with ``Work Unit Stats``.
+ - Added WU filtering and stats on ``Work Units`` page.
+ - Show OS icon on ``Work Units`` page.
 
 ## v8.4.3
  - Hide scrollbar in full screen mode.
