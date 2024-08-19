@@ -60,7 +60,7 @@ class Machines {
 
 
   is_empty()  {return !this.get_count()}
-  get_count() {return Object.values(this.machines).length}
+  get_count() {return Array.from(this).length}
 
 
   *[Symbol.iterator]() {
@@ -132,7 +132,7 @@ class Machines {
       if (!mach.is_recently_connected) return sum
 
       return mach.get_units().reduce((sum, unit) => {
-        if (unit.state != 'RUN') return sum
+        if (unit.state != 'RUN' && !unit.finish) return sum
         let value = fn(unit)
         return sum + (isFinite(value) ? value : 0)
       }, sum)

@@ -1,10 +1,13 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.4
+ - Include finishing WUs in total counts.
+
 ## v8.4.3
  - Hide scrollbar in full screen mode.
- - Moved global fold/pause buttons.
- - Show machine, cpu, gpu and ppd totals on machines page.
+ - Moved global fold/pause buttons out of header.
+ - Show machine, CPU, GPU and PPD totals on machines page.
  - Team logo and homepage link in header.
  - Account settings split in to multiple tabs.
  - Team creation and editing via account settings.
