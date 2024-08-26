@@ -27,11 +27,13 @@
 -->
 
 <script>
-import CommonSettings from './CommonSettings.vue'
-
-
 export default {
   props: ['config', 'cpus', 'gpus', 'advanced', 'version'],
+
+
+  methods: {
+    project_key_changed() {if (!this.config.key) this.config.key = 0}
+  }
 }
 </script>
 
@@ -134,7 +136,7 @@ fieldset.settings.view-panel(v-if="advanced")
       use a project key, leave this field set to zero.
 
     input(v-model="config.key", type="number", title="Project key",
-      pattern="\\d+")
+      pattern="\\d+", @change="project_key_changed")
 
   .setting
     HelpBalloon(name="Enable CUDA"): p.
