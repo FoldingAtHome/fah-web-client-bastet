@@ -42,6 +42,20 @@ const status = {
   'DUMP':     'Dumping',
 }
 
+
+const wait_status = {
+  'ASSIGN':   'Assign Wait',
+  'DOWNLOAD': 'Download Wait',
+  'CORE':     'Core Wait',
+  'RUN':      'Run Wait',
+  'FINISH':   'Finish Wait',
+  'UPLOAD':   'Upload Wait',
+  'CLEAN':    'Ended',
+  'WAIT':     'Waiting',
+  'PAUSE':    'Paused',
+  'DUMP':     'Dump Wait',
+}
+
 const icons = {
   'ASSIGN':   'download',
   'DOWNLOAD': 'download',
@@ -138,7 +152,7 @@ class Unit {
 
 
   get status_text() {
-    if (this.waiting) return status[this.unit.state]
+    if (this.waiting) return wait_status[this.unit.state]
     return this.unit.pause_reason || status[this.state]
   }
 
@@ -231,23 +245,21 @@ class Unit {
 
   get wait_progress() {
     if (!this.waiting) return 0
-    let p = 1 - (this.wait_until - this.util.now) / 1000 / this.unit.delay
-    return (0 <= p && p <= 1) ? p : 0
+    let remaining = (this.wait_until - this.util.now) / 1000
+    let p = 1 - remaining / this.unit.delay
+    return this.util.clamp(p, 0, 1)
   }
 
 
-  get wu_progress() {
-    let p = this.unit.wu_progress
-    return (0 <= p && p <= 1) ? p : (this.unit.progress || 0)
-  }
+  get wu_progress() {return this.util.clamp(this.unit.wu_progress, 0, 1)}
 
 
    get progress() {
     let p = this.unit.progress
-    if ((this.paused || this.unit.state == 'RUN' ||
-      this.unit.state == 'CLEAN')) p = this.wu_progress
+    if (this.paused || this.unit.state == 'RUN' ||
+      this.unit.state == 'CLEAN') p = this.wu_progress
     if (this.waiting) p = this.wait_progress
-    return (0 <= p && p <= 1) ? (p * 100).toFixed(1) : 0
+    return this.util.clamp(p * 100, 0, 100).toFixed(1)
   }
 
 
@@ -287,7 +299,9 @@ class Unit {
 
 
   static get_column_header_class(name) {
-    return 'column-' + name.toLowerCase().replace(' ', '-')
+    let klass = `column-${name.toLowerCase().replace(' ', '-')}`
+    klass += ` column-${Unit.get_column(name).left ? 'left' : 'right'}`
+    return klass
   }
 
 

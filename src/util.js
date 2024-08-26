@@ -79,11 +79,14 @@ class Util {
 
   _tick() {
     this.data.now = Date.now()
-    //setTimeout(() => this._tick(), 250)
+    setTimeout(() => this._tick(), 250)
   }
 
 
   get now() {return this.data.now}
+
+
+  clamp(n, min, max) {return Math.min(Math.max(n, min), max)}
 
 
   lock_scrolling() {
@@ -183,7 +186,7 @@ class Util {
   capitalize(s) {return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''}
 
 
-  escapehtml(s) {
+  escape_html(s) {
     return s.replace(/[&<>"']/g, c => {
       switch (c) {
       case '&': return '&amp;'
@@ -197,7 +200,7 @@ class Util {
 
 
   ansi2html(s) {
-    return this.escapehtml(s).replace(
+    return this.escape_html(s).replace(
       /\u001b\[(\d+)m(.*?)((\u001b\[0m)|$)/g, (s, m1, m2) => {
 
         let c = parseInt(m1)

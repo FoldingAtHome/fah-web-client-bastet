@@ -6,6 +6,7 @@ Folding@home Web Control Changelog
  - Removed ``Work Unit Averages`` replaced with ``Work Unit Stats``.
  - Added WU filtering and stats on ``Work Units`` page.
  - Show OS icon on ``Work Units`` page.
+ - Show state specific wait status text.
 
 ## v8.4.3
  - Hide scrollbar in full screen mode.

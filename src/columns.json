@@ -5,7 +5,7 @@
   "Status":      {"enabled": true, "desc": "Color coded status icon"},
   "Status Text": {"left": true, "desc": "Color coded status text"},
   "Progress":    {"enabled": true, "size": "minmax(6em, 20em)",
-                  "desc": "Percent complete progress bar"},
+                  "left": true, "desc": "Percent complete progress bar"},
   "PPD":         {"enabled": true, "desc": "Estimated Points Per Day"},
   "ETA":         {"desc": "Estimated time to Work Unit completion"},
   "TPF":         {"desc": "Time Per Frame"},
