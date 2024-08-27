@@ -251,7 +251,11 @@ class Unit {
   }
 
 
-  get wu_progress() {return this.util.clamp(this.unit.wu_progress, 0, 1)}
+  get wu_progress() {
+    let p = this.unit.wu_progress
+    if (p == undefined) p = this.unit.progress
+    return this.util.clamp(p, 0, 1)
+  }
 
 
    get progress() {

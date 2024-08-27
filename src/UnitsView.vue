@@ -78,16 +78,16 @@ template(v-for="(unit, index) in units", :key="unit.id")
 
     &.state-run, &.state-finish
       .fa
-        color green
+        color var(--run-color)
 
     &.state-clean .fa
-      color gold
+      color var(--clean-color)
 
     &.state-pause .fa
-      color #e8cf01
+      color var(--pause-color)
 
     &.state-finish .fa
-      color orange
+      color var(--finish-color)
 
   .column-actions
     gap var(--gap)
