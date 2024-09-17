@@ -27,24 +27,26 @@
 -->
 
 <script>
+import Unit from './unit.js'
+
+
 export default {
   name: 'UnitsView',
   props: {
     units: Array,
     columns: Array
-  }
+  },
+  computed: {Unit() {return Unit}}
 }
 </script>
 
 <template lang="pug">
 template(v-for="(unit, index) in units", :key="unit.id")
-  .unit-cell(v-for="col in columns",
-    :class="unit.get_column_class(col, index & 1)",
-    :title="unit.get_column_title(col)")
-    ProgressBar(v-if="col == 'Progress'", :progress="unit.progress")
-    span(v-else, v-html="unit.get_column_content(col)")
+  template(v-for="col in columns")
+    UnitField(v-if="Unit.has_field(col)", :unit="unit", :field="col",
+      :odd="index & 1")
 
-  .column-actions(:class="`row-${index & 1 ? 'odd' : 'even'}`")
+  .unit-field.unit-actions(:class="`row-${index & 1 ? 'odd' : 'even'}`")
     slot(:unit="unit")
 </template>
 
@@ -63,33 +65,14 @@ template(v-for="(unit, index) in units", :key="unit.id")
     padding calc(var(--gap) / 2) var(--gap)
     white-space nowrap
 
-  > .column-header
+  > .unit-header
     color var(--table-header-fg)
     background var(--table-header-bg)
 
-  > .unit-cell
-    font-family var(--mono-font)
+  .unit-status-text
+    width 10.5em
 
-  > .column-right
-    justify-content right
-
-  .column-status
-    justify-content center
-
-    &.state-run, &.state-finish
-      .fa
-        color var(--run-color)
-
-    &.state-clean .fa
-      color var(--clean-color)
-
-    &.state-pause .fa
-      color var(--pause-color)
-
-    &.state-finish .fa
-      color var(--finish-color)
-
-  .column-actions
+  .unit-actions
     gap var(--gap)
     justify-content end
 

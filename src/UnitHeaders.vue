@@ -27,38 +27,23 @@
 -->
 
 <script>
+import Unit from './unit.js'
+
+
 export default {
-  props: ['progress']
+  name: 'UnitHeaders',
+  props: {columns: Array},
+  computed: {Unit() {return Unit}}
 }
 </script>
 
 <template lang="pug">
-.progress-bar
-  .progress(:style="{width: progress + '%'}")
-  .progress-text {{progress}}%
+template(v-for="col in columns")
+  unit-header(v-if="Unit.has_field(col)", :field="col")
+
+.unit-header.unit-actions
+  slot
 </template>
 
 <style lang="stylus">
-.progress-bar
-  width 100%
-  height 1.3rem
-  border-radius var(--border-radius)
-  overflow hidden
-  background var(--progress-bg)
-  color var(--progress-fg)
-
-  .progress
-    height 100%
-    display flex
-    text-align center
-    white-space nowrap
-    transition width .6s ease
-    background-color var(--progress-bar)
-    background-image var(--progress-img)
-    background-size 1rem 1rem
-
-  .progress-text
-    width 100%
-    text-align center
-    margin-top -1.3rem
 </style>

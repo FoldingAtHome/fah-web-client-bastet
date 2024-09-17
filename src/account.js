@@ -27,7 +27,7 @@
 \******************************************************************************/
 
 import {reactive} from 'vue'
-import columns    from './columns.json'
+import fields     from './unit_fields.json'
 import Unit       from './unit.js'
 
 

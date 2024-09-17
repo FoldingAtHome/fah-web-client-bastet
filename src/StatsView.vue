@@ -32,10 +32,17 @@ export default {
 
 
   computed: {
-    stats()     {return this.$stats.get_data()},
-    team()      {return this.$stats.get_team()},
-    is_anon()   {return this.$stats.is_anon()},
-    uid()       {return this.stats.id},
+    stats()      {return this.$stats.get_data()},
+    team()       {return this.$stats.get_team()},
+    is_anon()    {return this.$stats.is_anon()},
+    uid()        {return this.stats.id},
+
+
+    team_owner() {
+      for (let team of this.$adata.teams)
+        if (team.team == this.team.team) return true
+      return false
+    }
   },
 
 
@@ -100,6 +107,8 @@ export default {
         .team-name(:title="team.name")
           a(:href="$stats.url + '/team/' + team.team", target="_blank")
             | {{team.name}}
+          Button.button-icon(v-if="team_owner", icon="pencil",
+            title="Edit team settings.", route="/account/teams")
         .team-rank(v-if="team.trank") Rank {{team.trank.toLocaleString()}}
 
       .team-top(v-if="top(team.trank)") Top {{top(team.trank)}} Ranked Team
@@ -154,10 +163,15 @@ export default {
         text-align right
 
     .user-name, .team-name
+      display flex
+      gap calc(var(--gap) / 2)
       font-size 150%
       width 18em
       overflow hidden
       text-overflow ellipsis
+
+      .fa
+        font-size 75%
 
     .user-avatar, .team-logo
       display flex

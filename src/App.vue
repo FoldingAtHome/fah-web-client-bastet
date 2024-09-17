@@ -194,7 +194,8 @@ export default {
 
 <template lang="pug">
 router-view(v-slot="{Component}")
-  component(:is="Component")
+  keep-alive(include="WUsView")
+    component(:is="Component")
 
 Pacify(ref="pacify")
 PauseDialog(ref="pause_dialog")

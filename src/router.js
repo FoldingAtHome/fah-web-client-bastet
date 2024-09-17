@@ -41,6 +41,9 @@ import UnitDetailsView    from './UnitDetailsView.vue'
 import AccountView        from './AccountView.vue'
 import VerifyView         from './VerifyView.vue'
 import ResetView          from './ResetView.vue'
+import AccountSettings    from './AccountSettings.vue'
+import AccountAppearance  from './AccountAppearance.vue'
+import AccountTeams       from './AccountTeams.vue'
 
 
 export default createRouter({
@@ -53,9 +56,18 @@ export default createRouter({
     {path: '/wus',                 component: WUsView},
     {path: '/news',                component: NewsView},
     {path: '/unit/:unitID',        component: UnitDetailsView, props: true},
-    {path: '/account',             component: AccountView, props: true},
     {path: '/verify/:token',       component: VerifyView,  props: true},
     {
+      path: '/account/:tab?',
+      component: AccountView,
+      props: route => route.params,
+      children: [
+        {path: 'settings',         component: AccountSettings},
+        {path: 'appearance',       component: AccountAppearance},
+        {path: 'teams',            component: AccountTeams},
+        {path: ':pathMatch(.*)',   redirect: '/account/settings'},
+      ]
+    }, {
       path: '/reset/:token',
       component: ResetView,
       props: route => Object.assign({email: route.query.email}, route.params)

@@ -43,6 +43,7 @@ function compute_max_dims(width, height, maxWidth, maxHeight) {
 
 
 export default {
+  props: {account: Object, config: Object},
   components: {TeamDialog},
 
 
@@ -58,11 +59,7 @@ export default {
 
   methods: {
     async create_team() {
-      Object.assign(this.new_team, {
-        name: '',
-        logo: 'https://foldingathome.org/logo.png',
-        url:  '',
-      })
+      Object.assign(this.new_team, {name: '', url: ''})
 
       let response = await this.$refs.team_dialog.exec(this.new_team, true)
       if (response != 'ok') return

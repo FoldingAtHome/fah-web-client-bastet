@@ -28,28 +28,28 @@
 
 <script>
 export default {
-  data() {
-    return {
-      buttons: [
-        {name: 'pause',  text: 'Pause now',             icon: 'pause'},
-        {name: 'finish', text: 'Finish up, then pause', icon: 'clock-o'}
+  computed: {
+    buttons() {return [
+      {name: 'fold',   text: 'Resume', icon: 'play',    success: true},
+      {name: 'pause',  text: 'Pause',  icon: 'pause'},
+      {name: 'finish', text: 'Finish', icon: 'clock-o', klass: 'state-finish'}
       ]
     }
   },
 
 
   methods: {
-    exec() {return this.$refs.dialog.exec()}
+    async exec() {return this.$refs.dialog.exec()}
   }
 }
 </script>
 
 <template lang="pug">
 Dialog(:buttons="buttons", ref="dialog")
-  template(v-slot:header) Pause or Finish
+  template(v-slot:header) Resume, Pause or Finish
   template(v-slot:body).
-    Would you like to pause folding now or finish all the active work units
-    then pause?
+    Would you like to abort "finishing" and resume continuous folding,
+    pause folding now or finish all the active work units then pause?
 </template>
 
 <style lang="stylus">

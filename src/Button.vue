@@ -37,13 +37,31 @@ export default {
     image:    {},
     href:     {},
     route:    {},
+    klass:    {},
     disabled: {type: Boolean},
     success:  {type: Boolean},
+    replace:  {type: Boolean},
   },
   emits: ['click'],
 
 
   computed: {
+    _class() {
+      let klass = {}
+
+      if (typeof this.klass == 'string')
+        for (let k of this.klass.split(' '))
+          klass[k] = true
+
+      else klass == this.klass || {}
+
+      return Object.assign(klass, {
+        'button-disabled': this.disabled,
+        'button-success':  this.success
+      })
+    },
+
+
     _icon() {
       if (this.icon) return this.icon
 
@@ -84,8 +102,12 @@ export default {
       if (this.disabled) return event.preventDefault()
       if (this.href) return
       event.preventDefault()
-      if (this.route) this.$router.push(this.route)
-      else this.$emit('click', event)
+
+      if (this.route) {
+        if (this.replace) this.$router.replace(this.route)
+        else this.$router.push(this.route)
+
+      } else this.$emit('click', event)
     }
   }
 }
@@ -93,7 +115,7 @@ export default {
 
 <template lang="pug">
 a.button(@click="click", :href="link", :target="href ? '_blank' : ''",
-  :class="{'button-disabled': disabled, 'button-success': success}")
+  :class="_class")
   .fa(v-if="_icon", :class="'fa-' + _icon")
   img(v-if="image", :src="image")
   span.button-content(v-if="content") {{content}}

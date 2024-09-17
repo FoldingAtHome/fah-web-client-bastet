@@ -38,8 +38,21 @@ export default {
 
 
   methods: {
-    close() {
-      this.$router.back()
+    close() {this.$router.back()},
+
+
+    async confirm_team_url(url) {
+      if (!url) return
+      let response = await this.$root.message(
+        'confirm', 'Visit team website?',
+        `<p>You are about to visit your team's website.  Folding@home cannot ` +
+        `vouch for the safety of this website.  Proceed at your own risk.</p>`,
+        [
+          {name: 'cancel', icon: 'times'},
+          {name: 'ok', icon: 'check', text: 'Proceed', success: true},
+        ])
+
+      if (response == 'ok') window.open(url, '_blank')
     }
   }
 }
@@ -50,7 +63,8 @@ export default {
   .header-top
     component.active-team(v-if="team.team", :is="team.url ? 'a' : 'div'",
       :href="team.url", target="_blank",
-      :title="team.url ? `Visit your team's home page.` : ''")
+      :title="team.url ? `Visit your team's home page.` : ''",
+      @click.prevent="confirm_team_url(team.url)")
       img.team-logo(:src="team.logo")
       .team-name.header-title {{team.name}}
 

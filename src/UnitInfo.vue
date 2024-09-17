@@ -28,37 +28,16 @@
 
 <script>
 export default {
-  props: ['progress']
+  name: 'UnitInfo',
+  props: ['unit', 'field'],
 }
 </script>
 
 <template lang="pug">
-.progress-bar
-  .progress(:style="{width: progress + '%'}")
-  .progress-text {{progress}}%
+.info-item
+  label: unit-header(:field="field")
+  span: unit-field(:unit="unit", :field="field")
 </template>
 
 <style lang="stylus">
-.progress-bar
-  width 100%
-  height 1.3rem
-  border-radius var(--border-radius)
-  overflow hidden
-  background var(--progress-bg)
-  color var(--progress-fg)
-
-  .progress
-    height 100%
-    display flex
-    text-align center
-    white-space nowrap
-    transition width .6s ease
-    background-color var(--progress-bar)
-    background-image var(--progress-img)
-    background-size 1rem 1rem
-
-  .progress-text
-    width 100%
-    text-align center
-    margin-top -1.3rem
 </style>

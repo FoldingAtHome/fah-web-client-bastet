@@ -27,11 +27,6 @@
 -->
 
 <script>
-import AccountSettings   from './AccountSettings.vue'
-import AccountAppearance from './AccountAppearance.vue'
-import AccountTeams      from './AccountTeams.vue'
-
-
 function copy_config(config = {}) {
   return {
     dark:    config.dark,
@@ -58,14 +53,13 @@ function copy_account(data) {
 
 
 export default {
+  props: ['tab'],
   inheritAttrs: false,
-  components: {AccountSettings, AccountAppearance, AccountTeams},
 
 
   data() {
     return {
       mounted:     false,
-      tab:         'account',
       account_new: {config: {}},
       confirmed:   false,
 
@@ -93,9 +87,7 @@ export default {
     },
 
 
-    valid() {
-      return this.mounted && this.$adata && this.$refs.settings.is_valid()
-    },
+    valid() {return this.mounted && this.$adata},
 
 
     modified() {
@@ -154,7 +146,7 @@ export default {
     cancel() {this.close()},
 
 
-    close() {
+    async close() {
       this.confirmed = true
       this.$root.check_appearance()
       this.$router.back()
@@ -183,13 +175,10 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
 
   .view-body(v-if="$adata")
     .account-menu
-      Button(v-for="t in tabs", @click="tab = t.name", :icon="t.icon",
+      Button(v-for="t in tabs", :route="t.name", replace, :icon="t.icon",
         :text="t.name", :class="{'tab-active': tab == t.name}")
 
-    AccountSettings(v-show="tab == 'account'", :account="account_new",
-      ref="settings")
-    AccountAppearance(v-if="tab == 'appearance'", :config="account_new.config")
-    AccountTeams(v-if="tab == 'teams'")
+    router-view(:account="account_new", :config="account_new.config")
 </template>
 
 <style lang="stylus">

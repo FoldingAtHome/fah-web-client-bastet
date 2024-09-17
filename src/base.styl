@@ -30,15 +30,36 @@ font-url = 'https://fonts.googleapis.com/css2?family=%s&display=swap'
 @import url(s(font-url, Raleway))
 @import url(s(font-url, Source Code Pro))
 
-body
-  font-family Raleway, sans-serif
 
-  --gap          1em
-  --mono-font    Source Code Pro, mono
-  --run-color    green
-  --clean-color  gold
-  --pause-color  #e8cf01
-  --finish-color orange
+state_color(state, color)
+  .state-{state}
+    color color
+
+    &.button, .progress-bar .progress
+      background-color color
+
+
+body
+  --gap            1em
+  --base-font      Raleway, sans-serif
+  --mono-font      Source Code Pro, mono
+
+  --progress-fg    #fff
+  --progress-bg    #aaa
+  --progress-bar   #444
+  --progress-band  rgba(0, 0, 0, 0.15)
+  --progress-img   linear-gradient(45deg, var(--progress-band) 25%, \
+                     transparent 25%, transparent 50%, \
+                     var(--progress-band) 50%, var(--progress-band) 75%, \
+                     transparent 75%, transparent)
+
+  font-family var(--base-font)
+
+  state_color run      green
+  state_color credited gold
+  state_color pause    orange
+  state_color finish   #00cc99
+  state_color wait     var(--error-color)
 
 body.theme-compact
   --gap 0.4em

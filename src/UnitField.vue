@@ -28,37 +28,41 @@
 
 <script>
 export default {
-  props: ['progress']
+  name: 'UnitField',
+  props: ['unit', 'field', 'odd'],
 }
 </script>
 
 <template lang="pug">
-.progress-bar
-  .progress(:style="{width: progress + '%'}")
-  .progress-text {{progress}}%
+.unit-field(:class="unit.get_field_class(field, odd)",
+  :title="unit.get_field_title(field)")
+  div(v-if="field.toLowerCase() == 'progress'")
+    ProgressBar(:progress="unit.progress")
+  div(v-else, v-html="unit.get_field_content(field)")
 </template>
 
 <style lang="stylus">
-.progress-bar
-  width 100%
-  height 1.3rem
-  border-radius var(--border-radius)
-  overflow hidden
-  background var(--progress-bg)
-  color var(--progress-fg)
+.unit-field
+  font-family var(--mono-font)
 
-  .progress
-    height 100%
+  > div
     display flex
-    text-align center
-    white-space nowrap
-    transition width .6s ease
-    background-color var(--progress-bar)
-    background-image var(--progress-img)
-    background-size 1rem 1rem
+    gap calc(var(--gap) / 2)
+    align-items center
 
-  .progress-text
+  &.unit-progress > div
     width 100%
-    text-align center
-    margin-top -1.3rem
+
+  &.unit-status-text
+    font-family var(--base-font)
+
+.unit-field, .unit-header
+  &.unit-left
+    justify-content left
+
+  &.unit-center
+    justify-content center
+
+  &.unit-right
+    justify-content right
 </style>

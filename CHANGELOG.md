@@ -1,6 +1,15 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.5
+ - Fix Windows OS icon. #194
+ - Clear WU fail/retry status after successfully running for 2 mins.  #196
+ - Confirm click on team website link.
+ - Set default team logo in team editor dialog.
+ - Automatically add ``https://`` to team URLs.
+ - Added edit icon to team stats for team owner.
+ - Retain WU tab state.  #198
+
 ## v8.4.4
  - Include finishing WUs in total PPD.
  - Removed ``Work Unit Averages`` replaced with ``Work Unit Stats``.

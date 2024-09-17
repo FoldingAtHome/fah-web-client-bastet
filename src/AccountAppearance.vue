@@ -31,7 +31,7 @@ import Unit from './unit.js'
 
 
 export default {
-  props: {config: Object},
+  props: {account: Object, config: Object},
 
 
   watch: {
@@ -49,10 +49,10 @@ export default {
       let used = this.columns
       let l = []
 
-      for (let col of Unit.column_names)
+      for (let col of Unit.field_names)
         if (used.indexOf(col) == -1) l.push(col)
 
-      return l
+      return l.sort()
     }
   },
 

@@ -32,7 +32,7 @@ import Unit         from './unit.js'
 
 
 export default {
-  name: 'MachView',
+  name: 'MachineView',
   props: ['mach'],
   components: {MachineGroup},
 
@@ -99,7 +99,7 @@ export default {
     async pause(group) {
       let state = await this.$root.confirm_pause()
 
-      if (state == 'pause' || state == 'finish')
+      if (state == 'pause' || state == 'finish' || state == 'fold')
         this.mach.set_state(state, group)
     },
 
@@ -144,7 +144,7 @@ export default {
         :disabled="!connected")
 
   .units-view(:style="unit_style", v-if="show_units")
-    UnitHeader(v-if="!no_work", :columns="columns") Actions
+    UnitHeaders(v-if="!no_work", :columns="columns") Actions
 
     template(v-for="group in groups")
       MachineGroup(:group="group", :mach="mach", :columns="columns",

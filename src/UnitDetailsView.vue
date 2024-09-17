@@ -75,45 +75,43 @@ export default {
 
   .view-body(v-if="unit.wu")
     fieldset.view-panel
-      legend Work Unit {{'#' + unit.number}}
+      legend(:title="`Unit ID ${unit.id}`") Work Unit {{'#' + unit.number}}
 
       .info-group
-        info-item(label="PPD",         :content="unit.ppd")
-        info-item(label="Base Credit", :content="unit.base_credit")
+        unit-info(:unit="unit", field="Status Text")
+        unit-info(:unit="unit", field="Progress")
 
       .info-group
-        info-item(label="CPUs", :content="unit.cpus_description")
-        info-item(label="GPUs", :content="unit.gpus_description")
+        unit-info(:unit="unit", field="Machine")
+        unit-info(:unit="unit", field="OS Text")
 
       .info-group
-        .info-item
-          label Progress
-          span: ProgressBar(:progress="unit.progress")
+        unit-info(:unit="unit", field="TPF")
+        unit-info(:unit="unit", field="PPD")
 
       .info-group
-        info-item(label="TPF",      :content="unit.tpf")
-        info-item(label="ETA",      :content="unit.eta")
-        info-item(label="Run Time", :content="unit.run_time")
+        unit-info(:unit="unit", field="CPUs")
+        unit-info(:unit="unit", field="GPUs Text")
 
       .info-group
-        info-item(label="Assign Time", :content="unit.assign_time",
-          :title="unit.assign_time_title")
-        info-item(label="Deadline in", :content="unit.deadline",
-          :title="unit.deadline_time")
-        info-item(label="Timeout in",  :content="unit.timeout",
-          :title="unit.timeout_time")
+        unit-info(:unit="unit", field="Run Time")
+        unit-info(:unit="unit", field="ETA")
 
       .info-group
-        info-item(label="Work Server", :content="unit.assign.ws")
+        unit-info(:unit="unit", field="Assign Time")
+        unit-info(:unit="unit", field="Base Credit")
 
       .info-group
-        info-item(label="Core", :content="unit.core")
+        unit-info(:unit="unit", field="Deadline")
+        unit-info(:unit="unit", field="Timeout")
 
       .info-group
-        info-item(label="Project",    :content="unit.project")
-        info-item(label="Run",        :content="unit.wu.run")
-        info-item(label="Clone",      :content="unit.wu.clone")
-        info-item(label="Generation", :content="unit.wu.gen")
+        unit-info(:unit="unit", field="Core")
+        unit-info(:unit="unit", field="Work Server")
+
+      .info-group
+        unit-info(:unit="unit", field="Project")
+        unit-info(:unit="unit", field="RCG")
 
     fieldset.view-panel
       legend Logged Credits

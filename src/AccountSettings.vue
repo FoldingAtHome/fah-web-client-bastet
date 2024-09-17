@@ -31,7 +31,7 @@ import CommonSettings from './CommonSettings.vue'
 
 
 export default {
-  props: {account: Object},
+  props: {account: Object, config: Object},
   components: {CommonSettings},
   data() {return {show: {}}},
 
@@ -53,7 +53,6 @@ export default {
 
 
   methods: {
-    is_valid() {return this.valid},
     async reset_token() {this.$account.reset_token()},
     copy_token() {navigator.clipboard.writeText(this.$adata.token)},
 

@@ -1,6 +1,6 @@
 {
   "name": "fah-web-control",
-  "version": "8.4.4",
+  "version": "8.4.5",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -26,7 +26,7 @@
 
 \******************************************************************************/
 
-import columns from './columns.json'
+import fields from './unit_fields.json'
 
 
 const status = {
@@ -40,6 +40,15 @@ const status = {
   'WAIT':     'Waiting',
   'PAUSE':    'Paused',
   'DUMP':     'Dumping',
+
+  'DUMPED':   'Dumped',
+  'EXPIRED':  'Expired',
+  'ABORTED':  'Aborted',
+  'MISSING':  'Missing Data',
+  'RETRIES':  'Max Retries',
+  'FAILED':   'Failed',
+  'REJECTED': 'Rejected',
+  'CREDITED': 'Credited',
 }
 
 
@@ -48,11 +57,7 @@ const wait_status = {
   'DOWNLOAD': 'Download Wait',
   'CORE':     'Core Wait',
   'RUN':      'Run Wait',
-  'FINISH':   'Finish Wait',
   'UPLOAD':   'Upload Wait',
-  'CLEAN':    'Ended',
-  'WAIT':     'Waiting',
-  'PAUSE':    'Paused',
   'DUMP':     'Dump Wait',
 }
 
@@ -63,17 +68,24 @@ const icons = {
   'RUN':      'refresh',
   'FINISH':   'refresh',
   'UPLOAD':   'upload',
-  'CLEAN':    'star',
+  'CLEAN':    'check', // Deprecated
   'WAIT':     'clock-o',
   'PAUSE':    'hourglass-o',
+
+  'DUMPED':   'trash',
+  'EXPIRED':  'calendar-times-o',
+  'CREDITED': 'star',
 }
 
 
-function clean_column(name) {return name.toLowerCase().replaceAll(' ', '_')}
+function clean_field(name) {return name.toLowerCase().replaceAll(' ', '_')}
 
 
 function get_os_icon(os) {
-  if (os == 'macosx') os = 'apple'
+  switch (os) {
+  case 'macosx':              os = 'apple';   break
+  case 'win32': case 'win64': os = 'windows'; break
+  }
   return `<div class="fa fa-${os}"></div>`
 }
 
@@ -85,22 +97,26 @@ class Unit {
     this.mach = mach
   }
 
-  get id()       {return this.unit.id}
-  get machine()  {return this.mach.get_name()}
-  get group()    {return this.unit.group}
-  get assign()   {return this.unit.assignment || {}}
-  get number()   {return this.unit.number}
-  get core()     {return (this.assign.core || {}).type}
-  get project()  {return this.assign.project}
-  get run()      {return this.wu.run}
-  get clone()    {return this.wu.clone}
-  get gen()      {return this.wu.gen}
-  get wu()       {return this.unit.wu || {}}
-  get cpus()     {return this.unit.cpus}
-  get gpus()     {return this.unit.gpus.length}
-  get os()       {return get_os_icon(this.mach.get_os())}
-  get os_title() {return this.mach.get_os()}
-  get paused()   {return !!this.unit.pause_reason}
+  get id()          {return this.unit.id}
+  get machine()     {return this.mach.get_name()}
+  get version()     {return this.mach.get_version()}
+  get group()       {return this.unit.group}
+  get group_name()  {return this.group || 'Default'}
+  get assign()      {return this.unit.assignment || {}}
+  get number()      {return this.unit.number}
+  get core()        {return (this.assign.core || {}).type}
+  get project()     {return this.assign.project}
+  get run()         {return this.wu.run}
+  get clone()       {return this.wu.clone}
+  get gen()         {return this.wu.gen}
+  get wu()          {return this.unit.wu || {}}
+  get cpus()        {return this.unit.cpus}
+  get gpus()        {return this.unit.gpus.length}
+  get os()          {return get_os_icon(this.mach.get_os())}
+  get os_text()     {return this.os + this.os_title}
+  get os_title()    {return this.mach.get_os()}
+  get paused()      {return !!this.unit.pause_reason}
+  get work_server() {return this.assign.ws}
 
 
   get finish()  {
@@ -108,10 +124,7 @@ class Unit {
   }
 
 
-  get cpus_description() {return this.assign.cpus}
-
-
-  get gpus_description() {
+  get gpus_text() {
     let gpus = []
     let info = this.mach.get_info().gpus || {}
 
@@ -123,8 +136,8 @@ class Unit {
 
 
   get resources() {
-    let cpus = this.cpus_description
-    let gpus = this.gpus_description
+    let cpus = this.cpus
+    let gpus = this.gpus_text
 
     let parts = []
     if (1 < cpus || gpus == 'none') parts.push(`${cpus} CPUs`)
@@ -135,29 +148,33 @@ class Unit {
 
 
   get description() {
-    let {project, cpus, gpus_description} = this
-    return `project:${project} cpus:${cpus} gpus:${gpus_description}`
+    let {project, cpus, gpus_text} = this
+    return `project:${project} cpus:${cpus} gpus:${gpus_text}`
   }
 
 
   get state() {
-    if (this.waiting) return 'WAIT'
-    if (this.finish)  return 'FINISH'
-    if (this.paused)  return 'PAUSE'
+    if (this.waiting)     return 'WAIT'
+    if (this.finish)      return 'FINISH'
+    if (this.paused)      return 'PAUSE'
+    if (this.unit.result) return this.unit.result.toUpperCase()
     return this.unit.state
   }
 
-  get status() {return `<div class="fa fa-${this.icon}"/>`}
-  get status_title() {return this.status_text}
+  get status() {return `<div class="fa fa-${this.icon}"></div>`}
+  get status_title() {return this._status_text}
 
 
-  get status_text() {
-    if (this.waiting) return wait_status[this.unit.state]
+  get _status_text() {
+    if (this.waiting) return wait_status[this.unit.state] || status[this.state]
     return this.unit.pause_reason || status[this.state]
   }
 
 
-  get icon()    {return icons[this.state]}
+  get status_text() {return `${this.status} ${this._status_text}`}
+
+
+  get icon()    {return icons[this.state] || 'times'}
   get ppd_raw() {return this.unit.ppd || 0}
   get ppd()     {return (this.ppd_raw).toLocaleString()}
 
@@ -199,7 +216,7 @@ class Unit {
 
 
   get rcg() {
-    if (this.run == undefined) return '?.?.?'
+    if (this.run == undefined) return '?,?,?'
     return `${this.run},${this.clone},${this.gen}`
   }
 
@@ -270,52 +287,51 @@ class Unit {
   get base_credit() {return (this.assign.credit || 0).toLocaleString()}
 
 
-  static get_column(name)   {return columns[name] || {}}
-  static get column_names() {return Object.keys(columns)}
+  static has_field(name)      {return name in fields}
+  static get_field(name)      {return fields[name] || {}}
+  static get_field_size(name) {return Unit.get_field(name).size || 'auto'}
+  static get field_names()    {return Object.keys(fields)}
 
 
   static get default_columns() {
-    return Object.entries(columns).reduce((l, col) => {
+    return Object.entries(fields).reduce((l, col) => {
       if (col[1].enabled) l.push(col[0])
       return l
     }, [])
   }
 
 
-  static get_column_grid_template(cols) {
-    return cols.map(name => columns[name].size || 'auto').join(' ')
-  }
-
-
   static get_column_grid_style(cols, append = '') {
-    let tmpl = Unit.get_column_grid_template(cols)
+    cols = cols.filter(name => Unit.has_field(name))
+    let tmpl = cols.map(name => Unit.get_field_size(name)).join(' ')
     return {'grid-template-columns': tmpl + append}
   }
 
 
-  get_column_content(name)      {return this[clean_column(name)]}
-  static get_column_desc(name) {return Unit.get_column(name).desc}
+  get_field_content(name)       {return this[clean_field(name)]}
+  static get_field_desc(name)   {return Unit.get_field(name).desc}
+  static get_field_header(name) {return Unit.get_field(name).header || name}
 
 
-  get_column_title(name) {
-    return this[clean_column(name) + '_title'] || Unit.get_column_desc(name)
+  get_field_title(name) {
+    return this[clean_field(name) + '_title'] || Unit.get_field_desc(name)
   }
 
 
-  static get_column_header_class(name) {
-    let klass = `column-${name.toLowerCase().replace(' ', '-')}`
-    klass += ` column-${Unit.get_column(name).left ? 'left' : 'right'}`
+  static get_field_header_class(name) {
+    let klass = `unit-${name.toLowerCase().replace(' ', '-')}`
+    klass += ` unit-${Unit.get_field(name).align || 'right'}`
     return klass
   }
 
 
-  get_column_class(name, odd) {
-    let klass = Unit.get_column_header_class(name)
+  get_field_class(name, odd) {
+    let klass = Unit.get_field_header_class(name)
 
-    if (name == 'Status' || 'Status Text')
+    name = clean_field(name)
+    if (name == 'status' || name == 'status_text' || name == 'progress')
       klass += ` state-${this.state.toLowerCase()}`
 
-    klass += ` column-${Unit.get_column(name).left ? 'left' : 'right'}`
     if (odd != undefined) klass += ` row-${odd ? 'odd' : 'even'}`
 
     return klass

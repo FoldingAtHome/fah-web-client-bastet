@@ -44,24 +44,9 @@ export default {
     },
 
 
-    modified() {return !this.$util.isEqual(this.team, this.orig)},
-
-
-    name_valid() {return /^[^<>;&]{2,100}$/.test(this.team.name)},
-
-
-    url_valid() {
-      try {
-        if (this.team.url) {
-          let url = new URL(this.team.url)
-          return /[^.]{2,64}\.[^.]{2,64}/.test(url.host)
-        }
-
-        return true
-      } catch (e) {}
-    },
-
-
+    modified()   {return !this.$util.isEqual(this.team, this.orig)},
+    name_valid() {return /^[^<>;&"'\\`]{2,100}$/.test(this.team.name)},
+    url_valid()  {return /^[^<>;'"`{}^\\[\]\|]*$/.test(this.team.url)},
     logo_valid() {return this.$refs.logo.valid},
 
 
@@ -75,9 +60,18 @@ export default {
   methods: {
     async exec(team, create) {
       this.orig   = Object.assign({}, team)
+      team.logo   = team.logo || 'https://foldingathome.org/logo.png'
       this.team   = team
       this.create = create
-      return this.$refs.dialog.exec()
+      let r = await this.$refs.dialog.exec()
+      this.fix_url()
+      return r
+    },
+
+
+    fix_url() {
+      if (this.team.url && this.team.url.indexOf('://') == -1)
+        this.team.url = 'https://' + this.team.url
     }
   }
 }
@@ -95,7 +89,7 @@ Dialog.team-dialog(:buttons="buttons", ref="dialog")
             The name may contain any characters other than #[tt &lt;],
             #[tt &gt;], #[tt &#59;], or #[tt &amp;] and must be between 2 and
             100 characters in length.
-        input(v-model="team.name", pattern="[^<>;&]{2,100}")
+        input(v-model="team.name", :class="{error: !name_valid}")
 
       .setting
         HelpBalloon(name="URL")
@@ -104,7 +98,8 @@ Dialog.team-dialog(:buttons="buttons", ref="dialog")
             Facebook or other home page.
           p It must be a valid URL or empty.
 
-        input(v-model="team.url")
+        input(v-model="team.url", :class="{error: !url_valid}",
+          @change="fix_url")
 
       .setting
         HelpBalloon(name="Logo")

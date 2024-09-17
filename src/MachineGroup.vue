@@ -54,7 +54,7 @@ export default {
   .group-resources(:title="mach.get_resources(group)")
     | {{mach.get_resources(group, 50)}}
 
-  .machine-group-actions.column-actions
+  .machine-group-actions
     Button.button-icon(v-if="mach.is_paused(group)", icon="play",
       @click="$emit('fold')", :disabled="!connected",
       title="Start folding in this group")

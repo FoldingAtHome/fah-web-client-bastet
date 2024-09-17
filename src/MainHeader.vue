@@ -41,11 +41,11 @@ ViewHeader.main-header
   template(v-slot:center): slot(name="center")
 
   template(v-slot:actions)
-    Button.button-image(v-if="$adata.avatar", route="/account",
+    Button.button-image(v-if="$adata.avatar", route="/account/",
       :image="$adata.avatar",
       :title="$adata.user + ': Account Settings and Logout'")
 
-    Button.button-icon(v-else-if="$adata.created", route="/account",
+    Button.button-icon(v-else-if="$adata.created", route="/account/",
       icon="user", :title="$adata.user + ': Account Settings and Logout'")
 
     Button(v-else, text="Login", icon="sign-in", @click="$root.login()",

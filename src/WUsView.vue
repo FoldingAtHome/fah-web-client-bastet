@@ -69,18 +69,25 @@ function array_avg(a, key) {
 }
 
 
+function filter_unit(filter, unit, key1, key2) {
+  return filter[key1] == 'Any' || filter[key1] == unit[key2 || key1]
+}
+
+
 export default {
   name: 'WUsView',
 
-
   data() {
     return {
-      machine:  'Any',
-      project:  'Any',
-      os:       'Any',
-      resource: 'Any',
-      complete: false,
-      days:     '',
+      filter: {
+        machine:   'Any',
+        project:   'Any',
+        os:        'Any',
+        state:     'Any',
+        resources: 'Any',
+        complete:  false,
+        days:      '',
+      }
     }
   },
 
@@ -97,16 +104,17 @@ export default {
 
 
     wus() {
-      let days = parseFloat(this.days)
+      let days = parseFloat(this.filter.days)
 
       return this.all_wus.filter(unit =>
-        (this.machine  == 'Any' || this.machine  == unit.machine)   &&
-        (this.project  == 'Any' || this.project  == unit.project)   &&
-        (this.os       == 'Any' || this.os       == unit.os_title)  &&
-        (this.resource == 'Any' || this.resource == unit.resources) &&
-        (!this.days || !isFinite(this.days) ||
+        filter_unit(this.filter, unit, 'machine'             ) &&
+        filter_unit(this.filter, unit, 'project'             ) &&
+        filter_unit(this.filter, unit, 'os',       'os_title') &&
+        filter_unit(this.filter, unit, 'state'               ) &&
+        filter_unit(this.filter, unit, 'resources'           ) &&
+        (!this.filter.days || !isFinite(this.filter.days) ||
           to_days(new Date()) - to_days(unit.assign.time) <= days) &&
-        (!this.complete || unit.wu_progress == 1)
+        (!this.filter.complete || unit.wu_progress == 1)
       )
     },
 
@@ -114,6 +122,7 @@ export default {
     machines()  {return unique_values(this.all_wus, 'machine')},
     projects()  {return unique_values(this.all_wus, 'project')},
     oses()      {return unique_values(this.all_wus, 'os_title')},
+    states()    {return unique_values(this.all_wus, 'state')},
     resources() {return unique_values(this.all_wus, 'resources')},
     tpf_min()   {return array_min(this.wus, 'tpf_secs')},
     tpf_max()   {return array_max(this.wus, 'tpf_secs')},
@@ -124,15 +133,12 @@ export default {
   },
 
 
+  created() {this.default_filter = Object.assign({}, this.filter)},
   mounted() {this.$machs.wus_enable(true)},
 
 
   methods: {
-    reset_stats() {
-      this.machine = this.project = this.os = this.resource = 'Any'
-      this.days = ''
-      this.complete = false
-    }
+    reset() {Object.assign(this.filter, this.default_filter)},
   }
 }
 </script>
@@ -150,6 +156,7 @@ export default {
         th Machine
         th Project
         th OS
+        th State
         th Resources
         th With in
         th Complete
@@ -157,35 +164,40 @@ export default {
 
       tr
         td
-          select(v-model="machine")
+          select(v-model="filter.machine")
             option(value="Any") Any
             option(v-for="machine in machines", :value="machine") {{machine}}
 
         td
-          select(v-model="project")
+          select(v-model="filter.project")
             option(value="Any") Any
             option(v-for="project in projects", :value="project") {{project}}
 
         td
-          select(v-model="os")
+          select(v-model="filter.os")
             option(value="Any") Any
             option(v-for="os in oses", :value="os") {{os}}
 
         td
-          select(v-model="resource")
+          select(v-model="filter.state")
+            option(value="Any") Any
+            option(v-for="v in states", :value="v") {{v}}
+
+        td
+          select(v-model="filter.resources")
             option(value="Any") Any
             option(v-for="r in resources", :value="r") {{r}}
 
         td(title="Only include units assigned with in this number of days.")
-          input(v-model="days", type=number, placeholder="days",
-            :class="{error: !isFinite(days)}")
+          input(v-model="filter.days", type=number, placeholder="days",
+            :class="{error: !isFinite(filter.days)}")
 
         td(title="Only include completed units.")
-          input(type="checkbox", v-model="complete")
+          input(type="checkbox", v-model="filter.complete")
 
         td.actions
           span
-            Button.button-icon(icon="refresh", @click="reset_stats",
+            Button.button-icon(icon="refresh", @click="reset",
               title="Reset stats filter")
 
     p(v-if="!wus.length") No matching work units.
@@ -212,7 +224,7 @@ export default {
       A log of recent work WUs completed by your machines.
 
     .units-view(:style="Unit.get_column_grid_style(columns, ' 1fr')")
-      UnitHeader(:columns="columns") Info
+      UnitHeaders(:columns="columns") Info
 
       UnitsView(:units="wus", :columns="columns", v-slot="{unit}")
         Button.button-icon(icon="info-circle",

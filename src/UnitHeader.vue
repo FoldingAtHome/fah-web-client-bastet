@@ -32,18 +32,14 @@ import Unit from './unit.js'
 
 export default {
   name: 'UnitHeader',
-  props: {columns: Array},
+  props: ['field'],
   computed: {Unit() {return Unit}},
 }
 </script>
 
 <template lang="pug">
-.column-header(v-for="col in columns",
-  :class="Unit.get_column_header_class(col)",
-  :title="Unit.get_column_desc(col)") {{col}}
-
-.column-header.column-actions
-  slot
+.unit-header(:class="Unit.get_field_header_class(field)",
+  :title="Unit.get_field_desc(field)") {{Unit.get_field_header(field)}}
 </template>
 
 <style lang="stylus">
