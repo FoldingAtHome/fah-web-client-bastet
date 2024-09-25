@@ -130,8 +130,9 @@ class Stats {
     let data = team == undefined ? {} : {team}
     if (this.state.passkey) data.passkey = this.state.passkey
 
-    this.state.stats = await this.api.fetch({
+    let stats = await this.api.fetch({
       path, data, error_cb: () => false, expire: this.timeout})
+    if (stats && stats.name) this.state.stats = stats
 
     if (!this.state.stats) {
       this.state.stats = {

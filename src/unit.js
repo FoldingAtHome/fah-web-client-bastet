@@ -277,8 +277,8 @@ class Unit {
 
    get progress() {
     let p = this.unit.progress || 0
-    if (this.paused || this.unit.state == 'RUN' ||
-      this.unit.state == 'CLEAN') p = this.wu_progress
+    if (this.paused || ['RUN', 'CLEAN', 'DONE'].includes(this.unit.state))
+      p = this.wu_progress
     if (this.waiting) p = this.wait_progress
     return this.util.clamp(p * 100, 0, 100).toFixed(1)
   }
