@@ -152,73 +152,75 @@ export default {
       Filter Work Units to compute stats on different groups of units.
 
     table.view-table.wu-filters
-      tr
-        th Machine
-        th Project
-        th OS
-        th State
-        th Resources
-        th With in
-        th Complete
-        th.actions Actions
+      tbody
+        tr
+          th Machine
+          th Project
+          th OS
+          th State
+          th Resources
+          th With in
+          th Complete
+          th.actions Actions
 
-      tr
-        td
-          select(v-model="filter.machine")
-            option(value="Any") Any
-            option(v-for="machine in machines", :value="machine") {{machine}}
+        tr
+          td
+            select(v-model="filter.machine")
+              option(value="Any") Any
+              option(v-for="machine in machines", :value="machine") {{machine}}
 
-        td
-          select(v-model="filter.project")
-            option(value="Any") Any
-            option(v-for="project in projects", :value="project") {{project}}
+          td
+            select(v-model="filter.project")
+              option(value="Any") Any
+              option(v-for="project in projects", :value="project") {{project}}
 
-        td
-          select(v-model="filter.os")
-            option(value="Any") Any
-            option(v-for="os in oses", :value="os") {{os}}
+          td
+            select(v-model="filter.os")
+              option(value="Any") Any
+              option(v-for="os in oses", :value="os") {{os}}
 
-        td
-          select(v-model="filter.state")
-            option(value="Any") Any
-            option(v-for="v in states", :value="v") {{v}}
+          td
+            select(v-model="filter.state")
+              option(value="Any") Any
+              option(v-for="v in states", :value="v") {{v}}
 
-        td
-          select(v-model="filter.resources")
-            option(value="Any") Any
-            option(v-for="r in resources", :value="r") {{r}}
+          td
+            select(v-model="filter.resources")
+              option(value="Any") Any
+              option(v-for="r in resources", :value="r") {{r}}
 
-        td(title="Only include units assigned with in this number of days.")
-          input(v-model="filter.days", type=number, placeholder="days",
-            :class="{error: !isFinite(filter.days)}")
+          td(title="Only include units assigned with in this number of days.")
+            input(v-model="filter.days", type=number, placeholder="days",
+              :class="{error: !isFinite(filter.days)}")
 
-        td(title="Only include completed units.")
-          input(type="checkbox", v-model="filter.complete")
+          td(title="Only include completed units.")
+            input(type="checkbox", v-model="filter.complete")
 
-        td.actions
-          span
-            Button.button-icon(icon="refresh", @click="reset",
-              title="Reset stats filter")
+          td.actions
+            span
+              Button.button-icon(icon="refresh", @click="reset",
+                title="Reset stats filter")
 
     p(v-if="!wus.length") No matching work units.
     table.view-table.wu-stats(v-else)
-      tr
-        th
-        th Average
-        th Min
-        th Max
+     tbody
+        tr
+          th
+          th Average
+          th Min
+          th Max
 
-      tr(title="Time Per Frame.  Time to complete 1% of the unit.")
-        th TPF
-        td {{tpf_avg ? $util.time_interval(tpf_avg) : '???'}}
-        td {{tpf_min ? $util.time_interval(tpf_min) : '???'}}
-        td {{tpf_max ? $util.time_interval(tpf_max) : '???'}}
+        tr(title="Time Per Frame.  Time to complete 1% of the unit.")
+          th TPF
+          td {{tpf_avg ? $util.time_interval(tpf_avg) : '???'}}
+          td {{tpf_min ? $util.time_interval(tpf_min) : '???'}}
+          td {{tpf_max ? $util.time_interval(tpf_max) : '???'}}
 
-      tr(title="Points Per Day")
-        th PPD
-        td {{isFinite(ppd_avg) ? Math.round(ppd_avg).toLocaleString() : '???'}}
-        td {{isFinite(ppd_min) ? ppd_min.toLocaleString() : '???'}}
-        td {{isFinite(ppd_max) ? ppd_max.toLocaleString() : '???'}}
+        tr(title="Points Per Day")
+          th PPD
+          td {{isFinite(ppd_avg) ? Math.round(ppd_avg).toLocaleString() : '???'}}
+          td {{isFinite(ppd_min) ? ppd_min.toLocaleString() : '???'}}
+          td {{isFinite(ppd_max) ? ppd_max.toLocaleString() : '???'}}
 
     HelpBalloon.header-title(name="Recent Work Unit History"): p.
       A log of recent work WUs completed by your machines.

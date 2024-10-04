@@ -69,30 +69,31 @@ export default {
         <!--plot-view(:x="$machs.ppd", :min="1000000")-->
 
         table.machines-info.view-table
-          tr
-            th Machines
-            th CPUs
-            th GPUs
-            th PPD
-            th Actions
+          tbody
+            tr
+              th Machines
+              th CPUs
+              th GPUs
+              th PPD
+              th Actions
+            tr
+              td(title="Active machine count")
+                | {{$machs.get_count().toLocaleString()}}
+              td(title="Active CPU count") {{$machs.active_cpus.toLocaleString()}}
+              td(title="Active GPU count") {{$machs.active_gpus.toLocaleString()}}
+              td(title="Current total Points Per Day")
+                | {{$machs.ppd.toLocaleString()}}
+              td
+                .machines-actions
+                  Button(text="Fold All",
+                  @click="$root.fold()", success, icon="play",
+                  :disabled="$machs.is_empty()",
+                  title="Start folding on all machines")
 
-          td(title="Active machine count")
-            | {{$machs.get_count().toLocaleString()}}
-          td(title="Active CPU count") {{$machs.active_cpus.toLocaleString()}}
-          td(title="Active GPU count") {{$machs.active_gpus.toLocaleString()}}
-          td(title="Current total Points Per Day")
-            | {{$machs.ppd.toLocaleString()}}
-          td
-            .machines-actions
-              Button(text="Fold All",
-              @click="$root.fold()", success, icon="play",
-              :disabled="$machs.is_empty()",
-              title="Start folding on all machines")
-
-              Button(text="Pause All",
-                @click="$root.pause()", icon="pause",
-                :disabled="$machs.is_empty()",
-                title="Pause folding on all machines")
+                  Button(text="Pause All",
+                    @click="$root.pause()", icon="pause",
+                    :disabled="$machs.is_empty()",
+                    title="Pause folding on all machines")
 
     template(v-for="mach in machs")
       MachineView(v-if="!mach.is_hidden()", :mach="mach")
