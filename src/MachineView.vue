@@ -114,7 +114,7 @@ export default {
   .machine-header
     .machine-name.header-title(:title="mach.get_title()")
       | {{mach.get_name()}}
-      .fa.fa-dot-circle-o(v-if="mach.is_direct()")
+      Icon(name="dot-circle-o",v-if="mach.is_direct()")
 
     ClientVersion.machine-version(:mach="mach")
 
