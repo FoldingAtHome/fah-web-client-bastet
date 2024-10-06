@@ -90,7 +90,7 @@ UnitsView(:units="units", :columns="columns", v-slot="{unit}")
   white-space nowrap
 
   .group-name
-    max-width 14em
+    max-width 16em
     min-width 4em
     overflow hidden
     text-overflow ellipsis
