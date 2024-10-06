@@ -175,7 +175,7 @@ export default {
     gap calc(var(--gap) * 2)
 
     .machine-name
-      width 8em
+      max-width 16em
       min-width 4em
       overflow hidden
       text-overflow ellipsis
