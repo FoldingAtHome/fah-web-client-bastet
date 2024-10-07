@@ -231,6 +231,18 @@ class Unit {
     let eta = this.wu_progress < 1 ? this.unit.eta : 0
     if (typeof eta == 'string') eta = this.util.parse_interval(eta)
 
+      console.log(this.util.time_interval(0 < eta ? eta : 0));
+      
+      if (eta > this.deadline) {
+          return (
+            `<div style="color: var(--warn-color)">
+              <i class="fa fa-exclamation-triangle"></i>
+                Won't finish on time
+              <i class="fa fa-exclamation-triangle"></i>
+            </div>`
+          )
+      }
+
     return this.util.time_interval(0 < eta ? eta : 0)
   }
 
