@@ -1,6 +1,10 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.6
+ - Handle missing teams array.
+ - Unit progress fixes.
+
 ## v8.4.5
  - Fix Windows OS icon. #194
  - Clear WU fail/retry status after successfully running for 2 mins.  #196
