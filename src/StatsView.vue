@@ -39,7 +39,7 @@ export default {
 
 
     team_owner() {
-      for (let team of this.$adata.teams)
+      for (let team of this.$adata.teams || [])
         if (team.team == this.team.team) return true
       return false
     }
