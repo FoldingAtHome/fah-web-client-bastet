@@ -41,18 +41,31 @@ export default {
 
   computed: {
     connected() {return this.mach.is_connected()},
+    failed() {return this.mach.get_group(this.group).failed},
+    warn() {return !!this.mach.get_group(this.group).failed_wus},
+
+
+    status() {
+      let l = []
+      if (this.failed) l.push(['Failed', this.failed])
+      return l
+    }
   }
 }
 </script>
 
 <template lang="pug">
 .machine-group-header(v-if="header",
-  :style="{'grid-column': `span ${columns.length + 1}`}")
+  :style="{'grid-column': `span ${columns.length + 1}`}",
+  :class="{error: !!failed, warn: warn}")
   .group-name.header-subtitle
     | {{group ? `Group ${group}` : 'Default Group'}}
 
   .group-resources(:title="mach.get_resources(group)")
     | {{mach.get_resources(group, 50)}}
+
+  .group-status
+    span(v-for="t in status", :title="t[1]", v-html="t[0]")
 
   .machine-group-actions
     Button.button-icon(v-if="mach.is_paused(group)", icon="play",
@@ -89,13 +102,27 @@ UnitsView(:units="units", :columns="columns", v-slot="{unit}")
   align-items baseline
   white-space nowrap
 
+  &.error
+    border 2px solid var(--error-color) !important
+
+  &.warn
+    border 2px solid var(--warn-color) !important
+
   .group-name
     width 10em
     overflow hidden
     text-overflow ellipsis
 
-  .machine-group-actions
+  .group-status
     flex 1
+    color var(--warn-color)
+    font-weight bold
+    display flex
+    gap var(--gap)
+    justify-content end
+
+
+  .machine-group-actions
     display flex
     flex-direction row
     justify-content end

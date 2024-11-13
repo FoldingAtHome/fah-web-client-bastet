@@ -1,6 +1,10 @@
 Folding@home Web Control Changelog
 =================================
 
+## V8.4.7
+ - Show "Failed" message on group paused due to too many failed WUs.
+ - Highlight group or machine with error (red) or warn (orange) on failures.
+
 ## v8.4.6
  - Handle missing teams array.
  - Unit progress fixes.

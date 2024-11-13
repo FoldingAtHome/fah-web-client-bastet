@@ -55,6 +55,22 @@ export default {
     },
 
 
+    failed() {
+      if (this.one_group) {
+        let group = this.mach.get_group()
+        if (group.failed) return group.failed
+      }
+    },
+
+
+    warn() {
+      if (this.one_group) {
+        let group = this.mach.get_group()
+        if (group.failed_wus) return !!group.failed_wus
+      }
+    },
+
+
     status() {
       let l = []
 
@@ -66,6 +82,7 @@ export default {
           l.push(['Unlinked', 'Machine not linked to F@H account'])
         if (this.no_work)  l.push(['No work', 'Start folding to download work'])
       }
+      if (this.failed) l.push(['Failed', this.failed])
 
       return l
     },
@@ -76,7 +93,8 @@ export default {
 
     klass() {
       return (this.connected ? '' : 'disconnected') +
-        (this.show_units ? '' : ' empty')
+        (this.show_units ? '' : ' empty') +
+        (this.failed ? ' error' : '') + (this.warn ? ' warn' : '')
     },
 
 
@@ -159,6 +177,12 @@ export default {
   display flex
   flex-direction column
   gap calc(var(--gap) / 2)
+
+  &.error
+    border 2px solid var(--error-color) !important
+
+  &.warn
+    border 2px solid var(--warn-color) !important
 
   &.disconnected
     filter contrast(0.6) brightness(0.5)
