@@ -55,20 +55,8 @@ export default {
     },
 
 
-    failed() {
-      if (this.one_group) {
-        let group = this.mach.get_group()
-        if (group.failed) return group.failed
-      }
-    },
-
-
-    warn() {
-      if (this.one_group) {
-        let group = this.mach.get_group()
-        if (group.failed_wus) return !!group.failed_wus
-      }
-    },
+    failed() {return this.one_group && this.mach.get_group().failed},
+    warn() {return this.one_group && 1 < this.mach.get_group().failed_wus},
 
 
     status() {
@@ -82,7 +70,8 @@ export default {
           l.push(['Unlinked', 'Machine not linked to F@H account'])
         if (this.no_work)  l.push(['No work', 'Start folding to download work'])
       }
-      if (this.failed) l.push(['Failed', this.failed])
+      if (this.failed) l.push(['Failed',  this.failed])
+      if (this.warn)   l.push(['Warning', 'Check log for errors and warnings'])
 
       return l
     },

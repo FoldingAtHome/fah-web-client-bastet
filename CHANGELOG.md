@@ -1,7 +1,10 @@
 Folding@home Web Control Changelog
 =================================
 
-## V8.4.7
+## v8.4.9
+ - Show ``Warning`` when more than one consecutive WU fails.
+
+## v8.4.7
  - Show "Failed" message on group paused due to too many failed WUs.
  - Highlight group or machine with error (red) or warn (orange) on failures.
 
