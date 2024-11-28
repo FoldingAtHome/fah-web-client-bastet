@@ -95,7 +95,7 @@ fieldset.settings.view-panel
       p.
         Some GPUs are not supported by Folding@home either because they are
         too old, too new, the necessary driver software is missing from you
-        computer or the GPU has know bugs that prevent folding from working
+        computer or the GPU has known bugs that prevent folding from working
         correctly.  If your GPU is not supported you will not be able to
         enable it.
 
