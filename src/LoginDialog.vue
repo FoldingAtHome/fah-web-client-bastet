@@ -169,7 +169,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
 
             p.
               When registering your Folding@home account you can generate
-              a secure passphrase by clicking the #[.fa.fa-refresh] icon.
+              a secure passphrase by clicking the #[i .fa.fa-refresh] icon.
               Make sure you save this passphrase somewhere safe, preferably in
               a password manager.
 

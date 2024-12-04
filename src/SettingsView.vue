@@ -318,7 +318,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
             include a-z, 0-9, dashes (-) and dots (.).
           p.
             If the local machine is linked to another account you can link it to
-            this account by clicking on the #[.fa.fa-link] icon.
+            this account by clicking on the #[i .fa.fa-link] icon.
 
       .setting
         label Name
