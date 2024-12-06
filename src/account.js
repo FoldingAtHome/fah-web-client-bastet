@@ -131,8 +131,12 @@ class Account {
     const salt = await this.crypto.sha256(email.toLowerCase())
     const {hash, key} = await this.derive_password(passphrase, salt)
 
-    config = {email, password: hash}
-    let data = await this.ctx.$api.get('/login', config, 'Signing in')
+    let data = await this.ctx.$api.fetch({
+      path: '/login',
+      data: {email, password: hash},
+      action: 'Signing in' // This value is used in App.error_handler()
+    })
+
     this.ctx.$api.sid_save(data.id)
     await this.save_credentials(email, passphrase)
     await this.retrieve_secret(hash, key, salt)

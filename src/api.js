@@ -127,7 +127,7 @@ class API {
       if (ret === false) return
     }
 
-    let ret = this._error_handler(action, error)
+    let ret = this._error_handler(action, error, response)
     if (ret !== false) throw {action, error}
   }
 

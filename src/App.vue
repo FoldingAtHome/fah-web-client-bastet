@@ -100,8 +100,8 @@ export default {
     },
 
 
-    error_handler(action, error) {
-      if (error == 'User disabled')
+    error_handler(action, error, response) {
+      if (action == 'Signing in', response.status == 409)
         return this.message(
           'error', 'Account not active',
           'Please verify your email address to activate your account.')
