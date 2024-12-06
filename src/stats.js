@@ -31,6 +31,7 @@ import {watch, watchEffect, reactive} from 'vue'
 
 class Stats {
   constructor(ctx, timeout = 60 * 60 * 1000) {
+    this.ctx   = ctx
     this.api   = ctx.$api
     this.adata = ctx.$account.data
     this.machs = ctx.$machs
@@ -88,7 +89,7 @@ class Stats {
 
   _get_config() {
     // Use account settings
-    if (this.adata.created) return this.adata
+    if (this.ctx.$account.logged_in) return this.adata
 
     // Otherwise use direct machine settings
     return this.machs.get_direct_config()

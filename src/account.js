@@ -277,6 +277,9 @@ class Account {
   }
 
 
+  get logged_in() {return !!this.data.created}
+
+
   loggedout() {
     this.ctx.$api.sid_clear()
     this._secret_clear()
@@ -299,7 +302,7 @@ class Account {
   async check(create_dialog) {
     if (!this.data.user) return
 
-    if (!this.data.created) {
+    if (!this.logged_in) {
       let account = await create_dialog()
 
       if (account) {

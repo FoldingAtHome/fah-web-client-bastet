@@ -33,7 +33,7 @@ export default {
 
 
   computed: {
-    team()      {return this.$stats.get_team()},
+    team() {return this.$stats.get_team()},
   },
 
 

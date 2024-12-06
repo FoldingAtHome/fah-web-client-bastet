@@ -71,7 +71,7 @@ export default {
 
 
   computed: {
-    have_account() {return this.$adata.created},
+    logged_in() {return this.$account.logged_in},
     connected()    {return this.mach.is_connected()},
     linked()       {return this.mach.is_linked()},
     valid_name()   {return /^[\w\.-]{1,64}$/.test(this.name)},
@@ -91,7 +91,7 @@ export default {
     keys() {
       let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key']
 
-      if (!this.have_account)
+      if (!this.logged_in)
         return keys.concat(['user', 'team', 'passkey', 'cause'])
 
       return keys
@@ -213,7 +213,7 @@ export default {
       let config = this.data.config
       if (this.config || !config || this.$util.isEmpty(config)) return
 
-      config = this.have_account ? {} : this.get_account_config(config)
+      config = this.logged_in ? {} : this.get_account_config(config)
 
       if (!this.data.groups)
         config.groups = {'': this.get_group_config(config)}
@@ -309,7 +309,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
         icon="save")
 
   .view-body
-    fieldset.settings.view-panel(v-if="have_account")
+    fieldset.settings.view-panel(v-if="logged_in")
       legend
         HelpBalloon(name="Machine")
           p You can rename the machine or unlink a machine you no longer use.
@@ -331,7 +331,7 @@ Dialog.new-group-dialog(ref="new_group_dialog", buttons="Create")
           Button.button-icon(v-if="!linked", @click="link", icon="link",
             :disabled="!valid_name", title="Link machine to this account")
 
-    fieldset.settings.view-panel(v-if="!have_account && config")
+    fieldset.settings.view-panel(v-if="!logged_in && config")
       legend Account Settings
       CommonSettings(:config="config", ref="common")
 

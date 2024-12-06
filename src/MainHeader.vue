@@ -45,7 +45,7 @@ ViewHeader.main-header
       :image="$adata.avatar",
       :title="$adata.user + ': Account Settings and Logout'")
 
-    Button.button-icon(v-else-if="$adata.created", route="/account/",
+    Button.button-icon(v-else-if="$account.logged_in", route="/account/",
       icon="user", :title="$adata.user + ': Account Settings and Logout'")
 
     Button(v-else, text="Login", icon="sign-in", @click="$root.login()",

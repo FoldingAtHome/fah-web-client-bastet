@@ -43,9 +43,6 @@ export default {
 
 
     valid() {
-      console.log('avatar', this.$refs.avatar.valid)
-      console.log('common', this.$refs.common.valid)
-      console.log('node',   this.node_valid)
       return this.$refs.avatar.valid && this.$refs.common.valid &&
         this.node_valid
     }
@@ -59,7 +56,7 @@ export default {
 
     async logout() {
       await this.$root.logout()
-      this.$parent.close()
+      this.$router.back()
     },
 
 
@@ -77,7 +74,7 @@ export default {
       if (response == 'delete')
         return this.$root.pacify(async () => {
           await this.$account.delete()
-          this.close()
+          this.$router.back()
         })
     }
   }

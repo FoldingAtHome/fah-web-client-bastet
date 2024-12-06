@@ -98,13 +98,16 @@ export default {
 
 
   beforeRouteLeave(to, from) {
-    if (!this.modified || this.confirmed) return true
+    if (!this.modified || this.confirmed || !this.$account.logged_in)
+      return true
+
     this.confirm_leave(to)
     return false
   },
 
 
   async mounted() {
+    if (!this.$account.logged_in) return this.close()
     this.mounted = true
     this.init()
   },
