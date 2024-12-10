@@ -41,8 +41,8 @@ export default {
 
   computed: {
     connected() {return this.mach.is_connected()},
-    failed() {return this.mach.get_group(this.group).failed},
-    warn() {return !!this.mach.get_group(this.group).failed_wus},
+    failed()    {return this.mach.get_group(this.group).failed},
+    warn()      {return 1 < this.mach.get_group(this.group).failed_wus},
 
 
     status() {
