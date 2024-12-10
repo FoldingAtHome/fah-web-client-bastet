@@ -40,9 +40,15 @@ export default {
 
 
   computed: {
-    user_valid()    {return /^(|[^<>;&:]{2,100})$/.test(this.config.user)},
-    team_valid()    {return /^\d+$/.test(this.config.team)},
-    passkey_valid() {return /^(|[a-f0-9]{30,32})$/i.test(this.config.passkey)},
+    user_valid() {return /^(|[^<>;&:]{2,100})$/.test(this.config.user)},
+    team_valid() {return /^\d+$/.test(this.config.team || 0)},
+
+
+    passkey_valid() {
+      return /^(|[a-f0-9]{30,32})$/i.test(this.config.passkey || '')
+    },
+
+
     valid() {return this.user_valid && this.team_valid && this.passkey_valid}
   }
 }
