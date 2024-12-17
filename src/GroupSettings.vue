@@ -124,7 +124,7 @@ fieldset.settings.view-panel(v-if="advanced")
   .setting
     HelpBalloon(name="Beta Projects"): p.
       Enable folding of beta projects.  Beta projects are in testing and may
-      fail and cause you to loose points.
+      fail and cause you to lose points.
 
     input(v-model="config.beta", type="checkbox",
       title="Enable beta projects")
