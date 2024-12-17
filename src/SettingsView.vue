@@ -165,7 +165,7 @@ export default {
 
     async unlink() {
       let response = await this.$root.message('confirm', 'Unlink machine?',
-        '<p>If you unlink this machine you will loose remote access.</p>' +
+        '<p>If you unlink this machine you will lose remote access.</p>' +
         '<p>Are you sure you want to unlink?', ['no', 'yes'])
       if (response != 'yes') return
       await this.mach.unlink()
