@@ -158,7 +158,7 @@ export default {
         th OS
         th State
         th Resources
-        th With in
+        th Within
         th Complete
         th.actions Actions
 
@@ -188,7 +188,7 @@ export default {
             option(value="Any") Any
             option(v-for="r in resources", :value="r") {{r}}
 
-        td(title="Only include units assigned with in this number of days.")
+        td(title="Only include units assigned within this number of days.")
           input(v-model="filter.days", type=number, placeholder="days",
             :class="{error: !isFinite(filter.days)}")
 
