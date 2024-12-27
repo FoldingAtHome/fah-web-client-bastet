@@ -58,7 +58,7 @@ export default {
 
   .view-body
     .machines-view-header.view-panel
-      .no-data(v-if="$machs.is_empty()")
+      .no-data(v-if="$machs.is_empty")
         p No folding machines found.
         p Login or install the Folding@home client software.
         p.
@@ -77,7 +77,7 @@ export default {
             th Actions
 
           td(title="Active machine count")
-            | {{$machs.get_count().toLocaleString()}}
+            | {{$machs.count.toLocaleString()}}
           td(title="Active CPU count") {{$machs.active_cpus.toLocaleString()}}
           td(title="Active GPU count") {{$machs.active_gpus.toLocaleString()}}
           td(title="Current total Points Per Day")
@@ -86,12 +86,12 @@ export default {
             .machines-actions
               Button(text="Fold All",
               @click="$root.fold()", success, icon="play",
-              :disabled="$machs.is_empty()",
+              :disabled="$machs.is_empty",
               title="Start folding on all machines")
 
               Button(text="Pause All",
                 @click="$root.pause()", icon="pause",
-                :disabled="$machs.is_empty()",
+                :disabled="$machs.is_empty",
                 title="Pause folding on all machines")
 
     template(v-for="mach in machs")

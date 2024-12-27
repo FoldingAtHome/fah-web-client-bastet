@@ -4,8 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview",
-    "pub": "vite build && rsync -r --progress dist/ fah:/var/www/v8-4.foldingathome.org/html/"
+    "serve": "vite preview"
   },
   "dependencies": {
     "npm-check-updates": "^16.10.8",

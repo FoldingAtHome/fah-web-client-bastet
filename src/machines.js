@@ -59,8 +59,8 @@ class Machines {
   }
 
 
-  is_empty()  {return !this.get_count()}
-  get_count() {return Array.from(this).length}
+  get is_empty() {return !this.count}
+  get count() {return Array.from(this).length}
 
 
   *[Symbol.iterator]() {

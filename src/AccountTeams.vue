@@ -136,8 +136,8 @@ fieldset.settings.view-panel.account-teams
       td.team-name: component(:href="team.url", target="_blank",
         :is="team.url ? 'a' : 'span'") {{team.name}}
 
-      td.team-wus {{team.wus.toLocaleString()}}
-      td.team-score {{team.score.toLocaleString()}}
+      td.team-wus {{(team.wus || 0).toLocaleString()}}
+      td.team-score {{(team.score || 0).toLocaleString()}}
 
       td.team-actions
         div

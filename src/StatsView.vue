@@ -69,7 +69,7 @@ export default {
 .stats-view.page-view
   MainHeader
 
-  .view-body(v-if="stats")
+  .view-body(v-if="stats.id")
     .view-panel(v-if="stats.name")
       .user-header
         .user-avatar.fa.fa-user-o
@@ -84,8 +84,8 @@ export default {
       .user-top(v-if="top(stats.rank)") Top {{top(stats.rank)}} Ranked Donor
       .user-top(v-else) Unranked Ranked Donor
 
-      .user-points {{stats.score.toLocaleString()}} points earned
-      .user-wus {{stats.wus.toLocaleString()}} WUs completed
+      .user-points {{(stats.score || 0).toLocaleString()}} points earned
+      .user-wus {{(stats.wus || 0).toLocaleString()}} WUs completed
 
       h2 Active Clients
       .active-7 {{stats.active_7}} active clients within 7 days
@@ -114,16 +114,17 @@ export default {
       .team-top(v-if="top(team.trank)") Top {{top(team.trank)}} Ranked Team
       .team-top(v-else) Unranked Team
 
-      .team-points {{team.tscore.toLocaleString()}} points earned
-      .team-wus {{team.twus.toLocaleString()}} WUs completed
+      .team-points {{(team.tscore || 0).toLocaleString()}} points earned
+      .team-wus {{(team.twus || 0).toLocaleString()}} WUs completed
 
       h2 Your Contribution
       .contrib-points.
-        {{team.score.toLocaleString()}} points
+        {{(team.score || 0).toLocaleString()}} points
         ({{tpercent(team.score, team.tscore)}})
 
       .contrib-wus.
-        {{team.wus.toLocaleString()}} WUs ({{tpercent(team.wus, team.twus)}})
+        {{(team.wus || 0).toLocaleString()}} WUs
+        ({{tpercent(team.wus, team.twus)}})
 
       h2 Awards
       .team-awards

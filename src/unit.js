@@ -176,7 +176,7 @@ class Unit {
 
   get icon()    {return icons[this.state] || 'times'}
   get ppd_raw() {return this.unit.ppd || 0}
-  get ppd()     {return (this.ppd_raw).toLocaleString()}
+  get ppd()     {return this.ppd_raw.toLocaleString()}
 
 
   get tpf_secs()  {
