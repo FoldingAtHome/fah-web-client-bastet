@@ -3,6 +3,8 @@ Folding@home Web Control Changelog
 
 ## v8.4.9
  - Show ``Warning`` when more than one consecutive WU fails.
+ - Validate login and registration fields and show errors on failures.
+ - Show appropriate message on attempt to register existing account.
 
 ## v8.4.7
  - Show "Failed" message on group paused due to too many failed WUs.

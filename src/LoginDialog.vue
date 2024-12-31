@@ -39,6 +39,7 @@ export default {
       passkey:      '',
       show:         false,
       show_passkey: false,
+      show_errors:  false,
     }
   },
 
@@ -46,29 +47,54 @@ export default {
   computed: {
     buttons() {
       switch (this.mode) {
-      case 'login': return []
+      case 'login': return [
+        {name: 'cancel', icon: 'times'},
+        {name: 'login',  icon: 'sign-in', success: true}
+      ]
       case 'register': return [
         {name: 'cancel',   icon: 'times'},
-        {name: 'register', icon: 'sign-in', disabled: !this.valid,
-         success: true}
+        {name: 'register', icon: 'sign-in', success: true}
       ]
       case 'reset': return [
         {name: 'cancel', icon: 'times'},
-        {text: 'Request Reset', name: 'reset', icon: 'check',
-         disabled: !this.valid, success: true}
+        {text: 'Request Reset', name: 'reset', icon: 'check', success: true}
       ]
       }
     },
 
 
-    valid() {
-      switch (this.mode) {
-      case 'register': if (this.passphrase != this.passphrase2) return false
-      case 'login': if (this.passphrase.length < 10) return false
+    errors() {
+      let errors = []
+
+      if (this.mode == 'register') {
+        if (this.passphrase != this.passphrase2)
+          errors.push('Passphrases do not match')
+
+        if (this.team && !/^\d+$/.test(this.team))
+          errors.push('Invalid team number')
+
+        if (this.user && (this.user.length < 2 || 100 < this.user.length))
+          errors.push('User name must be empty or between 2 and 100 characters')
+
+        if (this.user && !/^[^<>;&:]*$/.test(this.user))
+          errors.push('User name cannot contain any of the following: <>;&:')
+
+        if (this.passkey && !/[a-fA-F\d]{30,32}/.test(this.passkey))
+          errors.push('Invalid passkey')
       }
 
-      return /.{1,64}@.{4,255}/.test(this.email)
-    }
+      if (this.passphrase.length < 10)
+        errors.push('Your passphrase must be at least 10 characters long')
+
+      if (!this.email) errors.push('A valid email address is required')
+      else if (!/.{1,64}@.{4,255}/.test(this.email))
+        errors.push('Invalid email address')
+
+      return errors
+    },
+
+
+    valid() {return !this.errors.length}
   },
 
 
@@ -81,9 +107,15 @@ export default {
       for (const [key, value] of Object.entries(config))
         this[key] = value
 
-      let response = await this.$refs.dialog.exec()
-      let data
+      let response
 
+      while (true) {
+        response = await this.$refs.dialog.exec()
+        if (response == 'cancel' || this.valid) break
+        this.show_errors = true
+      }
+
+      let data
       switch (response) {
       case 'login':
         data = {
@@ -97,7 +129,7 @@ export default {
           email:      this.email,
           passphrase: this.passphrase,
           user:       this.user || 'Anonymous',
-          team:       this.team,
+          team:       parseInt(this.team),
           passkey:    this.passkey || undefined,
         }
         break
@@ -115,10 +147,6 @@ export default {
       this.show = false
       this.$refs.dialog.close(action)
     },
-
-
-    do_login() {if (this.mode == 'login' && this.valid) this.close('login')},
-    cancel()   {this.close('cancel')},
 
 
     generate_passphrase() {
@@ -206,7 +234,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
 
               p Leave this field blank to fold anonymously.
 
-            input(v-model="user", pattern="[^<>;&:]{2,100}")
+            input(v-model="user")
 
           .setting
             HelpBalloon(name="Team")
@@ -215,7 +243,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
               p You can join an existing team or start your own.
               p Enter #[tt 0] for no team.
 
-            input(v-model="team", type="number")
+            input(v-model="team")
 
           .setting
             HelpBalloon(name="Passkey")
@@ -238,21 +266,18 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
                 @click="show_passkey = !show_passkey",
                 :title="(show ? 'Hide' : 'Show') + ' passkey'")
 
-      template(v-if="mode == 'login'")
-        .actions
-          Button(icon="times", text="Cancel", @click="cancel",
-            title="Cancel login")
+      ul.messages
+        template(v-if="mode == 'login'")
+          li: a(href="#", @click="mode = 'reset'") Forgot your passphrase?
 
-          Button(icon="sign-in", text="Login", @click="do_login", success,
-            :disabled="!valid", title="Login to your Folding@home account")
+        template(v-if="mode == 'register'")
+          li Starred fields are required, others are optional
 
-        div: a(href="#", @click="mode = 'reset'") Forgot your passphrase?
+        template(v-if="mode == 'register' || mode == 'login'")
+          li Do not use your passkey as your passphrase
 
-      template(v-if="mode == 'register'")
-        div * Required
-
-      template(v-if="mode == 'register' || mode == 'login'")
-        div Do not use your passkey as your passphrase.
+        template(v-if="show_errors")
+          li.error(v-for="msg in errors") {{msg}}
 
 </template>
 
@@ -262,6 +287,13 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
   flex-direction column
   text-align center
   gap var(--gap)
+
+  .messages
+    margin-left 10em
+    text-align left
+
+    .error
+      color var(--error-color)
 
   fieldset.settings
     border none

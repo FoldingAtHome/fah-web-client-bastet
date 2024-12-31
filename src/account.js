@@ -104,7 +104,7 @@ class Account {
       user, team, passkey, avatar, node, email, password, pubkey, secret,
       verify_url}
 
-    await this.ctx.$api.put('/register', data)
+    await this.ctx.$api.put('/register', data, 'Registering')
     return this.save_credentials(email, passphrase, user, avatar)
   }
 

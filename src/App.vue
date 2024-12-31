@@ -101,10 +101,17 @@ export default {
 
 
     error_handler(action, error, response) {
-      if (action == 'Signing in', response.status == 409)
-        return this.message(
-          'error', 'Account not active',
-          'Please verify your email address to activate your account.')
+      if (response.status == 409) {
+        if (action == 'Signing in')
+          return this.message(
+            'error', 'Account not active',
+            'Please verify your email address to activate your account.')
+
+        if (action == 'Registering')
+          return this.message(
+            'error', 'Account exists',
+            'Please login or request a password reset via the login dialog.')
+      }
 
       this.message('error', action + ' failed', error)
     },
