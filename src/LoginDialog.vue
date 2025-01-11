@@ -83,7 +83,7 @@ export default {
           errors.push('Invalid passkey')
       }
 
-      if (this.passphrase.length < 10)
+      if (this.mode != 'reset' && this.passphrase.length < 10)
         errors.push('Your passphrase must be at least 10 characters long')
 
       if (!this.email) errors.push('A valid email address is required')
