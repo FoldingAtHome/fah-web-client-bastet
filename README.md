@@ -13,7 +13,7 @@ See Also: https://github.com/FoldingAtHome/fah-client-bastet
 ## Start the development web server
 
     cd fah-web-client-bastet
-    npm i
+    npm ci
     npm run dev
 
 ## Open the Browser

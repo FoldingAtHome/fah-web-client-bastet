@@ -1,0 +1,8 @@
+{
+  "name": "Node.js",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+
+  // Execute the postCreate bash file after the container is created.
+  // The chmod +x is required to make the script temporarily executable then removed to avoid git status changes.
+  "postCreateCommand": "sudo chmod +x .devcontainer/postCreate.sh && .devcontainer/postCreate.sh && sudo chmod -x .devcontainer/postCreate.sh"
+}

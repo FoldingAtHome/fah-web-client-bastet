@@ -18,7 +18,7 @@ conf.Finish()
 
 if 'dist' in COMMAND_LINE_TARGETS:
   if not env.GetOption('clean'):
-    env.RunCommandOrRaise(['npm', 'install'])
+    env.RunCommandOrRaise(['npm', 'ci'])
     env.RunCommandOrRaise(['npm', 'run', 'build'])
 
   distfiles = ['dist', 'LICENSE']
