@@ -204,7 +204,7 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
             p: strong A passphrase is not the same as a passkey.
 
           input(v-model="passphrase", :type="show ? 'text' : 'password'",
-            @keyup.enter="do_login", name="password",
+            @keyup.enter="close('login')", name="password",
             autocomplete="current-password")
 
           .setting-actions
