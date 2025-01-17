@@ -5,7 +5,6 @@ node_modules
 /*.tar.bz2
 /*.zip
 *~
-/package-lock.json
 /.sconsign.dblite
 /.sconf_temp
 /config.log
