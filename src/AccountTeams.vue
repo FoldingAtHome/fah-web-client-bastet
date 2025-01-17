@@ -118,33 +118,35 @@ fieldset.settings.view-panel.account-teams
 
   div(v-if="!teams.length") You do not currently own any F@H teams.
   table.view-table(v-else)
-    tr
-      th.team-logo Logo
-      th.team-id Team
-      th.team-name Name
-      th.team-wus WUs
-      th.team-score Score
-      th.team-actions Actions
+    thead
+      tr
+        th.team-logo Logo
+        th.team-id Team
+        th.team-name Name
+        th.team-wus WUs
+        th.team-score Score
+        th.team-actions Actions
 
-    tr(v-for="team in teams")
-      td.team-logo: img(:src="team.logo")
+    tbody
+      tr(v-for="team in teams")
+        td.team-logo: img(:src="team.logo")
 
-      td.team-id
-        a(:href="`${$stats.url}/team/${team.team}`", target="_blank")
-          | {{team.team}}
+        td.team-id
+          a(:href="`${$stats.url}/team/${team.team}`", target="_blank")
+            | {{team.team}}
 
-      td.team-name: component(:href="team.url", target="_blank",
-        :is="team.url ? 'a' : 'span'") {{team.name}}
+        td.team-name: component(:href="team.url", target="_blank",
+          :is="team.url ? 'a' : 'span'") {{team.name}}
 
-      td.team-wus {{(team.wus || 0).toLocaleString()}}
-      td.team-score {{(team.score || 0).toLocaleString()}}
+        td.team-wus {{(team.wus || 0).toLocaleString()}}
+        td.team-score {{(team.score || 0).toLocaleString()}}
 
-      td.team-actions
-        div
-          Button.button-icon(icon="trash", @click="delete_team(team)",
-            title="Delete team.", :disabled="!!team.wus")
-          Button.button-icon(icon="pencil", @click="edit_team(team)",
-            title="Edit team settings.")
+        td.team-actions
+          div
+            Button.button-icon(icon="trash", @click="delete_team(team)",
+              title="Delete team.", :disabled="!!team.wus")
+            Button.button-icon(icon="pencil", @click="edit_team(team)",
+              title="Edit team settings.")
 
   .actions
     Button(text="New Team", icon="plus", @click="create_team",
