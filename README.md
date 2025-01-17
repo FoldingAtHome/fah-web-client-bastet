@@ -18,4 +18,4 @@ See Also: https://github.com/FoldingAtHome/fah-client-bastet
 
 ## Open the Browser
 
-With the development server running visit http://localhost:3000/
+With the development server running visit http://localhost:5173/
