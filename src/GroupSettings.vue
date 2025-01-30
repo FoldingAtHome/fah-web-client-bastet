@@ -103,18 +103,20 @@ fieldset.settings.view-panel
 
 
     table.gpus-input.view-table
-      tr
-        th Description
-        th Enabled
+      thead
+        tr
+          th Description
+          th Enabled
 
-      tr.gpu-row(v-for="gpu in gpus",
-        :class="{unsupported: !gpu.supported}",
-        :title="gpu.supported ? `${gpu.id} ${gpu.description}` : \
-          'Unsupported GPU'")
-        td.gpu-description {{gpu.description}}
+      tbody
+        tr.gpu-row(v-for="gpu in gpus",
+          :class="{unsupported: !gpu.supported}",
+          :title="gpu.supported ? `${gpu.id} ${gpu.description}` : \
+            'Unsupported GPU'")
+          td.gpu-description {{gpu.description}}
 
-        td.gpu-enabled
-          input(type="checkbox", v-model="config.gpus[gpu.id].enabled")
+          td.gpu-enabled
+            input(type="checkbox", v-model="config.gpus[gpu.id].enabled")
 
 fieldset.settings.view-panel(v-if="advanced")
   legend
