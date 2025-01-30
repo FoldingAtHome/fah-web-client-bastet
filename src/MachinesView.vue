@@ -81,8 +81,10 @@ export default {
             tr
               td(title="Active machine count")
                 | {{$machs.count.toLocaleString()}}
-              td(title="Active CPU count") {{$machs.active_cpus.toLocaleString()}}
-              td(title="Active GPU count") {{$machs.active_gpus.toLocaleString()}}
+              td(title="Active CPU count")
+                | {{$machs.active_cpus.toLocaleString()}}
+              td(title="Active GPU count")
+                | {{$machs.active_gpus.toLocaleString()}}
               td(title="Current total Points Per Day")
                 | {{$machs.ppd.toLocaleString()}}
               td

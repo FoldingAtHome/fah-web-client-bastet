@@ -27,6 +27,7 @@
 -->
 
 <script>
+import util from './util.js'
 import Unit from './unit.js'
 
 
@@ -72,6 +73,10 @@ function array_avg(a, key) {
 function filter_unit(filter, unit, key1, key2) {
   return filter[key1] == 'Any' || filter[key1] == unit[key2 || key1]
 }
+
+
+function format_tpf(tpf) {return tpf ? util.time_interval(tpf) : '???'}
+function format_ppd(ppd) {return isFinite(ppd) ? ppd.toLocaleString() : '???'}
 
 
 export default {
@@ -124,12 +129,12 @@ export default {
     oses()      {return unique_values(this.all_wus, 'os_title')},
     states()    {return unique_values(this.all_wus, 'state')},
     resources() {return unique_values(this.all_wus, 'resources')},
-    tpf_min()   {return array_min(this.wus, 'tpf_secs')},
-    tpf_max()   {return array_max(this.wus, 'tpf_secs')},
-    tpf_avg()   {return array_avg(this.wus, 'tpf_secs')},
-    ppd_min()   {return array_min(this.wus, 'ppd_raw')},
-    ppd_max()   {return array_max(this.wus, 'ppd_raw')},
-    ppd_avg()   {return array_avg(this.wus, 'ppd_raw')},
+    tpf_min()   {return format_tpf(array_min(this.wus, 'tpf_secs'))},
+    tpf_max()   {return format_tpf(array_max(this.wus, 'tpf_secs'))},
+    tpf_avg()   {return format_tpf(array_avg(this.wus, 'tpf_secs'))},
+    ppd_min()   {return format_ppd(array_min(this.wus, 'ppd_raw'))},
+    ppd_max()   {return format_ppd(array_max(this.wus, 'ppd_raw'))},
+    ppd_avg()   {return format_ppd(Math.round(array_avg(this.wus, 'ppd_raw')))},
   },
 
 
@@ -214,15 +219,15 @@ export default {
       tbody
         tr(title="Time Per Frame.  Time to complete 1% of the unit.")
           th TPF
-          td {{tpf_avg ? $util.time_interval(tpf_avg) : '???'}}
-          td {{tpf_min ? $util.time_interval(tpf_min) : '???'}}
-          td {{tpf_max ? $util.time_interval(tpf_max) : '???'}}
+          td {{tpf_avg}}
+          td {{tpf_min}}
+          td {{tpf_max}}
 
         tr(title="Points Per Day")
           th PPD
-          td {{isFinite(ppd_avg) ? Math.round(ppd_avg).toLocaleString() : '???'}}
-          td {{isFinite(ppd_min) ? ppd_min.toLocaleString() : '???'}}
-          td {{isFinite(ppd_max) ? ppd_max.toLocaleString() : '???'}}
+          td {{ppd_avg}}
+          td {{ppd_min}}
+          td {{ppd_max}}
 
     HelpBalloon.header-title(name="Recent Work Unit History"): p.
       A log of recent work WUs completed by your machines.

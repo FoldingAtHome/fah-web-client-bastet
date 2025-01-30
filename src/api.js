@@ -161,7 +161,8 @@ class API {
           if (content.status == 404)
             return error(new Response(content.value, {status: 404}))
 
-          if (!content.status || (200 <= content.status && content.status < 300))
+          if (!content.status ||
+              (200 <= content.status && content.status < 300))
             return content.value
         }
       }

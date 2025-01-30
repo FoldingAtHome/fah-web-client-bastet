@@ -229,7 +229,8 @@ class Machine {
 
   log_enable(enable) {
     if (this.logEnabled == enable) return
-    console.debug(this.get_name() + ': log ' + (enable ? 'enabled' : 'disabled'))
+    console.debug(this.get_name() + ': log ' +
+      (enable ? 'enabled' : 'disabled'))
     this.logEnabled = enable
     this._send_log_enable()
   }
