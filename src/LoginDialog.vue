@@ -76,8 +76,9 @@ export default {
         if (this.user && (this.user.length < 2 || 100 < this.user.length))
           errors.push('User name must be empty or between 2 and 100 characters')
 
-        if (this.user && !/^[^<>;&:]*$/.test(this.user))
-          errors.push('User name cannot contain any of the following: <>;&:')
+        if (this.user && !/^[^<>;&:\t]*$/.test(this.user))
+          errors.push('User name cannot contain any of the following: ' +
+            '<>;&: or tab')
 
         if (this.passkey && !/[a-fA-F\d]{30,32}/.test(this.passkey))
           errors.push('Invalid passkey')
