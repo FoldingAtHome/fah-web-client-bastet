@@ -152,8 +152,8 @@ export default {
           return this.message(
             'info', 'Account registered', '<p>Your Folding@home account has ' +
             'been registered.</p><p>You have been sent an email verification ' +
-            'message.  Please follow the link in the email to activate your ' +
-            'account.</p>')
+            'message.  Please <b>follow the link in your email</b> to ' +
+            'activate your account.</p>')
 
         case 'reset':
           await this.$account.request_reset(result.data)
