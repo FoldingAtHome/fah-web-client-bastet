@@ -57,7 +57,8 @@ class Account {
 
   get_columns() {
     if (document.body.clientWidth <= 800) return Unit.default_columns
-    return (this.data.config || {}).columns || Unit.default_columns
+    let columns = (this.data.config || {}).columns
+    return (columns && columns.length) ? columns : Unit.default_columns
   }
 
 
