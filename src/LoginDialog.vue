@@ -229,8 +229,8 @@ Dialog(:buttons="buttons", ref="dialog", width="40em")
               p.
                 You may optionally choose a user name to identify yourself on
                 Folding@home.  User names may contain any characters other than
-                #[tt &lt;&gt;&semi;&amp;:] and can be anywhere from 2 to 100
-                characters long.
+                #[tt &lt;&gt;&semi;&amp;:] or tab and can be anywhere from
+                2 to 100 characters long.
 
               p Leave this field blank to fold anonymously.
 
