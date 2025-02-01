@@ -138,7 +138,7 @@ export default {
               td.assigned {{credit.assign_time}}
               td.credited {{credit.credit_time}}
 
-        p May included credits awarded to other users.
+        p May include credits awarded to other users.
 
     ProjectView(v-if="project.description", :project="project", :full="true")
 </template>
