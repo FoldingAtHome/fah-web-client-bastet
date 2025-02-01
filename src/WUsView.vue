@@ -27,7 +27,6 @@
 -->
 
 <script>
-import util from './util.js'
 import Unit from './unit.js'
 
 
@@ -75,7 +74,7 @@ function filter_unit(filter, unit, key1, key2) {
 }
 
 
-function format_tpf(tpf) {return tpf ? util.time_interval(tpf) : '???'}
+function format_tpf(tpf) {return tpf ? this.$util.time_interval(tpf) : '???'}
 function format_ppd(ppd) {return isFinite(ppd) ? ppd.toLocaleString() : '???'}
 
 
@@ -129,9 +128,9 @@ export default {
     oses()      {return unique_values(this.all_wus, 'os_title')},
     states()    {return unique_values(this.all_wus, 'state')},
     resources() {return unique_values(this.all_wus, 'resources')},
-    tpf_min()   {return format_tpf(array_min(this.wus, 'tpf_secs'))},
-    tpf_max()   {return format_tpf(array_max(this.wus, 'tpf_secs'))},
-    tpf_avg()   {return format_tpf(array_avg(this.wus, 'tpf_secs'))},
+    tpf_min()   {return this.format_tpf(array_min(this.wus, 'tpf_secs'))},
+    tpf_max()   {return this.format_tpf(array_max(this.wus, 'tpf_secs'))},
+    tpf_avg()   {return this.format_tpf(array_avg(this.wus, 'tpf_secs'))},
     ppd_min()   {return format_ppd(array_min(this.wus, 'ppd_raw'))},
     ppd_max()   {return format_ppd(array_max(this.wus, 'ppd_raw'))},
     ppd_avg()   {return format_ppd(Math.round(array_avg(this.wus, 'ppd_raw')))},
@@ -144,6 +143,7 @@ export default {
 
   methods: {
     reset() {Object.assign(this.filter, this.default_filter)},
+    format_tpf(tpf) {return tpf ? this.$util.time_interval(tpf) : '???'}
   }
 }
 </script>
