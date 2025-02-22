@@ -99,7 +99,7 @@ fieldset.settings.view-panel
         correctly.  If your GPU is not supported you will not be able to
         enable it.
 
-      p Either CUDA, OpenCL or both is required for folding.
+      p Either CUDA, HIP, or OpenCL is required for folding.
 
 
     table.gpus-input.view-table
@@ -146,6 +146,13 @@ fieldset.settings.view-panel(v-if="advanced")
       CUDA is used for testing purposes.
 
     input(v-model="config.cuda", type="checkbox", title="Enable CUDA")
+
+  .setting
+    HelpBalloon(name="Enable HIP"): p.
+      Enable HIP support.  Normally this should be left enabled.  Disabling
+      HIP is used for testing purposes.
+
+    input(v-model="config.hip", type="checkbox", title="Enable HIP")
 </template>
 
 <style lang="stylus">
@@ -166,7 +173,7 @@ fieldset.settings.view-panel(v-if="advanced")
         &.unsupported td
           opacity 0.4
 
-        .gpu-enabled, .cuda-enabled
+        .gpu-enabled, .cuda-enabled, .hip-enabled
           text-align center
 
       .gpu-description

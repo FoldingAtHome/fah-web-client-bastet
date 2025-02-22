@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.4.10
+ - Add support for HIP
+
 ## v8.4.9
  - Show ``Warning`` when more than one consecutive WU fails.
  - Validate login and registration fields and show errors on failures.

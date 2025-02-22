@@ -35,7 +35,7 @@ export default {
     devs() {
       let devs = []
 
-      for (const name of ['OpenCL', 'CUDA']) {
+      for (const name of ['OpenCL', 'CUDA', 'HIP']) {
         let type  = name.toLowerCase()
         let cinfo = Object.assign({}, this.gpu[type] || {})
 
