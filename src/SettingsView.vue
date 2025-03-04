@@ -183,7 +183,7 @@ export default {
       copy.beta    = !!copy.beta
       copy.key     = copy.key || 0
       copy.cuda    = copy.cuda == undefined ? true : copy.cuda
-      copy.hip     = copy.hip == undefined ? true : copy.hip
+      copy.hip     = copy.hip  == undefined ? true : copy.hip
 
       if (this.$util.version_less('8.3.1', this.version)) {
         copy.on_battery = !!config.on_battery
