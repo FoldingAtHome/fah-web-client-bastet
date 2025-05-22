@@ -120,13 +120,16 @@ class DirectMachConn extends MachConnection {
         console.debug('Direct Client Version', info.version)
         let last_version = this.ctx.$util.retrieve('fah-last-version')
         let our_version  = import.meta.env.PACKAGE_VERSION
+
         if (this.ctx.$util.version_less(our_version, info.version) &&
             (!last_version ||
               this.ctx.$util.version_less(last_version, info.version))) {
           this.ctx.$util.store('fah-last-version', info.version)
 
-          if (!info.url) location.reload(true)
-          else location.replace(info.url)
+          if (location.hostname.indexOf('foldingathome.org') != -1) {
+            if (!info.url) location.reload(true)
+            else location.replace(info.url)
+          }
         }
 
         // Set direct connection

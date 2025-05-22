@@ -4,6 +4,7 @@ import packageJson from './package.json'
 
 
 export default defineConfig({
+  preview: {port: 5173},
   plugins: [vue({
     template: {
       compilerOptions: {
