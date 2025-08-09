@@ -170,7 +170,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
     template(v-slot:actions)
       Button(@click="cancel", :text="modified ? 'Cancel' : 'Close'",
         icon="times",
-        title="Leave Account Settings with out making further changes")
+        title="Leave Account Settings without making further changes")
 
       Button(:disabled="!modified || !valid", @click="save", text="Save",
         success, icon="save",
