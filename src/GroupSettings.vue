@@ -46,7 +46,7 @@ fieldset.settings.view-panel
   .setting
     HelpBalloon(name="Only When Idle"): p.
       Enable folding only when your machine is idle.  I.e. when the mouse
-      and keyboard are not being used.  Note, that folding will not start
+      and keyboard are not being used.  Note that folding will not start
       when idle if your machine goes to sleep first.
 
     input(v-model="config.on_idle", type="checkbox",
@@ -72,13 +72,13 @@ fieldset.settings.view-panel
 fieldset.settings.view-panel
   legend
     HelpBalloon(name="Resource Usage"): p.
-      These settings control the usage of your machines compute resources.
+      These settings control the usage of your machine's compute resources.
 
   .setting
     HelpBalloon(name="CPUs")
       p Choose how many CPU cores Folding@home should try to utilize.
       p.
-        Reduce the number of CPUs allocate to folding if your system runs
+        Reduce the number of CPUs allocated to folding if your system runs
         too slow while Folding@home is running.  Set to the maximum to earn
         the most points.  However, you may also consider reserving a few
         CPUs if you are also doing GPU folding.  GPU folding may also need
@@ -94,7 +94,7 @@ fieldset.settings.view-panel
       p Choose which of your GPUs to run Folding@home on.
       p.
         Some GPUs are not supported by Folding@home either because they are
-        too old, too new, the necessary driver software is missing from you
+        too old, too new, the necessary driver software is missing from your
         computer or the GPU has known bugs that prevent folding from working
         correctly.  If your GPU is not supported you will not be able to
         enable it.
