@@ -122,7 +122,7 @@ fieldset.settings.view-panel
         account.  Once you've used an account token it's a good idea to
         generate a new one.  Anytime you generate a new account token the
         previous account tokens are no longer valid.  But any machines which
-        are already linked to you account will remain linked.
+        are already linked to your account will remain linked.
 
       p.
         If a client is running locally on the same machine you've logged in
