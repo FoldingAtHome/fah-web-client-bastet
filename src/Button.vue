@@ -116,7 +116,7 @@ export default {
 <template lang="pug">
 a.button(@click="click", :href="link", :target="href ? '_blank' : ''",
   :class="_class")
-  .fa(v-if="_icon", :class="'fa-' + _icon")
+  Icon(v-if="_icon",:name="_icon")
   img(v-if="image", :src="image")
   span.button-content(v-if="content") {{content}}
 </template>
