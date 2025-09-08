@@ -1,8 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
-## v8.4.10
+## v8.5
  - Add support for HIP
+ - Added team timeseries charts
 
 ## v8.4.9
  - Show ``Warning`` when more than one consecutive WU fails.
