@@ -33,13 +33,14 @@ import NewAccountDialog from './NewAccountDialog.vue'
 import MessageDialog    from './MessageDialog.vue'
 import LoginDialog      from './LoginDialog.vue'
 import ConnectDialog    from './ConnectDialog.vue'
+import TeamChartDialog  from './TeamChartDialog.vue'
 import {watchEffect}    from 'vue'
 
 
 export default {
   components: {
     Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog,
-    ConnectDialog,
+    ConnectDialog, TeamChartDialog
   },
 
 
@@ -50,6 +51,14 @@ export default {
     watchEffect(() => this.check_appearance())
     this.$api.set_error_handler(this.error_handler)
     this.check_account()
+  },
+
+
+  computed: {
+    teams() {
+      let team = this.$stats.get_team()
+      return team.team == undefined ? [] : [team.team]
+    }
   },
 
 
@@ -115,6 +124,9 @@ export default {
 
       this.message('error', action + ' failed', error)
     },
+
+
+    open_team_chart() {this.$refs.team_chart_dialog.exec()},
 
 
     async check_account() {
@@ -210,6 +222,7 @@ NewAccountDialog(ref="new_account_dialog")
 MessageDialog(ref="message_dialog")
 LoginDialog(ref="login_dialog")
 ConnectDialog(ref="connect_dialog")
+TeamChartDialog(ref="team_chart_dialog", :teams="teams")
 </template>
 
 <style lang="stylus">

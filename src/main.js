@@ -50,6 +50,7 @@ import UnitField      from './UnitField.vue'
 import UnitInfo       from './UnitInfo.vue'
 import Cache          from './cache.js'
 import API            from './api.js'
+import APISock        from './api-sock.js'
 import Account        from './account.js'
 import Util           from './util.js'
 import Crypto         from './crypto.js'
@@ -75,6 +76,7 @@ async function main(url) {
   ctx.$crypto   = new Crypto(ctx)
   ctx.$cache    = new Cache('fah')
   ctx.$api      = new API(ctx, url)
+  ctx.$apiSock  = new APISock(ctx, 'https://ws.foldingathome.org/')
   ctx.$account  = new Account(ctx)
   ctx.$adata    = await ctx.$account.try_login()
   ctx.$machs    = new Machines(ctx)

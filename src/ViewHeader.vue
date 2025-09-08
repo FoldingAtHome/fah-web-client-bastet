@@ -27,13 +27,26 @@
 -->
 
 <script>
+import TeamChart from './TeamChart.vue'
+
+
 export default {
   name: 'ViewHeader',
   props: ['title', 'subtitle'],
+  components: {TeamChart},
 
 
   computed: {
     team() {return this.$stats.get_team()},
+
+    chart_config() {
+      return {
+        labels:  {enabled: false},
+        marker:  {enabled: false},
+        offsets: {left: 0, right: 0, top: 0, bottom: 0},
+        grid:    {opacity: 0.4},
+      }
+    }
   },
 
 
@@ -53,6 +66,14 @@ export default {
         ])
 
       if (response == 'ok') window.open(url, '_blank')
+    },
+
+
+    on_chart_activate(type) {
+      switch (type) {
+      case 'dblclick': return this.$refs.chart.next_mode()
+      case 'click':    return this.$root.open_team_chart()
+      }
     }
   }
 }
@@ -61,12 +82,16 @@ export default {
 <template lang="pug">
 .view-header
   .header-top
-    component.active-team(v-if="team.team", :is="team.url ? 'a' : 'div'",
-      :href="team.url", target="_blank",
-      :title="team.url ? `Visit your team's home page.` : ''",
-      @click.prevent="confirm_team_url(team.url)")
-      img.team-logo(:src="team.logo")
-      .team-name.header-title {{team.name}}
+    template(v-if="team.team")
+      component.active-team(:class="{'active-team-link': !!team.url}",
+        :is="team.url ? 'a' : 'div'", target="_blank", :href="team.url",
+        :title="team.url ? `Visit your team's home page.` : ''",
+        @click.prevent="confirm_team_url(team.url)")
+        img.team-logo(:src="team.logo")
+        .team-name.header-title {{team.name}}
+
+      team-chart(v-if="!title", ref="chart", :teams="[team.team]",
+        :config="chart_config", @activate="on_chart_activate")
 
     FAHLogo(v-else)
 
@@ -106,6 +131,13 @@ export default {
     > *
       width 33%
 
+    .active-team-link, .team-chart
+      border 1px solid rgba(0, 0, 0, 0)
+      border-radius var(--border-radius)
+
+      &:hover
+        border 1px solid var(--link-color)
+
     .active-team
       display flex
       align-items center
@@ -117,6 +149,12 @@ export default {
 
       .team-name
         white-space nowrap
+
+    .team-chart
+      height 50px
+
+      .chart-coords
+        display none
 
     .header-center
       display flex

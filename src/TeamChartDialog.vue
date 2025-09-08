@@ -27,36 +27,73 @@
 -->
 
 <script>
-import MainMenu  from './MainMenu.vue'
-
+import TeamChart from './TeamChart.vue'
 
 export default {
-  name: 'MainHeader',
-  components: {MainMenu},
+  props: {teams: {default: [0]}},
+  components: {TeamChart},
+
+
+  data() {
+    return {
+      chart_mode: 'PPD'
+    }
+  },
+
+
+  watch: {
+    chart_mode(mode) {
+      this.$refs.chart.set_mode(mode)
+      this.$refs.chart.reset()
+    },
+  },
+
+
+  methods: {
+    async exec() {
+      return this.$refs.dialog.exec()
+    },
+
+
+    on_chart_activate(type) {
+      if (type == 'dblclick') {
+        this.$refs.chart.next_mode()
+        this.chart_mode = this.$refs.chart.mode
+      }
+    }
+  }
 }
 </script>
 
 <template lang="pug">
-ViewHeader.main-header
-  template(v-slot:center): slot(name="center")
+Dialog.team-chart-dialog(ref="dialog", :buttons="['Ok']", width="80vw",
+  height="80vh")
+  template(v-slot:header) Team {{chart_mode}} Chart
+  template(v-slot:body)
+    .chart-modes
+      template(v-for="mode in ['Points', 'WUs', 'PPD']")
+        input(type="radio", :id="'chart-mode-' + mode", :value="mode",
+          v-model="chart_mode")
+        label(:for="'chart-mode-' + mode") {{mode}}
 
-  template(v-slot:actions)
-    Button.button-image(v-if="$adata.avatar", route="/account/",
-      :image="$adata.avatar",
-      :title="$adata.user + ': Account Settings and Logout'")
-
-    Button.button-icon(v-else-if="$account.logged_in", route="/account/",
-      icon="user", :title="$adata.user + ': Account Settings and Logout'")
-
-    Button(v-else, text="Login", icon="sign-in", @click="$root.login()",
-      title="Login to Folding@home or register a new account")
-
-  template(v-slot:menu)
-    MainMenu
+    team-chart(ref="chart", :teams="teams", @activate="on_chart_activate")
 </template>
 
 <style lang="stylus">
-.page-view .main-header
-  .header-top .header-center
-    flex-direction row
+.team-chart-dialog
+  max-width  100%
+  max-height 100%
+
+  .chart-modes
+    display flex
+    gap 4px
+
+    label
+      margin-right 8px
+
+  .team-chart
+    width 100%
+    height 600px
+    max-height 100%
+    overflow hidden
 </style>

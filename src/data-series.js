@@ -26,74 +26,58 @@
 
 \******************************************************************************/
 
-class Sock {
-  constructor(url, timeout = 20000) {
-    this.url       = url
-    this.timeout   = timeout
-    this.connected = false
+import {reactive} from 'vue'
+
+
+class DataSeries {
+  constructor(color) {
+    this.color  = color
+    this.state = reactive({
+      data: [],
+      min:  {x:  Infinity, y:  Infinity},
+      max:  {x: -Infinity, y: -Infinity},
+    })
   }
 
 
-  set_url(url) {this.url = url}
-  set_timeout(timeout) {this.timeout = timeout}
+  get data() {return this.state.data}
+  get max()  {return this.state.max}
+  get min()  {return this.state.min}
 
 
-  on_message(msg) {console.log('WS:', msg)}
-  on_open(event)  {}
-  on_close(event) {}
-  on_error(event) {}
+  add(data) {
+    this.state.data.push(data)
 
-
-  _clear_timeout() {clearTimeout(this.timer)}
-
-
-  _open(event) {
-    this.connected = true
-    this._clear_timeout()
-    this.on_open(event)
+    this.state.min.x = Math.min(this.state.min.x, data.x)
+    this.state.max.x = Math.max(this.state.max.x, data.x)
+    this.state.min.y = Math.min(this.state.min.y, data.y)
+    this.state.max.y = Math.max(this.state.max.y, data.y)
   }
 
 
-  _close(event) {
-    this._clear_timeout()
-    this.connected = false
-    this.ws = undefined
-    this.on_close(event)
+  find_nearest_x(x) {
+    let data = this.state.data
+    if (!data.length) return
+
+    let i = this._find_index(data, x, 0, data.length)
+
+    if (i == data.length) return data[i - 1]
+    if (i == 0)           return data[0]
+    return data[x - data[i - 1].x < data[i].x - x ? i - 1 : i]
   }
 
 
-  _error(event) {this.on_error(event)}
-  _message(event) {this.on_message(JSON.parse(event.data))}
-  _timeout() {this.close()}
+  _find_index(data, x, min, max) {
+    let len = max - min
 
+    if (len == 1) return data[min].x < x ? min + 1 : min
 
-  close() {
-    if (this.ws) this.ws.close()
-    this._clear_timeout()
-  }
+    let mid = Math.floor(len / 2) + min
 
-
-  connect() {
-    if (this.ws != undefined) return
-
-    console.debug('Connecting to ' + this.url)
-
-    this.ws = new WebSocket(this.url)
-
-    this.ws.onopen    = e => this._open(e)
-    this.ws.onclose   = e => this._close(e)
-    this.ws.onerror   = e => this._error(e)
-    this.ws.onmessage = e => this._message(e)
-
-    this.timer = setTimeout(() => this._timeout(), this.timeout)
-  }
-
-
-  send(msg) {
-    if (this.connected) this.ws.send(JSON.stringify(msg))
-    else console.debug('Cannot send message, not connected:', msg)
+    if (x < data[mid].x) return this._find_index(data, x, min, mid)
+    return this._find_index(data, x, mid, max)
   }
 }
 
 
-export default Sock
+export default DataSeries

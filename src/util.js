@@ -86,6 +86,27 @@ class Util {
   get now() {return this.data.now}
 
 
+  debounce(cb, delay = 100) {
+    let state = {}
+
+    return (...args) => {
+      if (state.timer != undefined) {
+        state.triggered = true
+        state.args = args
+
+      } else {
+        cb(...args)
+
+        state.timer = setTimeout(() => {
+          if (state.triggered) cb(...state.args)
+          delete state.timer
+          delete state.triggered
+          delete state.args
+        }, delay)
+      }
+    }
+  }
+
   clamp(n, min, max) {return Math.min(Math.max(n, min), max)}
 
 
@@ -119,26 +140,40 @@ class Util {
   isEmpty(o)  {return !Object.keys(o).length}
 
 
-  deepCopy(o) {
-    if (Array.isArray(o)) {
-      let l = []
+  copy_props(dst, src) {
+    if (src == undefined) return
 
-      for (const value of o)
-        l.push(this.deepCopy(value))
+    for (let key of Object.keys(src))
+      if (src[key] != undefined)
+        dst[key] = src[key]
+  }
 
-      return l
-    }
 
-    if (this.isObject(o)) {
-      let r = {}
+  merge_objs(dst, src) {
+    Object.entries(src).map(([k, v]) => {
+      if (this.isObject(v) && this.isObject(dst[k])) this.merge_objs(dst[k], v)
+      else dst[k] = v
+    })
+  }
 
-      for (const key of Object.keys(o))
-        r[key] = this.deepCopy(o[key])
 
+  map_object(o, cb) {
+    return Object.entries(o).reduce((r, [k, v]) => {
+      r[k] = cb(v, k)
       return r
-    }
+    }, {})
+  }
 
+
+  deepCopy(o) {
+    if (Array.isArray(o)) return o.map(v => this.deepCopy(v))
+    if (this.isObject(o)) return this.map_object(o, v => this.deepCopy(v))
     return o
+  }
+
+
+  copy_props(dst, src) {
+    if (src != undefined) Object.entries(src).map(([k, v]) => dst[k] = v)
   }
 
 
@@ -160,6 +195,11 @@ class Util {
     }
 
     return true
+  }
+
+
+  is_closer(a, b, target) {
+    return Math.abs(a - target) < Math.abs(b - target)
   }
 
 

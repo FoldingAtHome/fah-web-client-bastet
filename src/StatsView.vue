@@ -27,6 +27,8 @@
 -->
 
 <script>
+
+
 export default {
   name: 'StatsView',
 
@@ -46,7 +48,31 @@ export default {
   },
 
 
+  watch: {
+    team(team, oldTeam) {
+      if (team.team == oldTeam.team) return
+
+      if (this.team_sub != undefined) {
+        console.debug('Unsubscribing from team', oldTeam.team)
+        this.$apiSock.unsubscribe(this.team_sub)
+        delete this.team_sub
+      }
+
+      if (team.team != undefined) {
+        console.debug('Subscribing to team', team.team)
+        let cb = data => {this.team_data(team.team, data)}
+        this.team_sub = this.$apiSock.subscribe_team(team.team, cb)
+      }
+    }
+  },
+
+
   methods: {
+    team_data(team, data) {
+      //console.log(team, data)
+    },
+
+
     top(rank) {
       rank = rank == undefined ? 1000001 : rank
 
