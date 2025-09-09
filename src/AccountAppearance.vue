@@ -93,7 +93,7 @@ fieldset.settings.view-panel
         DragList(:list="columns")
 
       .drag-zone(title="Move disabled columns here")
-        .fa.fa-trash
+        Icon(name="trash")
         DragList(:list="unused_cols", :removable="false")
 </template>
 

@@ -27,39 +27,42 @@
 -->
 
 <script>
-export default {
-  name: 'ClientVersion',
-  props: ['mach'],
+const addToFaClass = 'fa-';
 
+const addToArray = (array,value,valueToAdd) => value && array.push(valueToAdd);
+const addToArrayAddToValue = (array,value,valueToAdd) => addToArray(array,value,valueToAdd+"-"+value);
+
+export default {
+  name: 'Icon',
+  props: {
+    name: { type: String, required: true },
+    type: { type: String},
+    size: { type: String },
+    fixedwidth: { type: Boolean, default: false },
+    border: { type: Boolean, default: false },
+    inverse: { type: Boolean, default: false },
+    pull: { type: String },
+    flip: { type: String },
+    transform: { type: String },
+    rotation: { type: String },
+    animate: { type: String }
+  },
 
   computed: {
-    version()      {return this.mach.get_version()},
-    outdated()     {return this.mach.is_outdated()},
-    download_url() {return this.$api.get_download_url()}
-  }
+    _class() {
+      const classArray = [this.type,this.name,this.size,this.animate];
+      addToArray(classArray,this.border,"border")
+      addToArray(classArray,this.inverse,"inverse")
+      addToArray(classArray,this.fixedwidth,"fw")
+      addToArrayAddToValue(classArray,this.rotation,"rotate")
+      addToArrayAddToValue(classArray,this.pull,"pull")
+      addToArrayAddToValue(classArray,this.flip,"flip")
+      return addToFaClass + classArray.filter(x => x).join(' '+addToFaClass)
+    },
+  },
 }
 </script>
 
 <template lang="pug">
-.client-version(v-if="version")
-  a.outdated(v-if="outdated", :href="download_url", target="_blank",
-    title="Client version outdated.  Click to open download page")
-      Icon(name="exclamation-triangle")
-      | v{{version}}
-      Icon(name="exclamation-triangle")
-
-  span(v-else, :title="'Folding@home client version ' + version")
-    | v{{version}}
+  i.fa(:class="_class")
 </template>
-
-<style lang="stylus">
-.client-version
-  .outdated
-    text-decoration none
-
-    &:not(:hover)
-      color var(--warn-color)
-
-    .fa
-      font-size 10pt
-</style>
