@@ -116,7 +116,9 @@ fieldset.settings.view-panel
           td.gpu-description {{gpu.description}}
 
           td.gpu-enabled
-            input(type="checkbox", v-model="config.gpus[gpu.id].enabled")
+            input(v-if="gpu.supported", type="checkbox",
+              v-model="config.gpus[gpu.id].enabled")
+            span(v-else) Unsupported
 
 fieldset.settings.view-panel(v-if="advanced")
   legend
