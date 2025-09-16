@@ -66,8 +66,8 @@ export default {
 </script>
 
 <template lang="pug">
-Dialog.team-chart-dialog(ref="dialog", :buttons="['Ok']", width="80vw",
-  height="80vh")
+Dialog.team-chart-dialog(ref="dialog", :buttons="['Ok']", width="90vw",
+  height="90vh")
   template(v-slot:header) Team {{chart_mode}} Chart
   template(v-slot:body)
     .chart-modes
@@ -96,4 +96,8 @@ Dialog.team-chart-dialog(ref="dialog", :buttons="['Ok']", width="80vw",
     height 600px
     max-height 100%
     overflow hidden
+
+  .dialog-body
+    display flex
+    flex-direction column
 </style>

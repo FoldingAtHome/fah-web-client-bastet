@@ -46,6 +46,7 @@ export default {
     zIndex:         {type: Number,  default: 100},
     class:          {},
     width:          {default: '30em'},
+    height:         {default: 'auto'},
     header:         {},
   },
 
@@ -71,8 +72,9 @@ export default {
 
     style() {
       return {
-        'z-index': this.zIndex,
-        'grid-template-columns': `1fr ${this.width} 1fr`
+        'z-index':               this.zIndex,
+        'grid-template-columns': `1fr ${this.width} 1fr`,
+        'grid-template-rows':    `1fr ${this.height} 1fr`,
       }
     }
   },
