@@ -49,7 +49,23 @@ export default {
       let l = []
       if (this.failed) l.push(['Failed', this.failed])
       return l
-    }
+    },
+  },
+
+
+  methods: {
+    async confirm_dump(mach, unit) {
+      let response = await this.$root.message(
+        'confirm', 'Dump WU?',
+        'Dumped Work Units receive no points.  ' +
+        'Are you sure you want to dump this Work Unit?',
+        [
+          {name: 'dump', icon: 'trash', text: 'Dump', class: 'button-caution'},
+          {name: 'cancel', icon: 'times'}
+        ])
+
+      if (response == 'dump') mach.dump(unit.id)
+    },
   }
 }
 </script>
@@ -77,8 +93,7 @@ export default {
 
 UnitsView(:units="units", :columns="columns", v-slot="{unit}")
   Button.button-icon(:disabled="!unit.paused || !connected",
-    @click="mach.dump(unit.id)",
-    icon="trash", title="Dump this Work Unit")
+    @click="confirm_dump(mach, unit)", icon="trash", title="Dump Work Unit")
 
   Button.button-icon(:disabled="!connected",
     :route="`${mach.get_url('/log')}?q=:WU${unit.number}:`",
