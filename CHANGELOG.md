@@ -1,7 +1,10 @@
 Folding@home Web Control Changelog
 =================================
 
-## v8.5
+## v8.5.1
+ - Confirm WU dump.
+
+## v8.5.0
  - Add support for HIP
  - Added team timeseries charts
 
