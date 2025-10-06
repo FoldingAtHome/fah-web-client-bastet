@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.5.3
+ - Fix bug in account info (team, user, etc.) update. re:fah-client-bastet#369
+
 ## v8.5.1
  - Confirm WU dump.
 

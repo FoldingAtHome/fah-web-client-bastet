@@ -333,7 +333,7 @@ class Account {
   async save(data) {
     let restart = data.node != this.data.node
     await this.ctx.$api.put('/account', data, 'Saving account data')
-    await this.ctx.$node.broadcast('config', {data})
+    await this.ctx.$node.broadcast('config', {config: data})
     if (restart) await this.ctx.$node.broadcast('restart')
     this.set_data(data) // NOTE, this indirectly triggers a node reconnect
   }
