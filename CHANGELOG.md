@@ -3,6 +3,10 @@ Folding@home Web Control Changelog
 
 ## v8.5.2
  - Fix bug in account info (team, user, etc.) update. re:fah-client-bastet#369
+ - Show undetected GPUs in settings.
+ - Removed mach/cpu/gpu totals from machine view.
+ - Added ``Type`` machine column.
+ - Show only minimal machine columns with screen size < 520px wide.
 
 ## v8.5.1
  - Confirm WU dump.

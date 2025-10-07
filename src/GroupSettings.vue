@@ -31,6 +31,22 @@ export default {
   props: ['config', 'cpus', 'gpus', 'advanced', 'version'],
 
 
+  computed: {
+    all_gpus() {
+      let gpus = [...this.gpus]
+      let ids  = {}
+      for (const gpu of gpus) ids[gpu.id] = true
+
+      // Add undetected GPUs
+      for (const [id, gpu] of Object.entries(this.config.gpus))
+        if (!ids[id])
+          gpus.push({id, supported: true, description: 'Undetected'})
+
+      return gpus
+    }
+  },
+
+
   methods: {
     project_key_changed() {if (!this.config.key) this.config.key = 0}
   }
@@ -109,7 +125,7 @@ fieldset.settings.view-panel
           th Enabled
 
       tbody
-        tr.gpu-row(v-for="gpu in gpus",
+        tr.gpu-row(v-for="gpu in all_gpus",
           :class="{unsupported: !gpu.supported}",
           :title="gpu.supported ? `${gpu.id} ${gpu.description}` : \
             'Unsupported GPU'")

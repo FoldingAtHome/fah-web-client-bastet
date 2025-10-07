@@ -190,11 +190,16 @@ export default {
         copy.keep_awake = !!config.keep_awake
       }
 
+      let config_gpus = config.gpus || {}
       copy.gpus = {}
       for (let id in this.available_gpus) {
-        let gpu = (config.gpus || {})[id] || {}
-        copy.gpus[id] = {enabled: gpu.enabled || false}
+        const enabled = (config_gpus[id] || {}).enabled || false
+        copy.gpus[id] = {enabled}
       }
+
+      // Add GPUs which are enabled but not detected
+      for (const [id, gpu] of Object.entries(config_gpus))
+        if (gpu.enabled && !copy.gpus[id]) copy.gpus[id] = {enabled: true}
 
       return copy
     },

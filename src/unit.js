@@ -110,6 +110,7 @@ class Unit {
   get clone()       {return this.wu.clone}
   get gen()         {return this.wu.gen}
   get wu()          {return this.unit.wu || {}}
+  get type()        {return this.gpus ? 'GPU' : 'CPU'}
   get cpus()        {return this.unit.cpus}
   get gpus()        {return this.unit.gpus.length}
   get os()          {return get_os_icon(this.mach.get_os())}
@@ -296,10 +297,12 @@ class Unit {
 
 
   static get default_columns() {
-    return Object.entries(fields).reduce((l, col) => {
-      if (col[1].enabled) l.push(col[0])
-      return l
-    }, [])
+    return Object.entries(fields).filter(e => e[1].enabled).map(e => e[0])
+  }
+
+
+  static get minimal_columns() {
+    return Object.entries(fields).filter(e => e[1].minimal).map(e => e[0])
   }
 
 

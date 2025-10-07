@@ -141,8 +141,6 @@ class Machines {
 
 
   get ppd()         {return this.active_unit_sum(unit => unit.unit.ppd)}
-  get active_cpus() {return this.active_unit_sum(unit => unit.cpus)}
-  get active_gpus() {return this.active_unit_sum(unit => unit.gpus)}
 
 
   async set_state(state) {

@@ -71,21 +71,12 @@ export default {
         table.machines-info.view-table
           thead
             tr
-              th Machines
-              th CPUs
-              th GPUs
-              th PPD
+              th Total PPD
               th Actions
 
           tbody
             tr
-              td(title="Active machine count")
-                | {{$machs.count.toLocaleString()}}
-              td(title="Active CPU count")
-                | {{$machs.active_cpus.toLocaleString()}}
-              td(title="Active GPU count")
-                | {{$machs.active_gpus.toLocaleString()}}
-              td(title="Current total Points Per Day")
+              td(title="Current total estimated Points Per Day")
                 | {{$machs.ppd.toLocaleString()}}
               td
                 .machines-actions
@@ -120,7 +111,7 @@ export default {
       th, td
         text-align right
 
-      > tr > :last-child
+      > thead > tr > th:last-of-type
         width 100%
 
       .machines-actions
