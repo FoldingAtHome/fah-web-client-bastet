@@ -30,9 +30,10 @@ import {reactive} from 'vue'
 
 
 class DataSeries {
-  constructor(color) {
-    this.color  = color
-    this.state = reactive({
+  constructor(color, enabled = true) {
+    this.color   = color
+    this.enabled = enabled
+    this.state   = reactive({
       data: [],
       min:  {x:  Infinity, y:  Infinity},
       max:  {x: -Infinity, y: -Infinity},

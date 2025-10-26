@@ -27,13 +27,13 @@
 -->
 
 <script>
-import TeamChart from './TeamChart.vue'
+import ChartsView from './ChartsView.vue'
 
 
 export default {
   name: 'ViewHeader',
   props: ['title', 'subtitle'],
-  components: {TeamChart},
+  components: {ChartsView},
 
 
   computed: {
@@ -69,12 +69,7 @@ export default {
     },
 
 
-    on_chart_activate(type) {
-      switch (type) {
-      case 'dblclick': return this.$refs.chart.next_mode()
-      case 'click':    return this.$root.open_team_chart()
-      }
-    }
+    on_chart_activate() {this.$root.open_team_chart()},
   }
 }
 </script>
@@ -90,8 +85,9 @@ export default {
         img.team-logo(:src="team.logo")
         .team-name.header-title {{team.name}}
 
-      team-chart(v-if="!title", ref="chart", :teams="[team.team]",
-        :config="chart_config", @activate="on_chart_activate")
+      charts-view(v-if="!title", ref="chart", :charts="$stats.charts",
+        :config="chart_config", @activate="on_chart_activate",
+        :mode="$root.chart_mode", :source="$root.chart_source")
 
     FAHLogo(v-else)
 
@@ -131,7 +127,7 @@ export default {
     > *
       width 33%
 
-    .active-team-link, .team-chart
+    .active-team-link, .charts-view
       border 1px solid rgba(0, 0, 0, 0)
       border-radius var(--border-radius)
 
@@ -150,7 +146,7 @@ export default {
       .team-name
         white-space nowrap
 
-    .team-chart
+    .charts-view
       height 50px
 
       .chart-coords

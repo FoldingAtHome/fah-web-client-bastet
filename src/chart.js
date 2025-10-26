@@ -39,11 +39,6 @@ const default_config = {
     opacity: 1,
     size:    12,
   },
-  message:  {
-    family:  'mono',
-    stroke:  '#fff',
-    size:    12,
-  },
   grid:    {
     stroke: '#00c3fa',
     opacity: 0.2,
@@ -152,16 +147,18 @@ class Chart {
 
 
   compute_dims() {
+    let series = this.series.filter(s => s.enabled)
+
     // Min
     this.min = {
-      x: this.series.reduce((min, s) => Math.min(s.min.x, min), Infinity),
-      y: this.series.reduce((min, s) => Math.min(s.min.y, min), Infinity)
+      x: series.reduce((min, s) => Math.min(s.min.x, min), Infinity),
+      y: series.reduce((min, s) => Math.min(s.min.y, min), Infinity)
     }
 
     // Max
     this.max = {
-      x: this.series.reduce((max, s) => Math.max(s.max.x, max), -Infinity),
-      y: this.series.reduce((max, s) => Math.max(s.max.y, max), -Infinity)
+      x: series.reduce((max, s) => Math.max(s.max.x, max), -Infinity),
+      y: series.reduce((max, s) => Math.max(s.max.y, max), -Infinity)
     }
 
     // Scale
@@ -238,31 +235,6 @@ class Chart {
   restart() {
     this.stop()
     this.start()
-  }
-
-
-  fade_message(opacity, text) {
-    this.message.text = text
-
-    if (opacity < 0.01) {
-      this.message.opacity = 0
-      this.update()
-      return
-    }
-
-    this.message_timer = setTimeout(() => {
-      if (!this.active) return
-      this.message.opacity = opacity
-      this.update()
-      this.fade_message(opacity - 0.01, text)
-    }, 1000 / 60)
-  }
-
-
-  show_message(text) {
-    if (!this.active) return
-    clearTimeout(this.message_timer)
-    this.fade_message(1, text)
   }
 
 
@@ -346,6 +318,8 @@ class Chart {
 
 
   draw_series(s) {
+    if (!s.enabled) return []
+
     let group  = []
     let points = []
 
@@ -371,19 +345,6 @@ class Chart {
   }
 
 
-  draw_message() {
-    let t = this.message = {type: 'text'}
-
-    let config = this.config.message
-    util.copy_props(t, config)
-    t.opacity  = 0
-    t.x = this.width / 2
-    t.y = config.size + this.height / 8
-
-    return t
-  }
-
-
   redraw() {
     if (!this.active) return
 
@@ -402,9 +363,6 @@ class Chart {
     // Marker
     group.push(this.draw_marker())
 
-    // Message
-    group.push(this.draw_message())
-
     this.update()
   }
 
@@ -414,6 +372,8 @@ class Chart {
     let nearest
 
     for (let s of this.series) {
+      if (s.enabled === false) continue
+
       let e = s.find_nearest_x(target.x)
       if (e == undefined) continue
 

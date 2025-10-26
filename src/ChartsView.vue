@@ -93,15 +93,16 @@ function day_rate_filter(series, value, time) {
 
 export default {
   props: {
-    teams:  {default: [0]},
+    charts: {default: []},
     config: {default: {}},
+    mode:   {default: 'PPD'},
+    source: {default: 'Team'},
   },
 
 
   data() {
     return {
       modes:  ['Points', 'WUs', 'PPD'],
-      mode:   'PPD',
       series: [],
       subs:   [],
       _config: {
@@ -119,8 +120,9 @@ export default {
 
 
   watch: {
-    teams() {this.reset()},
-    mode()  {this.reset()},
+    charts() {this.reset()},
+    mode()   {this.reset()},
+    source() {this.reset()},
   },
 
 
@@ -135,43 +137,13 @@ export default {
 
 
   methods: {
-    set_mode(mode) {
-      this.mode  = mode
-      this.title = 'Team ' + mode
+    source_enabled(src) {
+      let source = this.source.toLowerCase()
+      return [src.toLowerCase(), 'both'].indexOf(source) != -1
     },
 
 
-    next_mode() {
-      let index = this.modes.indexOf(this.mode) + 1
-      if (!isFinite(index) || index < 0 || this.modes.length <= index) index = 0
-      this.set_mode(this.modes[index])
-      this.reset()
-      this.chart.show_message(this.title)
-    },
-
-
-    on_click(e) {
-      if (this.dblclick_timer) return
-
-      if (this.click_timer) {
-        clearTimeout(this.click_timer)
-        delete this.click_timer
-
-        this.$emit('activate', 'dblclick')
-
-        this.dblclick_timer = setTimeout(() => {
-          delete this.dblclick_timer
-        }, 1000)
-
-        this.reset()
-        return
-      }
-
-      this.click_timer = setTimeout(() => {
-        this.$emit('activate', 'click')
-        delete this.click_timer
-      }, 250)
-    },
+    on_click(e) {this.$emit('activate', 'click')},
 
 
     clear() {
@@ -185,9 +157,9 @@ export default {
 
     reset() {
       this.clear()
-      for (let team of this.teams) this.add_team(team)
+      this.charts.map(this.add_chart)
       this.chart.start()
-      this.set_mode(this.mode)
+      this.title = `${this.source} ${this.mode}`
     },
 
 
@@ -229,20 +201,23 @@ export default {
     },
 
 
-    add_team(team) {
-      let series  = new DataSeries(colors[this.series.length])
-      series.team = team
+    add_chart(chart) {
+      let color    = colors[this.series.length]
+      let series   = new DataSeries(color, this.source_enabled(chart.type))
+      series.chart = chart
       this.series.push(series)
 
       let cb = data => this.filter_data(series, data)
-      this.subs.push(this.$apiSock.subscribe_team(team, cb))
+      this.subs.push(this.$apiSock.subscribe(chart, cb))
     },
 
 
     set_coords(coords) {
       let time    = format_time(coords.x * 1000)
-      let team    = 'Team ' + coords.series.team
-      this.coords = team + this.format_coords(coords) + time
+      let chart   = coords.series.chart
+      let type    = this.$util.capitalize(chart.type)
+      let label   = `${type} ${chart.team || chart.user || ''}`
+      this.coords = label + ' ' + this.format_coords(coords) + time
       this.color  = coords.series.color
     },
 
@@ -307,13 +282,13 @@ export default {
 </script>
 
 <template lang="pug">
-.team-chart(:title="title", @click="on_click")
+.charts-view(:title="title", @click="on_click")
   canvas(ref="chart")
   .chart-coords(:style="{color}") {{coords}}
 </template>
 
 <style lang="stylus">
-.team-chart
+.charts-view
   display flex
   flex-direction column
 

@@ -74,6 +74,20 @@ class Stats {
   }
 
 
+  get charts() {
+    let charts = []
+
+    let team = this.state.team
+    if (team) charts.push({type: 'team', team})
+
+    let uid = this.state.stats.id
+    let pid = this.state.stats.pid || 0
+    if (uid) charts.push({type: 'user', uid, pid, user: this.state.user})
+
+    return charts
+  }
+
+
   is_anon() {
     let user = this.state.user
     return !user || user.toLowerCase() == 'anonymous'

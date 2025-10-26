@@ -33,14 +33,22 @@ import NewAccountDialog from './NewAccountDialog.vue'
 import MessageDialog    from './MessageDialog.vue'
 import LoginDialog      from './LoginDialog.vue'
 import ConnectDialog    from './ConnectDialog.vue'
-import TeamChartDialog  from './TeamChartDialog.vue'
+import ChartsDialog     from './ChartsDialog.vue'
 import {watchEffect}    from 'vue'
 
 
 export default {
   components: {
     Pacify, PauseDialog, NewAccountDialog, MessageDialog, LoginDialog,
-    ConnectDialog, TeamChartDialog
+    ConnectDialog, ChartsDialog
+  },
+
+
+  data() {
+    return {
+      chart_mode:   'PPD',
+      chart_source: 'Team',
+    }
   },
 
 
@@ -222,7 +230,7 @@ NewAccountDialog(ref="new_account_dialog")
 MessageDialog(ref="message_dialog")
 LoginDialog(ref="login_dialog")
 ConnectDialog(ref="connect_dialog")
-TeamChartDialog(ref="team_chart_dialog", :teams="teams")
+ChartsDialog(ref="team_chart_dialog", :charts="$stats.charts")
 </template>
 
 <style lang="stylus">

@@ -7,6 +7,9 @@ Folding@home Web Control Changelog
  - Removed mach/cpu/gpu totals from machine view.
  - Added ``Type`` machine column.
  - Show only minimal machine columns with screen size < 520px wide.
+ - Added user timeseries charts
+ - Improved PPD chart
+ - Timeseries data caching
 
 ## v8.5.1
  - Confirm WU dump.

@@ -27,71 +27,59 @@
 -->
 
 <script>
-import TeamChart from './TeamChart.vue'
+import ChartsView from './ChartsView.vue'
 
 export default {
-  props: {teams: {default: [0]}},
-  components: {TeamChart},
-
-
-  data() {
-    return {
-      chart_mode: 'PPD'
-    }
-  },
-
-
-  watch: {
-    chart_mode(mode) {
-      this.$refs.chart.set_mode(mode)
-      this.$refs.chart.reset()
-    },
-  },
-
+  props: {charts: {default: []}},
+  components: {ChartsView},
 
   methods: {
-    async exec() {
-      return this.$refs.dialog.exec()
-    },
-
-
-    on_chart_activate(type) {
-      if (type == 'dblclick') {
-        this.$refs.chart.next_mode()
-        this.chart_mode = this.$refs.chart.mode
-      }
-    }
+    async exec() {return this.$refs.dialog.exec()},
   }
 }
 </script>
 
 <template lang="pug">
-Dialog.team-chart-dialog(ref="dialog", :buttons="['Ok']", width="90vw",
+Dialog.charts-dialog(ref="dialog", :buttons="['Ok']", width="90vw",
   height="90vh")
   template(v-slot:header) Team {{chart_mode}} Chart
   template(v-slot:body)
-    .chart-modes
-      template(v-for="mode in ['Points', 'WUs', 'PPD']")
-        input(type="radio", :id="'chart-mode-' + mode", :value="mode",
-          v-model="chart_mode")
-        label(:for="'chart-mode-' + mode") {{mode}}
+    .chart-controls
+      .chart-modes
+        label Mode:
+        template(v-for="mode in ['PPD', 'Points', 'WUs']")
+          input(type="radio", :id="'chart-mode-' + mode", :value="mode",
+            v-model="$root.chart_mode")
+          label(:for="'chart-mode-' + mode") {{mode}}
 
-    team-chart(ref="chart", :teams="teams", @activate="on_chart_activate")
+      .chart-sources
+        label Source:
+        template(v-for="source in ['Team', 'User', 'Both']")
+          input(type="radio", :id="'chart-source-' + source",
+            :value="source", v-model="$root.chart_source")
+          label(:for="'chart-source-' + source") {{source}}
+
+    charts-view(ref="chart", :charts="charts", :mode="$root.chart_mode",
+      :source="$root.chart_source")
 </template>
 
 <style lang="stylus">
-.team-chart-dialog
+.charts-dialog
   max-width  100%
   max-height 100%
 
-  .chart-modes
+  .chart-controls
     display flex
-    gap 4px
+    justify-content space-between
 
-    label
-      margin-right 8px
+    .chart-modes, .chart-sources
+      display flex
+      gap 4px
 
-  .team-chart
+      label
+        margin-right 8px
+
+  .charts-view
     width 100%
     height 600px
     max-height 100%
