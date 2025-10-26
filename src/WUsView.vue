@@ -86,6 +86,7 @@ export default {
       filter: {
         machine:   'Any',
         project:   'Any',
+        core:      'Any',
         os:        'Any',
         state:     'Any',
         resources: 'Any',
@@ -113,6 +114,7 @@ export default {
       return this.all_wus.filter(unit =>
         filter_unit(this.filter, unit, 'machine'             ) &&
         filter_unit(this.filter, unit, 'project'             ) &&
+        filter_unit(this.filter, unit, 'core'                ) &&
         filter_unit(this.filter, unit, 'os',       'os_title') &&
         filter_unit(this.filter, unit, 'state'               ) &&
         filter_unit(this.filter, unit, 'resources'           ) &&
@@ -125,6 +127,7 @@ export default {
 
     machines()  {return unique_values(this.all_wus, 'machine')},
     projects()  {return unique_values(this.all_wus, 'project')},
+    cores()     {return unique_values(this.all_wus, 'core')},
     oses()      {return unique_values(this.all_wus, 'os_title')},
     states()    {return unique_values(this.all_wus, 'state')},
     resources() {return unique_values(this.all_wus, 'resources')},
@@ -161,6 +164,7 @@ export default {
         tr
           th Machine
           th Project
+          th Core
           th OS
           th State
           th Resources
@@ -179,6 +183,11 @@ export default {
             select(v-model="filter.project")
               option(value="Any") Any
               option(v-for="project in projects", :value="project") {{project}}
+
+          td
+            select(v-model="filter.core")
+              option(value="Any") Any
+              option(v-for="core in cores", :value="core") {{core}}
 
           td
             select(v-model="filter.os")
