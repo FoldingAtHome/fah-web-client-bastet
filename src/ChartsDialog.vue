@@ -71,6 +71,8 @@ Dialog.charts-dialog(ref="dialog", :buttons="['Ok']", width="90vw",
   .chart-controls
     display flex
     justify-content space-between
+    flex-wrap wrap
+    gap 4px
 
     .chart-modes, .chart-sources
       display flex
@@ -78,6 +80,7 @@ Dialog.charts-dialog(ref="dialog", :buttons="['Ok']", width="90vw",
 
       label
         margin-right 8px
+        width 4em
 
   .charts-view
     width 100%
