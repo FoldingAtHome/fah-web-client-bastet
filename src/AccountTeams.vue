@@ -123,8 +123,6 @@ fieldset.settings.view-panel.account-teams
         th.team-logo Logo
         th.team-id Team
         th.team-name Name
-        th.team-wus WUs
-        th.team-score Score
         th.team-actions Actions
 
     tbody
@@ -137,9 +135,6 @@ fieldset.settings.view-panel.account-teams
 
         td.team-name: component(:href="team.url", target="_blank",
           :is="team.url ? 'a' : 'span'") {{team.name}}
-
-        td.team-wus {{(team.wus || 0).toLocaleString()}}
-        td.team-score {{(team.score || 0).toLocaleString()}}
 
         td.team-actions
           div
@@ -156,13 +151,10 @@ fieldset.settings.view-panel.account-teams
 <style lang="stylus">
 .account-teams
   .view-table
-    .team-actions
-      text-align right
-
     .team-logo img
       max-height 64px
 
-    .team-id, .team-wus, .team-score
+    .team-actions
       text-align right
 
     .team-name
@@ -172,4 +164,10 @@ fieldset.settings.view-panel.account-teams
       display flex
       gap var(--gap)
       align-items center
+      justify-content end
+
+@media (max-width 800px)
+  .account-teams
+    .team-name
+      display none
 </style>

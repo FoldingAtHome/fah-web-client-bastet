@@ -10,6 +10,7 @@ Folding@home Web Control Changelog
  - Added user timeseries charts
  - Improved PPD chart
  - Timeseries data caching
+ - Fix team settings view for small screens
 
 ## v8.5.1
  - Confirm WU dump.
