@@ -50,6 +50,12 @@ export default {
     gap calc(var(--gap) / 2)
     align-items center
 
+  .eta-warning
+    color var(--warn-color)
+
+    .fa
+      font-size 10pt
+
   &.unit-progress > div
     width 100%
 

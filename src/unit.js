@@ -232,7 +232,15 @@ class Unit {
     let eta = this.wu_progress < 1 ? this.unit.eta : 0
     if (typeof eta == 'string') eta = this.util.parse_interval(eta)
 
-    return this.util.time_interval(0 < eta ? eta : 0)
+    let s = this.util.time_interval(0 < eta ? eta : 0)
+
+    if (this.deadline < eta)
+      s = `<div class="eta-warning",
+        title="WARNING: May not complete before deadline.">
+        <i class="fa fa-exclamation-triangle"></i> ${s}
+        <i class="fa fa-exclamation-triangle"></i></div>`
+
+    return s
   }
 
 
