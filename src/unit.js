@@ -86,7 +86,7 @@ function get_os_icon(os) {
   case 'macosx':              os = 'apple';   break
   case 'win32': case 'win64': os = 'windows'; break
   }
-  return `<div class="fa fa-${os}"></div>`
+  return `<i class="fa fa-${os}"></i>`
 }
 
 
@@ -162,7 +162,7 @@ class Unit {
     return this.unit.state
   }
 
-  get status() {return `<div class="fa fa-${this.icon}"></div>`}
+  get status() {return `<i class="fa fa-${this.icon}"></i>`}
   get status_title() {return this._status_text}
 
 
