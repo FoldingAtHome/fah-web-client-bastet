@@ -290,7 +290,9 @@ fieldset.settings.view-panel(v-if="advanced")
 
     .setting
       > :first-child
-        width 9em
+        width 12em
+        min-width 12em
+        white-space normal
 
       select
         padding 0.25em 0.5em
