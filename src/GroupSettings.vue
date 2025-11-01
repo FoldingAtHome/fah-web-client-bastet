@@ -53,15 +53,19 @@ export default {
       return gpus
     },
 
+    // Show resource mode selector only when different_idle_resources is enabled
+    show_resource_modes() {
+      return this.config.different_idle_resources
+    },
 
     current_cpus: {
       get() {
-        return this.resource_mode == 'idle' && this.config.on_idle
+        return this.resource_mode == 'idle' && this.config.different_idle_resources
           ? (this.config.cpus_idle ?? this.config.cpus ?? 0)
           : (this.config.cpus ?? 0)
       },
       set(value) {
-        if (this.resource_mode == 'idle' && this.config.on_idle) {
+        if (this.resource_mode == 'idle' && this.config.different_idle_resources) {
           this.config.cpus_idle = value
         } else {
           this.config.cpus = value
@@ -69,9 +73,8 @@ export default {
       }
     },
 
-
     current_gpus_config() {
-      if (this.resource_mode == 'idle' && this.config.on_idle) {
+      if (this.resource_mode == 'idle' && this.config.different_idle_resources) {
         // Initialize gpus_idle if not present
         if (!this.config.gpus_idle) {
           this.config.gpus_idle = {...(this.config.gpus || {})}
@@ -79,16 +82,15 @@ export default {
         return this.config.gpus_idle
       }
       
-      // Active mode or on_idle disabled - use regular gpus
+      // Active mode or different_idle_resources disabled - use regular gpus
       if (!this.config.gpus) this.config.gpus = {}
       return this.config.gpus
     }
   },
 
-
   watch: {
-    'config.on_idle'(newVal, oldVal) {
-      // When enabling on_idle, initialize idle resources if not present
+    'config.different_idle_resources'(newVal, oldVal) {
+      // When enabling different_idle_resources, initialize idle resources if not present
       if (newVal) {
         if (this.config.cpus_idle === undefined) {
           this.config.cpus_idle = this.config.cpus || 0
@@ -96,6 +98,13 @@ export default {
         if (!this.config.gpus_idle) {
           this.config.gpus_idle = {...(this.config.gpus || {})}
         }
+      }
+    },
+    
+    'config.on_idle'(newVal, oldVal) {
+      // When enabling on_idle, disable different_idle_resources (they're mutually exclusive)
+      if (newVal && this.config.different_idle_resources) {
+        this.config.different_idle_resources = false
       }
     }
   },
@@ -117,10 +126,23 @@ fieldset.settings.view-panel
     HelpBalloon(name="Only When Idle"): p.
       Enable folding only when your machine is idle.  I.e. when the mouse
       and keyboard are not being used.  Note that folding will not start
-      when idle if your machine goes to sleep first.
+      when idle if your machine goes to sleep first.  This option is
+      mutually exclusive with "Different Resources When Idle".
 
     input(v-model="config.on_idle", type="checkbox",
+      :disabled="config.different_idle_resources",
       title="Only fold when machine is idle")
+  
+  .setting
+    HelpBalloon(name="Different Resources When Idle"): p.
+      Enable this to run Folding@home all the time, but use different
+      resource allocations when your machine is idle vs. when you're actively
+      using it.  For example, use fewer CPUs while working, but more when idle.
+      This option is mutually exclusive with "Only When Idle".
+
+    input(v-model="config.different_idle_resources", type="checkbox",
+      :disabled="config.on_idle",
+      title="Use different resources when idle vs. active")
 
   template(v-if="$util.version_less('8.3.1', version)")
     .setting
@@ -144,16 +166,16 @@ fieldset.settings.view-panel
     HelpBalloon(name="Resource Usage"): p.
       These settings control the usage of your machine's compute resources.
 
-  .setting(v-if="config.on_idle")
+  .setting(v-if="show_resource_modes")
     HelpBalloon(name="Resource Mode"): p.
-      When "Only When Idle" is enabled, you can configure two different
-      resource allocations: one for when you're actively using your machine
-      and one for when it's idle.
+      Configure separate resource allocations for when you're actively using
+      your machine versus when it's idle.  Switch between modes to set
+      different CPU and GPU allocations for each state.
 
-    label Current Mode:
+    label Configure Resources For:
     select(v-model="resource_mode")
-      option(value="active") Active (while using machine)
-      option(value="idle") Idle (when machine is idle)
+      option(value="active") Active Mode (while using machine)
+      option(value="idle") Idle Mode (when machine is idle)
 
   .setting
     HelpBalloon(name="CPUs")
