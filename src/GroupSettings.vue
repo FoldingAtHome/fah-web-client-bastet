@@ -31,18 +31,72 @@ export default {
   props: ['config', 'cpus', 'gpus', 'advanced', 'version'],
 
 
+  data() {
+    return {
+      resource_mode: 'active'  // 'active' or 'idle'
+    }
+  },
+
+
   computed: {
     all_gpus() {
       let gpus = [...this.gpus]
       let ids  = {}
       for (const gpu of gpus) ids[gpu.id] = true
 
-      // Add undetected GPUs
-      for (const [id, gpu] of Object.entries(this.config.gpus))
+      // Add undetected GPUs for the current resource mode
+      const current_gpus = this.current_gpus_config
+      for (const [id, gpu] of Object.entries(current_gpus))
         if (!ids[id])
           gpus.push({id, supported: true, description: 'Undetected'})
 
       return gpus
+    },
+
+
+    current_cpus: {
+      get() {
+        return this.resource_mode == 'idle' && this.config.on_idle
+          ? (this.config.cpus_idle ?? this.config.cpus ?? 0)
+          : (this.config.cpus ?? 0)
+      },
+      set(value) {
+        if (this.resource_mode == 'idle' && this.config.on_idle) {
+          this.config.cpus_idle = value
+        } else {
+          this.config.cpus = value
+        }
+      }
+    },
+
+
+    current_gpus_config() {
+      if (this.resource_mode == 'idle' && this.config.on_idle) {
+        // Initialize gpus_idle if not present
+        if (!this.config.gpus_idle) {
+          this.config.gpus_idle = {...(this.config.gpus || {})}
+        }
+        return this.config.gpus_idle
+      }
+      
+      // Active mode or on_idle disabled - use regular gpus
+      if (!this.config.gpus) this.config.gpus = {}
+      return this.config.gpus
+    }
+  },
+
+
+  watch: {
+    'config.on_idle'(newVal, oldVal) {
+      // When enabling on_idle, initialize idle resources if not present
+      if (newVal) {
+        if (this.config.cpus_idle === undefined) {
+          this.config.cpus_idle = this.config.cpus || 0
+        }
+        if (!this.config.gpus_idle) {
+          this.config.gpus_idle = {...(this.config.gpus || {})}
+        }
+      }
     }
   },
 
@@ -90,6 +144,17 @@ fieldset.settings.view-panel
     HelpBalloon(name="Resource Usage"): p.
       These settings control the usage of your machine's compute resources.
 
+  .setting(v-if="config.on_idle")
+    HelpBalloon(name="Resource Mode"): p.
+      When "Only When Idle" is enabled, you can configure two different
+      resource allocations: one for when you're actively using your machine
+      and one for when it's idle.
+
+    label Current Mode:
+    select(v-model="resource_mode")
+      option(value="active") Active (while using machine)
+      option(value="idle") Idle (when machine is idle)
+
   .setting
     HelpBalloon(name="CPUs")
       p Choose how many CPU cores Folding@home should try to utilize.
@@ -101,9 +166,9 @@ fieldset.settings.view-panel
         some CPU power.
 
     .cpus-input
-      input(v-model.number="config.cpus", :min="0", type="range",
+      input(v-model.number="current_cpus", :min="0", type="range",
         :max="cpus", v-if="0 < cpus")
-      span {{config.cpus}} of {{cpus}}
+      span {{current_cpus}} of {{cpus}}
 
   .setting
     HelpBalloon(name="GPUs")
@@ -133,7 +198,7 @@ fieldset.settings.view-panel
 
           td.gpu-enabled
             input(v-if="gpu.supported", type="checkbox",
-              v-model="config.gpus[gpu.id].enabled")
+              v-model="current_gpus_config[gpu.id].enabled")
             span(v-else) Unsupported
 
 fieldset.settings.view-panel(v-if="advanced")
@@ -201,6 +266,14 @@ fieldset.settings.view-panel(v-if="advanced")
         overflow hidden
         text-overflow ellipsis
 
-    .setting > :first-child
-      width 9em
+    .setting
+      > :first-child
+        width 9em
+
+      select
+        padding 0.25em 0.5em
+        border-radius var(--radius)
+        border 1px solid var(--border)
+        background var(--input-bg)
+        color var(--text)
 </style>
