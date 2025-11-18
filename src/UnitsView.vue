@@ -43,8 +43,7 @@ export default {
 <template lang="pug">
 template(v-for="(unit, index) in units", :key="unit.id")
   template(v-for="col in columns")
-    UnitField(v-if="Unit.has_field(col)", :unit="unit", :field="col",
-      :odd="index & 1")
+    UnitField(:unit="unit", :field="col", :odd="index & 1")
 
   .unit-field.unit-actions(:class="`row-${index & 1 ? 'odd' : 'even'}`")
     slot(:unit="unit")

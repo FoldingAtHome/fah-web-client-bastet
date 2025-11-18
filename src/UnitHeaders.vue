@@ -39,7 +39,7 @@ export default {
 
 <template lang="pug">
 template(v-for="col in columns")
-  unit-header(v-if="Unit.has_field(col)", :field="col")
+  unit-header(:field="col")
 
 .unit-header.unit-actions
   slot

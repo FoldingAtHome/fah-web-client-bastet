@@ -27,7 +27,6 @@
 \******************************************************************************/
 
 import {reactive} from 'vue'
-import fields     from './unit_fields.json'
 import Unit       from './unit.js'
 
 
@@ -59,7 +58,8 @@ class Account {
     if (document.body.clientWidth <= 520) return Unit.minimal_columns
     if (document.body.clientWidth <= 800) return Unit.default_columns
     let columns = (this.data.config || {}).columns
-    return (columns && columns.length) ? columns : Unit.default_columns
+    return (columns && columns.length) ?
+      columns.filter(Unit.has_field) : Unit.default_columns
   }
 
 
