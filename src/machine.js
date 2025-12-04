@@ -73,8 +73,17 @@ class Machine {
   get_resources(group = '', max_length) {
     let l = []
     let config = this.get_config(group)
+    let info = this.get_info()
 
-    if (config.cpus) l.push(config.cpus + ' CPUs')
+    // Determine which resources are currently in use based on idle state
+    let cpus = config.cpus || 0
+    
+    // If different_idle_resources is enabled and system is idle, use idle resources
+    if (config.different_idle_resources && info.system_idle) {
+      cpus = config.cpus_idle ?? cpus
+    }
+
+    if (cpus) l.push(cpus + ' CPUs')
 
     for (let gpu of this.get_gpus(group))
       l.push(gpu.description)
@@ -167,9 +176,15 @@ class Machine {
     let config = this.get_config(group)
     let gpus   = []
 
-    if (config.gpus && info.gpus)
-      for (let id in config.gpus)
-        if (info.gpus[id] && config.gpus[id].enabled)
+    // Determine which GPU config to use based on idle state
+    let gpuConfig = config.gpus
+    if (config.different_idle_resources && info.system_idle && config.gpus_idle) {
+      gpuConfig = config.gpus_idle
+    }
+
+    if (gpuConfig && info.gpus)
+      for (let id in gpuConfig)
+        if (info.gpus[id] && gpuConfig[id].enabled)
           gpus.push(info.gpus[id])
 
     return gpus
