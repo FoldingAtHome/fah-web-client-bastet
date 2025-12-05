@@ -42,7 +42,7 @@ export default {
 <template lang="pug">
 Dialog.charts-dialog(ref="dialog", :buttons="['Ok']", width="90vw",
   height="90vh")
-  template(v-slot:header) Team {{chart_mode}} Chart
+  template(v-slot:header) Team Chart
   template(v-slot:body)
     .chart-controls
       .chart-modes
