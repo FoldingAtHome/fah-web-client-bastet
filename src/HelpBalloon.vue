@@ -43,9 +43,9 @@ export default {
 <template lang="pug">
 label.help-balloon(@click="active = !active")
   .help-overlay(v-show="active", @click.stop="active = false")
-  .help-name {{name}}#[.fa.fa-question-circle]
+  .help-name {{name}}#[Icon(name="question-circle")]
   span(v-if="active")
-    .fa.fa-caret-left
+    Icon(name="caret-left")
     .help-content.view-panel(@click.stop="true")
       .help-header
         h2.help-title {{name}} Help

@@ -52,7 +52,7 @@ export default {
 <template lang="pug">
 Teleport(to="body")
   .pacify-overlay(v-show="active")
-    .fa.fa-spinner.fa-pulse
+    Icon(name="spinner",animate="pulse")
 </template>
 
 <style lang="stylus">
