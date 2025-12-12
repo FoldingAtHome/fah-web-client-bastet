@@ -43,6 +43,7 @@ export default {
     connected() {return this.mach.is_connected()},
     failed()    {return this.mach.get_group(this.group).failed},
     warn()      {return 1 < this.mach.get_group(this.group).failed_wus},
+    hide()      {return this.$adata.config.hide_empty_groups && !this.mach.has_resources(this.group)},
 
 
     status() {
@@ -71,7 +72,7 @@ export default {
 </script>
 
 <template lang="pug">
-.machine-group-header(v-if="header",
+.machine-group-header(v-if="header && !hide",
   :style="{'grid-column': `span ${columns.length + 1}`}",
   :class="{error: !!failed, warn: warn}")
   .group-name.header-subtitle

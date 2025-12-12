@@ -81,6 +81,12 @@ fieldset.settings.view-panel
     HelpBalloon(name="Wide Display"): p Use full screen width.
     input(v-model="config.wide", type="checkbox")
 
+  .setting.hide-empty-groups-setting
+    HelpBalloon(name="Hide Empty Groups"): p.
+      Hides empty resource groups on the Machines view.
+      Empty resource groups will still display under machine settings.
+    input(v-model="config.hide_empty_groups", type="checkbox")
+
   .columns-setting
     HelpBalloon(name="Work Unit Columns"): p.
       Drag and drop columns to change their position and visibility.
