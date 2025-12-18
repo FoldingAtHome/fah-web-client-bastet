@@ -29,10 +29,10 @@
 <script>
 function copy_config(config = {}) {
   return {
-    dark:    config.dark,
-    columns: (config.columns || []).concat([]),
-    wide:    !!config.wide,
-    compact: !!config.compact,
+    dark:              config.dark,
+    columns:           (config.columns || []).concat([]),
+    wide:              !!config.wide,
+    compact:           !!config.compact,
     hide_empty_groups: !!config.hide_empty_groups,
   }
 }
@@ -181,6 +181,7 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
     .account-menu
       Button(v-for="t in tabs", :route="t.name", replace, :icon="t.icon",
         :text="t.name", :class="{'tab-active': tab == t.name}")
+
 
     router-view(:account="account_new", :config="account_new.config")
 </template>

@@ -87,7 +87,11 @@ class Machine {
     return s
   }
 
-  has_resources(group = '') {return this.get_config(group).cpus || this.get_gpus(group).length >= 1}
+
+  has_resources(group = '') {
+    return this.get_config(group).cpus || this.get_gpus(group).length
+  }
+
 
   get_conn() {return this.conn}
   set_conn(conn) {this.conn = conn}
