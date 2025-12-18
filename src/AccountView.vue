@@ -33,6 +33,7 @@ function copy_config(config = {}) {
     columns: (config.columns || []).concat([]),
     wide:    !!config.wide,
     compact: !!config.compact,
+    hide_empty_groups: !!config.hide_empty_groups,
   }
 }
 
@@ -208,5 +209,5 @@ Dialog(:buttons="confirm_dialog_buttons", ref="confirm_dialog")
         border-color var(--link-color)
 
   fieldset.settings .setting > label
-    width 7em
+    width 10em
 </style>
