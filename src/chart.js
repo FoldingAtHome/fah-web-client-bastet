@@ -131,6 +131,7 @@ class Chart {
       'redraw', 'restart', 'on_resize', 'on_mousemove', 'on_mouseleave'])
       this.bind(method)
 
+    this.redraw       = util.debounce(this.redraw,       250)
     this.restart      = util.debounce(this.restart,      100)
     this.on_resize    = util.debounce(this.on_resize,    100)
     this.on_mousemove = util.debounce(this.on_mousemove,  50)
