@@ -388,7 +388,7 @@ class Util {
 
   format_time(t) {
     t = new Date(t)
-    return t.getUTCFullYear() + '/' + zpad(t.getUTCMonth()) + '/' +
+    return t.getUTCFullYear() + '/' + zpad(t.getUTCMonth() + 1) + '/' +
       zpad(t.getUTCDate())    + ' ' + zpad(t.getUTCHours()) + ':' +
       zpad(t.getUTCMinutes()) + ':' + zpad(t.getUTCSeconds())
   }
