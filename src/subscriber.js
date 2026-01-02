@@ -72,8 +72,7 @@ class Subscriber {
   }
 
 
-  async _cache_load() {
-    if (this.cache) return
+  async __cache_load() {
     this.cache = await caches.open('fah-' + this.ref)
 
     let data = []
@@ -92,9 +91,16 @@ class Subscriber {
   }
 
 
+  async _cache_load() {
+    if (!this.cachePromise) this.cachePromise = this.__cache_load()
+    return await this.cachePromise
+  }
+
+
   async _subscribe() {
     await this._cache_load()
     if (!this.sock.connected) return this.sock.connect()
+    if (this.subscribed) return
 
     let msg = this._get_message('subscribe')
     msg.max_count = this.max_count
