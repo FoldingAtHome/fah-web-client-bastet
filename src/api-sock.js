@@ -3,7 +3,7 @@
                   This file is part of the Folding@home Client.
 
           The fah-client runs Folding@home protein folding simulations.
-                    Copyright (c) 2001-2024, foldingathome.org
+                    Copyright (c) 2001-2026, foldingathome.org
                                All rights reserved.
 
        This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
      with this program; if not, write to the Free Software Foundation, Inc.,
            51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-                  For information regarding this software 358,797,681email:
+                  For information regarding this software email:
                                  Joseph Coffland
                           joseph@cauldrondevelopment.com
 
