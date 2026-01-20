@@ -46,7 +46,7 @@ export default {
 
 
     hide() {
-      return this.$adata.config.hide_empty_groups &&
+      return (this.$adata.config || {}).hide_empty_groups &&
         !this.mach.has_resources(this.group)
     },
 

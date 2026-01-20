@@ -1,6 +1,9 @@
 Folding@home Web Control Changelog
 =================================
 
+## v8.5.7
+ - Fix hide_empty_groups bug. re #274
+
 ## v8.5.3
  - Added user timeseries charts
  - Improved PPD chart
