@@ -27,6 +27,7 @@
 \******************************************************************************/
 
 import fields from './unit_fields.json'
+import {ref}  from 'vue'
 
 
 const status = {
@@ -76,6 +77,13 @@ const icons = {
   'EXPIRED':  'calendar-times-o',
   'CREDITED': 'star',
 }
+
+
+// Refresh timer is used for updating assign time, run time and  ETA,
+// instead of using progress. Using a timer will force a refresh even if a
+// job is pauded
+const refresh_timer = ref(0)
+var refresh_timer_id = setInterval(() => {refresh_timer.value += 1}, 1000)
 
 
 function clean_field(name) {return name.toLowerCase().replaceAll(' ', '_')}
@@ -202,7 +210,11 @@ class Unit {
   }
 
 
-  get assign_time() {return this.util.since(this.assign.time) + ' ago'}
+  get assign_time() {
+    // Use refresh_timer to force updates of assign time
+    return this.util.since(this.assign.time, new Date, this.refresh_timer) + ' ago'
+  }
+
   get assign_time_title() {return this.util.format_time(this.assign.time)}
 
 
@@ -225,8 +237,8 @@ class Unit {
   get eta() {
     if (this.waiting) {
       let eta = new Date(this.unit.wait).getTime() - (new Date).getTime()
-      // Use "progress" to force updates
-      return this.util.time_interval(0 < eta ? eta / 1000 : 0, this.progress)
+      // Use "refresh_timer" to force updates
+      return this.util.time_interval(0 < eta ? eta / 1000 : 0, this.refresh_timer)
     }
 
     let eta = this.wu_progress < 1 ? this.unit.eta : 0
@@ -257,8 +269,8 @@ class Unit {
 
 
   get run_time() {
-    // Use "progress" to force updates
-    return this.util.time_interval(this.run_time_secs, this.progress)
+    // Use "refresh_timer" to force updates
+    return this.util.time_interval(this.run_time_secs, this.refresh_timer)
   }
 
 
@@ -296,6 +308,8 @@ class Unit {
 
 
   get base_credit() {return (this.assign.credit || 0).toLocaleString()}
+
+  get refresh_timer() {return refresh_timer.value}
 
 
   static has_field(name)      {return name in fields}
