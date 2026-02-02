@@ -27,12 +27,13 @@
 -->
 
 <script>
-import MainMenu  from './MainMenu.vue'
+import MainMenu   from './MainMenu.vue'
+import TickerView from './TickerView.vue'
 
 
 export default {
   name: 'MainHeader',
-  components: {MainMenu},
+  components: {MainMenu, TickerView},
 }
 </script>
 
@@ -53,6 +54,8 @@ ViewHeader.main-header
 
   template(v-slot:menu)
     MainMenu
+
+TickerView(v-if="false")
 </template>
 
 <style lang="stylus">
