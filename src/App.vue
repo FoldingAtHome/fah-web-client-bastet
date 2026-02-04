@@ -122,7 +122,9 @@ export default {
         if (action == 'Signing in')
           return this.message(
             'error', 'Account not active',
-            'Please verify your email address to activate your account.')
+            '<p>Please verify your email address to activate your ' +
+            'account.</p><p><b>It can several minutes for the email to ' +
+            'arrive.</b></p>')
 
         if (action == 'Registering')
           return this.message(
@@ -173,7 +175,8 @@ export default {
             'info', 'Account registered', '<p>Your Folding@home account has ' +
             'been registered.</p><p>You have been sent an email verification ' +
             'message.  Please <b>follow the link in your email</b> to ' +
-            'activate your account.</p>')
+            'activate your account.</p><p><b>Email may take a few ' +
+            'minutes to arrive.</b></p>')
 
         case 'reset':
           await this.$account.request_reset(result.data)
