@@ -202,7 +202,7 @@ class Unit {
   }
 
 
-  get assign_time() {return this.util.since(this.assign.time) + ' ago'}
+  get assign_time() {return this.util.since(this.assign.time, this.util.now) + ' ago'}
   get assign_time_title() {return this.util.format_time(this.assign.time)}
 
 
@@ -225,8 +225,7 @@ class Unit {
   get eta() {
     if (this.waiting) {
       let eta = new Date(this.unit.wait).getTime() - (new Date).getTime()
-      // Use "progress" to force updates
-      return this.util.time_interval(0 < eta ? eta / 1000 : 0, this.progress)
+      return this.util.time_interval(0 < eta ? eta / 1000 : 0, this.util.now)
     }
 
     let eta = this.wu_progress < 1 ? this.unit.eta : 0
@@ -257,8 +256,7 @@ class Unit {
 
 
   get run_time() {
-    // Use "progress" to force updates
-    return this.util.time_interval(this.run_time_secs, this.progress)
+    return this.util.time_interval(this.run_time_secs, this.util.now)
   }
 
 
