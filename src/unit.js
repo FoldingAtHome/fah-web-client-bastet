@@ -202,7 +202,6 @@ class Unit {
   }
 
 
-  // Use "now" to force timer updates
   get assign_time() {return this.util.since(this.assign.time, this.util.now) + ' ago'}
   get assign_time_title() {return this.util.format_time(this.assign.time)}
 
@@ -225,8 +224,8 @@ class Unit {
 
   get eta() {
     if (this.waiting) {
-      let eta = new Date(this.unit.wait).getTime() - this.util.now
-      return this.util.time_interval(0 < eta ? eta / 1000 : 0)
+      let eta = new Date(this.unit.wait).getTime() - (new Date).getTime()
+      return this.util.time_interval(0 < eta ? eta / 1000 : 0, this.util.now)
     }
 
     let eta = this.wu_progress < 1 ? this.unit.eta : 0
@@ -249,7 +248,7 @@ class Unit {
 
     if (this.unit.state == 'RUN' && this.unit.start_time != undefined) {
       let st = new Date(this.unit.start_time).getTime()
-      t += (this.util.now - st) / 1000
+      t += (new Date().getTime() - st) / 1000
     }
 
     return t
@@ -257,7 +256,7 @@ class Unit {
 
 
   get run_time() {
-    return this.util.time_interval(this.run_time_secs)
+    return this.util.time_interval(this.run_time_secs, this.util.now)
   }
 
 
