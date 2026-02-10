@@ -130,7 +130,8 @@ UnitsView(:units="units", :columns="columns", v-slot="{unit}")
     border 2px solid var(--warn-color) !important
 
   .group-name
-    width 10em
+    max-width 16em
+    min-width 4em
     overflow hidden
     text-overflow ellipsis
 
