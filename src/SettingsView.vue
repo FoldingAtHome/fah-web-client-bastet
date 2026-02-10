@@ -175,7 +175,7 @@ export default {
 
 
     get_group_config(config) {
-      let keys = ['on_idle', 'cpus', 'gpus', 'beta', 'key', 'cuda', 'hip']
+      let keys = ['on_idle', 'cpus', 'cpus_idle', 'gpus', 'gpus_idle', 'beta', 'key', 'cuda', 'hip']
       let copy = copy_keys(config, keys)
 
       copy.on_idle = !!copy.on_idle
@@ -190,6 +190,7 @@ export default {
         copy.keep_awake = !!config.keep_awake
       }
 
+      // Handle active/regular GPU config
       let config_gpus = config.gpus || {}
       copy.gpus = {}
       for (let id in this.available_gpus) {
@@ -200,6 +201,23 @@ export default {
       // Add GPUs which are enabled but not detected
       for (const [id, gpu] of Object.entries(config_gpus))
         if (gpu.enabled && !copy.gpus[id]) copy.gpus[id] = {enabled: true}
+
+      // Handle idle GPU config
+      if (copy.on_idle) {
+        let config_gpus_idle = config.gpus_idle || config_gpus
+        copy.cpus_idle = copy.cpus_idle ?? copy.cpus
+        copy.gpus_idle = {}
+        
+        for (let id in this.available_gpus) {
+          const enabled = (config_gpus_idle[id] || {}).enabled || false
+          copy.gpus_idle[id] = {enabled}
+        }
+
+        // Add GPUs which are enabled but not detected
+        for (const [id, gpu] of Object.entries(config_gpus_idle))
+          if (gpu.enabled && !copy.gpus_idle[id]) 
+            copy.gpus_idle[id] = {enabled: true}
+      }
 
       return copy
     },
