@@ -156,10 +156,10 @@ class Unit {
 
 
   get state() {
+    if (this.unit.result) return this.unit.result.toUpperCase()
     if (this.waiting)     return 'WAIT'
     if (this.finish)      return 'FINISH'
     if (this.paused)      return 'PAUSE'
-    if (this.unit.result) return this.unit.result.toUpperCase()
     return this.unit.state
   }
 
@@ -168,8 +168,9 @@ class Unit {
 
 
   get _status_text() {
+    if (this.unit.result) return status[this.state]
     if (this.waiting) return wait_status[this.unit.state] || status[this.state]
-    return this.unit.pause_reason || status[this.state]
+    return (this.paused && this.unit.pause_reason) || status[this.state]
   }
 
 
