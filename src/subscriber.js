@@ -73,6 +73,7 @@ class Subscriber {
 
 
   async __cache_load() {
+    const startTime = performance.now()
     this.cache = await caches.open('fah-' + this.ref)
 
     let data = []
@@ -83,11 +84,16 @@ class Subscriber {
       data.push([ts, entry])
     }
 
+    const loadedEntries = data.length
     // Sort the data descending in time
     data.sort((a, b) => b[0] < a[0])
     this.data = data.map(e => e[1])
     this._limit_data()
     this._notify(this.data)
+    const endTime = performance.now()
+    console.log("__cache_load for fah-" + this.ref + " took " +
+                (endTime - startTime) + " ms to load " +
+                loadedEntries + " entries")
   }
 
 
