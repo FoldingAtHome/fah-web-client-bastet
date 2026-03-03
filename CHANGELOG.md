@@ -2,7 +2,8 @@ Folding@home Web Control Changelog
 =================================
 
 ## v8.5.7
- - Fix hide_empty_groups bug. re #274
+ - Fix hide_empty_groups bug. re:#274
+ - Increase max zoom in 3D viewer. re:#245 @arisu3
 
 ## v8.5.3
  - Added user timeseries charts
