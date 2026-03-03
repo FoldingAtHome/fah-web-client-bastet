@@ -466,7 +466,7 @@ export default {
         initialZ *= wDims.height / wDims.width / 1.5
 
         this.zoom_min = maxDim / 2.
-        this.zoom_max = initialZ * 4
+        this.zoom_max = initialZ * 16
 
         this.camera.position.z = initialZ
       }
