@@ -30,18 +30,6 @@
 import TeamDialog from './TeamDialog.vue'
 
 
-function compute_max_dims(width, height, maxWidth, maxHeight) {
-  if (width <= maxWidth) {
-    if (height <= maxHeight) return [width, height]
-    return [width, Math.floor(maxWidth * maxHeight / height)]
-  }
-
-  height = Math.floor(height * maxWidth / width)
-  if (height <= maxHeight) return [maxWidth, height]
-  return [Math.floor(maxWidth * maxHeight / height), maxHeight]
-}
-
-
 export default {
   props: {account: Object, config: Object},
   components: {TeamDialog},
