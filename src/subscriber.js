@@ -73,21 +73,40 @@ class Subscriber {
 
 
   async __cache_load() {
+    const startTime = performance.now()
     this.cache = await caches.open('fah-' + this.ref)
 
+    const keys = await this.cache.keys()
+    if (keys.length < 1) return
+    const pageSize = 2000
+    const pages = []
+    for (let i = 0; i < keys.length; i += pageSize) {
+      const page = keys.slice(i, i + pageSize)
+      pages.push(
+        Promise.all(page.map(key => this.cache.match(key)))
+          .then(responses =>
+            Promise.all(responses.filter(Boolean).map(r => r.json()))
+        )
+      )
+    }
+
+    const results = (await Promise.all(pages)).flat()
     let data = []
-    let responses = await this.cache.matchAll('/', {ignoreSearch: true})
-    for (let res of responses) {
-      let entry = await res.json()
-      let ts    = new Date(entry.time).getTime()
+    for (const entry of results) {
+      const ts = new Date(entry.time).getTime()
       data.push([ts, entry])
     }
 
+    const loadedEntries = data.length
     // Sort the data descending in time
     data.sort((a, b) => b[0] < a[0])
     this.data = data.map(e => e[1])
     this._limit_data()
     this._notify(this.data)
+    const endTime = performance.now()
+    console.log("__cache_load for fah-" + this.ref + " took " +
+                (endTime - startTime) + " ms to load " +
+                loadedEntries + " entries")
   }
 
 
