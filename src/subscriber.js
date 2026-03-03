@@ -76,6 +76,7 @@ class Subscriber {
     const startTime = performance.now()
     this.cache = await caches.open('fah-' + this.ref)
 
+    // NOTE, keys are loaded in batches to avoid an `Operation too large error`
     const keys = await this.cache.keys()
     if (keys.length < 1) return
     const pageSize = 2000
