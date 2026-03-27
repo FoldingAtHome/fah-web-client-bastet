@@ -35,6 +35,7 @@ class Projects {
     this.timeout = timeout
     this.state   = reactive({
       loading:     true,
+      ids:         [],
       in_progress: {},
       projects:    {},
     })
@@ -59,9 +60,18 @@ class Projects {
     for (let unit of this.ctx.$machs.get_units())
       if (unit.assign.project) projects[unit.project] = true
 
-    projects = Object.keys(projects)
+    projects = Object.keys(projects).sort()
 
-    if (projects != this.state.ids) {
+    let changed = projects.length != this.state.ids.length
+
+    if (!changed)
+      for (let i = 0; i < projects.length; i++)
+        if (projects[i] != this.state.ids[i]) {
+          changed = true
+          break
+        }
+
+    if (changed) {
       this.state.ids = projects
       this._trigger_update()
     }
@@ -83,7 +93,7 @@ class Projects {
 
     // Remove old projects
     for (let id of Object.keys(this.state.projects))
-      if (!id in this.state.ids) delete this.state.projects[id]
+      if (!this.state.ids.includes(id)) delete this.state.projects[id]
   }
 
 
