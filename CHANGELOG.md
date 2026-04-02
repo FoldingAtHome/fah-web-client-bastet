@@ -4,6 +4,9 @@ Folding@home Web Control Changelog
 ## v8.5.7
  - Fix hide_empty_groups bug. re:#274
  - Increase max zoom in 3D viewer. re:#245 @arisu3
+ - Load cache one page at a time to avoid `Operation too large`. @Justaphf
+ - Added CI script. @PeterDavidHello & @sebs
+ - Fix project ID change and recently connected detection.  @PeterDavidHello
 
 ## v8.5.3
  - Added user timeseries charts
