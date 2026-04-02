@@ -37,9 +37,6 @@ class Machine {
     this.aid   = ctx.$account.data.id
     this.cache = ctx.$cache
     this.util  = ctx.$util
-    this._raw_units = []
-    this._units = []
-    this._units_by_raw = new WeakMap()
     this.state = reactive({
       id,
       name:      id,
@@ -103,33 +100,8 @@ class Machine {
 
 
   get_units() {
-    const raw_units = this.get_data().units || []
-
-    if (raw_units.length == this._raw_units.length) {
-      let unchanged = true
-
-      for (let i = 0; i < raw_units.length; i++)
-        if (raw_units[i] !== this._raw_units[i]) {
-          unchanged = false
-          break
-        }
-
-      if (unchanged) return this._units
-    }
-
-    this._units = raw_units.map(unit => {
-      let wrapped = this._units_by_raw.get(unit)
-
-      if (!wrapped) {
-        wrapped = new Unit(this.ctx, unit, this)
-        this._units_by_raw.set(unit, wrapped)
-      }
-
-      return wrapped
-    })
-
-    this._raw_units = raw_units.slice()
-    return this._units
+    return (this.get_data().units || []).map(
+      unit => new Unit(this.ctx, unit, this))
   }
 
 
