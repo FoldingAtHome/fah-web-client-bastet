@@ -63,13 +63,8 @@ class Projects {
     projects = Object.keys(projects).sort()
 
     let changed = projects.length != this.state.ids.length
-
-    if (!changed)
-      for (let i = 0; i < projects.length; i++)
-        if (projects[i] != this.state.ids[i]) {
-          changed = true
-          break
-        }
+    for (let i = 0; i < projects.length && !changed; i++)
+      changed = projects[i] != this.state.ids[i]
 
     if (changed) {
       this.state.ids = projects
