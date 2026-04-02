@@ -129,7 +129,7 @@ class Machines {
 
   active_unit_sum(fn) {
     return Array.from(this).reduce((sum, mach) => {
-      if (!mach.is_recently_connected) return sum
+      if (!mach.is_recently_connected()) return sum
 
       return mach.get_units().reduce((sum, unit) => {
         if (unit.state != 'RUN' && !unit.finish) return sum

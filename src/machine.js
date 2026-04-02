@@ -41,6 +41,7 @@ class Machine {
       id,
       name:      id,
       connected: false,
+      last_connected: 0,
       data:      {}
     })
   }
@@ -136,7 +137,7 @@ class Machine {
 
   is_recently_connected() {
     return this.is_connected() ||
-      new Date().getTime() < this.last_connected + 5 * 60 * 1000
+      new Date().getTime() < this.state.last_connected + 5 * 60 * 1000
   }
 
 
