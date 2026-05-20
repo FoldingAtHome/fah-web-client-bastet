@@ -150,6 +150,26 @@ export default {
     },
 
 
+    print() {
+      console.log("lines: "+this.lines)
+      const content = this.lines.map(line => line[1]).join('\n')
+      const win = window.open('', '_blank')
+      win.document.write(`
+        <html>
+          <head>
+            <title>WU Log</title>
+            <style>
+              body { font-family: monospace; font-size: 12px; white-space: pre-wrap; padding: 20px; }
+            </style>
+          </head>
+          <body>${content}</body>
+        </html>
+      `)
+      win.document.close()
+      win.print()
+    },
+
+
     update() {
       this.$nextTick(() => {
         this.scroll_to_end()
@@ -221,6 +241,7 @@ export default {
         #[input(v-model="errors", type="checkbox")] Errors
       label(title="Filter log for warning messages").
         #[input(v-model="warnings", type="checkbox")] Warnings
+      Button.button-icon(title="Save as PDF", icon="file-pdf-o", @click="print")
       Button.button-icon(title="Reset search", icon="repeat", @click="reset")
 
     .log-percent.fade-out(ref="percent")
