@@ -56,7 +56,9 @@ export default {
         .article-byline
           | By #[span.author {{item.author}}] on #[span.date {{item.date}}].
 
-        .article-body(v-html="item.description")
+        .article-body {{item.description}}
+
+        a.read-more(:href="item.url", target="_blank") Read more
 </template>
 
 <style lang="stylus">

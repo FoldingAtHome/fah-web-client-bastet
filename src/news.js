@@ -30,15 +30,11 @@ import {reactive} from 'vue'
 
 
 class News {
-  constructor(ctx, url = 'https://foldingathome.org/wp-json/wp/v2',
-              timeout = 24 * 60 * 60 * 1000) {
+  constructor(ctx, timeout = 24 * 60 * 60 * 1000) {
     this.cache   = ctx.$cache
-    this.url     = url
+    this.url     = ctx.$api.url
     this.timeout = timeout
-    this.data    = reactive({
-      authors: {},
-      feed:    [],
-    })
+    this.data    = reactive({feed: []})
 
     this._update()
   }
@@ -65,28 +61,6 @@ class News {
   }
 
 
-  async get_featured_image(article, post) {
-    let url   = `${this.url}/media/${post.featured_media}?context=embed`
-    let r     = await fetch(url)
-    let media = await r.json()
-    let details = media.media_details || {}
-    article.image = ((details.sizes || {}).medium || {}).source_url
-  }
-
-
-  async get_author(article, post) {
-    if (post.author in this.data.authors) {
-      article.author = this.data.authors[post.author]
-      return
-    }
-
-    let r      = await fetch(`${this.url}/users/${post.author}`)
-    let author = await r.json()
-    this.data.authors[post.author] = author.name
-    article.author = author.name
-  }
-
-
   async _update() {
     try {
       await this._load_feed()
@@ -102,33 +76,24 @@ class News {
     if (data) return this.set_feed(data)
 
     // Download feed
-    let r     = await fetch(`${this.url}/posts?context=embed`)
-    let posts = await r.json()
+    let r        = await fetch(`${this.url}/article`)
+    let articles = await r.json()
 
-    let feed     = []
-    let promises = []
-
-    for (const post of posts) {
-      let desc = post.excerpt.rendered
-          .replace('>Read more<', 'target="_blank">Read more<')
-
-      let article = reactive({
-        url:         post.link,
-        title:       post.title.rendered,
-        date:        new Date(post.date).toDateString(),
-        description: desc
+    let feed = []
+    for (const a of articles)
+      feed.push({
+        url:         `https://foldingathome.org/${a.slug}`,
+        title:       a.title,
+        author:      a.author,
+        date:        new Date(a.published).toDateString(),
+        description: a.excerpt,
+        image:       a.hero ? `${this.url}/asset/${a.hero}/web` : undefined,
       })
-      feed.push(article)
-
-      promises.push(this.get_featured_image(article, post))
-      promises.push(this.get_author(article, post))
-    }
 
     if (!feed.length) return
     this.set_feed(feed)
 
     // Cache results
-    await Promise.all(promises)
     await this.cache.set('news', feed)
   }
 }
