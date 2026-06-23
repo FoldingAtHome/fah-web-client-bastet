@@ -66,8 +66,6 @@ export default {
          this site.
 
       template(v-else)
-        <!--plot-view(:x="$machs.ppd", :min="1000000")-->
-
         table.machines-info.view-table
           thead
             tr
@@ -103,9 +101,6 @@ export default {
 
     .no-data
       text-align center
-
-    .plot-view
-      height 100px
 
     .machines-info
       th, td

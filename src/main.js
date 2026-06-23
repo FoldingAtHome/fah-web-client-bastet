@@ -37,7 +37,6 @@ import InfoItem       from './InfoItem.vue'
 import Award          from './Award.vue'
 import HelpBalloon    from './HelpBalloon.vue'
 import ImageInput     from './ImageInput.vue'
-import PlotView       from './PlotView.vue'
 import FAHLogo        from './FAHLogo.vue'
 import ClientVersion  from './ClientVersion.vue'
 import ViewHeader     from './ViewHeader.vue'
@@ -98,7 +97,7 @@ async function main(url) {
   add_components(app, {
     Button, Dialog, ProgressBar, Award, HelpBalloon, FAHLogo, ClientVersion,
     ViewHeader, MainHeader, ProjectView, InfoItem, DragList, UnitHeader,
-    UnitsView, ImageInput, PlotView, UnitField, UnitHeaders, UnitInfo
+    UnitsView, ImageInput, UnitField, UnitHeaders, UnitInfo
   })
 
   app.mount('#app')
