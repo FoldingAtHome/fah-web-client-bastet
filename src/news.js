@@ -82,7 +82,7 @@ class News {
     let feed = []
     for (const a of articles)
       feed.push({
-        url:         `https://foldingathome.org/${a.slug}`,
+        url:         `https://foldingathome.org/news/${a.slug}`,
         title:       a.title,
         author:      a.author,
         date:        new Date(a.published).toDateString(),
