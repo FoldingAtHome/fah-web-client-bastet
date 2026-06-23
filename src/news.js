@@ -41,24 +41,7 @@ class News {
 
 
   get_feed() {return this.data.feed}
-
-
-  set_feed(feed) {
-    feed = feed.slice() // Copy
-    let result = []
-
-    while (feed.length) {
-      // Choose next article giving newer articles a higher probability
-      let r = Math.random()
-      let x = Math.floor(-Math.log(r) / Math.log(3 / 2))
-      let i = (r == 0 || feed.length <= x) ? 0 : x
-
-      result.push(feed[i])
-      feed.splice(i, 1)
-    }
-
-    this.data.feed = result
-  }
+  set_feed(feed) {this.data.feed = feed.slice()}
 
 
   async _update() {
