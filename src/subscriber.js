@@ -58,17 +58,9 @@ class Subscriber {
   _get_message(type) {return Object.assign({type}, this.msg)}
 
 
-  _cache_get_key(entry) {return '/?ts=' + new Date(entry.time).getTime()}
-
-
-  async _cache_add(entry) {
-    let res = new Response(JSON.stringify(entry))
-    return this.cache.put(this._cache_get_key(entry), res)
-  }
-
-
-  async _cache_del(entry) {
-    return this.cache.delete(this._cache_get_key(entry))
+  async _cache_save() {
+    let res = new Response(JSON.stringify(this.data))
+    return this.cache.put('/data', res)
   }
 
 
@@ -76,32 +68,13 @@ class Subscriber {
     const startTime = performance.now()
     this.cache = await caches.open('fah-' + this.ref)
 
-    // NOTE, keys are loaded in batches to avoid an `Operation too large error`
-    const keys = await this.cache.keys()
-    if (keys.length < 1) return
-    const pageSize = 2000
-    const pages = []
-    for (let i = 0; i < keys.length; i += pageSize) {
-      const page = keys.slice(i, i + pageSize)
-      pages.push(
-        Promise.all(page.map(key => this.cache.match(key)))
-          .then(responses =>
-            Promise.all(responses.filter(Boolean).map(r => r.json()))
-        )
-      )
-    }
+    let res = await this.cache.match('/data')
+    if (!res) return
 
-    const results = (await Promise.all(pages)).flat()
-    let data = []
-    for (const entry of results) {
-      const ts = new Date(entry.time).getTime()
-      data.push([ts, entry])
-    }
-
-    const loadedEntries = data.length
-    // Sort the data descending in time
-    data.sort((a, b) => b[0] < a[0])
-    this.data = data.map(e => e[1])
+    this.data = await res.json()
+    // Sort the data ascending in time
+    this.data.sort((a, b) => new Date(a.time) - new Date(b.time))
+    const loadedEntries = this.data.length
     this._limit_data()
     this._notify(this.data)
     const endTime = performance.now()
@@ -147,10 +120,8 @@ class Subscriber {
 
 
   _limit_data() {
-    if (this.max_count < this.data.length) {
-      let removed = this.data.splice(0, this.data.length - this.max_count)
-      removed.map(entry => this._cache_del(entry))
-    }
+    if (this.max_count < this.data.length)
+      this.data.splice(0, this.data.length - this.max_count)
   }
 
 
@@ -183,8 +154,8 @@ class Subscriber {
 
     this._notify(data)
     this.data.push(...data)
-    data.map(entry => this._cache_add(entry))
     this._limit_data()
+    this._cache_save()
   }
 
 

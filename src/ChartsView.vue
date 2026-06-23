@@ -27,6 +27,7 @@
 -->
 
 <script>
+import {markRaw} from 'vue'
 import Chart      from './chart.js'
 import DataSeries from './data-series.js'
 
@@ -203,7 +204,7 @@ export default {
 
     add_chart(chart) {
       let color    = colors[this.series.length]
-      let series   = new DataSeries(color, this.source_enabled(chart.type))
+      let series   = markRaw(new DataSeries(color, this.source_enabled(chart.type)))
       series.chart = chart
       this.series.push(series)
 

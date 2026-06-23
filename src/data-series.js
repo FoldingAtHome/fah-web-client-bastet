@@ -26,38 +26,28 @@
 
 \******************************************************************************/
 
-import {reactive} from 'vue'
-
-
 class DataSeries {
   constructor(color, enabled = true) {
     this.color   = color
     this.enabled = enabled
-    this.state   = reactive({
-      data: [],
-      min:  {x:  Infinity, y:  Infinity},
-      max:  {x: -Infinity, y: -Infinity},
-    })
+    this.data    = []
+    this.min     = {x:  Infinity, y:  Infinity}
+    this.max     = {x: -Infinity, y: -Infinity}
   }
 
 
-  get data() {return this.state.data}
-  get max()  {return this.state.max}
-  get min()  {return this.state.min}
-
-
   add(data) {
-    this.state.data.push(data)
+    this.data.push(data)
 
-    this.state.min.x = Math.min(this.state.min.x, data.x)
-    this.state.max.x = Math.max(this.state.max.x, data.x)
-    this.state.min.y = Math.min(this.state.min.y, data.y)
-    this.state.max.y = Math.max(this.state.max.y, data.y)
+    this.min.x = Math.min(this.min.x, data.x)
+    this.max.x = Math.max(this.max.x, data.x)
+    this.min.y = Math.min(this.min.y, data.y)
+    this.max.y = Math.max(this.max.y, data.y)
   }
 
 
   find_nearest_x(x) {
-    let data = this.state.data
+    let data = this.data
     if (!data.length) return
 
     let i = this._find_index(data, x, 0, data.length)
