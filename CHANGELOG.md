@@ -7,6 +7,9 @@ Folding@home Web Control Changelog
  - Load cache one page at a time to avoid `Operation too large`. @Justaphf
  - Added CI script. @PeterDavidHello & @sebs
  - Fix project ID change and recently connected detection.  @PeterDavidHello
+ - Fast chart data load/store.
+ - Removed random sort of news articles.
+ - Get news articles from new API endpoint.
 
 ## v8.5.3
  - Added user timeseries charts
