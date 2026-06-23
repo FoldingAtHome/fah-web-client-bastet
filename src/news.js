@@ -72,7 +72,7 @@ class News {
 
   async _load_feed() {
     // Check cache
-    let data = await this.cache.get('news', this.timeout)
+    let data = await this.cache.get('/news-v2', this.timeout)
     if (data) return this.set_feed(data)
 
     // Download feed
@@ -94,7 +94,7 @@ class News {
     this.set_feed(feed)
 
     // Cache results
-    await this.cache.set('news', feed)
+    await this.cache.set('/news-v2', feed)
   }
 }
 
