@@ -114,7 +114,7 @@ class Machine {
   }
 
 
-  is_empty() {!this.get_units().length}
+  is_empty() {return !this.get_units().length}
   set_name(name) {this.state.name = name}
 
 
