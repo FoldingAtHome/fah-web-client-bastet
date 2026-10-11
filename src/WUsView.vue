@@ -141,16 +141,6 @@ export default {
     ppd_max()   {return format_ppd(array_max(this.wus, 'ppd_raw'))},
     ppd_avg()   {return format_ppd(this.historical_stats.ppd)},
 
-    ppd_current() {
-      let total = this.wus.reduce((sum, unit) => {
-        if (!['RUN', 'FINISH'].includes(unit.state)) return sum
-        return sum + (isFinite(unit.ppd_raw) ? unit.ppd_raw : 0)
-      }, 0)
-
-      return format_ppd(Math.round(total))
-    },
-
-
     historical_stats() {
       let points = 0
       let count  = 0
