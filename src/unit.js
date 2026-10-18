@@ -353,7 +353,7 @@ class Unit {
 
   get wu_progress() {
     let p = this.unit.wu_progress
-    if (p == undefined) p = this.unit.progress
+    if (p == undefined) p = this.unit.progress || 0
     return this.util.clamp(p, 0, 1)
   }
 
