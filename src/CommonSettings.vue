@@ -40,7 +40,7 @@ export default {
 
 
   computed: {
-    user_valid() {return /^(|[^<>;&:]{2,100})$/.test(this.config.user)},
+    user_valid() {return /^(|[^\t]{2,100})$/.test(this.config.user)},
     team_valid() {return /^\d+$/.test(this.config.team || 0)},
 
 
@@ -60,8 +60,7 @@ export default {
     p Choose a display name for your Folding@home account.
     p.
       The name does not have to be unique.  It may contain any characters other
-      than #[tt &lt;], #[tt &gt;], #[tt &#59;], or #[tt &amp;] and must be
-      between 2 and 100 characters in length.
+      than tab and must be between 2 and 100 characters in length.
 
     p If you wish to remain anonymous enter #[tt Anonymous].
 

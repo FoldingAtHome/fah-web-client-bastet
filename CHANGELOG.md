@@ -34,6 +34,7 @@ Folding@home Web Control Changelog
  - Link ``Machine`` column to machine details.
  - Reduced table cell padding in compact mode.
  - Remember last account settings tab.
+ - Allow all characters except tab in user names.
 
 ## v8.5.3
  - Added user timeseries charts
