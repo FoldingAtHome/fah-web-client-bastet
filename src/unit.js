@@ -26,7 +26,8 @@
 
 \******************************************************************************/
 
-import fields from './unit_fields.json'
+import {toRaw} from 'vue'
+import fields  from './unit_fields.json'
 
 
 const status = {
@@ -119,6 +120,10 @@ function get_os_icon(os) {
 
 class Unit {
   constructor(ctx, unit, mach) {
+    // ctx may be a reactive proxy, which would unwrap $refresh here and make
+    // whatever creates this Unit, eg a whole unit list, recalculate every second
+    ctx = toRaw(ctx)
+
     this.$refresh = ctx.$refresh
     this.util     = ctx.$util
     this.api      = ctx.$api
@@ -254,18 +259,20 @@ class Unit {
 
 
   get deadline() {
+    this.$refresh.value // Force updates
     return this.util.format_timeout(this.assign.time, this.assign.deadline)
   }
 
 
   get timeout()  {
+    this.$refresh.value // Force updates
     return this.util.format_timeout(this.assign.time, this.assign.timeout)
   }
 
 
   get assign_time() {
-    // Use $refresh to force updates
-    return this.util.since(this.assign.time, new Date, this.$refresh) + ' ago'
+    this.$refresh.value // Force updates
+    return this.util.since(this.assign.time) + ' ago'
   }
 
   get assign_time_title() {return this.util.format_time(this.assign.time)}
@@ -303,8 +310,7 @@ class Unit {
   get eta() {
     let eta = this.eta_secs
 
-    // Use $refresh to force updates
-    if (this.waiting) return this.util.time_interval(eta, this.$refresh)
+    if (this.waiting) return this.util.time_interval(eta)
 
     let s = this.util.time_interval(eta)
 
@@ -322,6 +328,7 @@ class Unit {
     let t = this.unit.run_time || 0
 
     if (this.unit.state == 'RUN' && this.unit.start_time != undefined) {
+      this.$refresh.value // Force updates while running
       let st = new Date(this.unit.start_time).getTime()
       t += (new Date().getTime() - st) / 1000
     }
@@ -330,17 +337,18 @@ class Unit {
   }
 
 
-  get run_time() {
-    // Use $refresh to force updates
-    return this.util.time_interval(this.run_time_secs, this.$refresh)
-  }
+  get run_time() {return this.util.time_interval(this.run_time_secs)}
 
 
   get cs() {return (this.wu.cs || []).join(', ')}
 
 
   get wait_until() {return new Date(this.unit.wait).getTime()}
-  get waiting() {return this.unit.wait && this.util.now < this.wait_until}
+  get waiting() {
+    // Only depend on the util.now timer while actually waiting
+    return !this.unit.result && !!this.unit.wait &&
+      Date.now() < this.wait_until && this.util.now < this.wait_until
+  }
 
 
   get wait_progress() {

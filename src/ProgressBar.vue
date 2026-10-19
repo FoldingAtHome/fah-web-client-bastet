@@ -34,7 +34,8 @@ export default {
 
 <template lang="pug">
 .progress-bar
-  .progress(:style="{width: progress + '%'}")
+  //- Clip rather than resize so animating progress does not force a layout
+  .progress(:style="{'clip-path': `inset(0 ${100 - progress}% 0 0)`}")
   .progress-text {{progress}}%
 </template>
 
@@ -48,16 +49,18 @@ export default {
   color var(--progress-fg)
 
   .progress
+    width 100%
     height 100%
     display flex
     text-align center
     white-space nowrap
-    transition width .6s ease
+    transition clip-path .6s ease
     background-color var(--progress-bar)
     background-image var(--progress-img)
     background-size 1rem 1rem
 
   .progress-text
+    position relative // Stay above .progress, which clip-path stacks
     width 100%
     text-align center
     margin-top -1.3rem
