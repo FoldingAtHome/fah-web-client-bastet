@@ -61,6 +61,17 @@ body
   state_color finish   #00cc99
   state_color wait     var(--error-color)
 
+  // Small clock in the corner of a step icon marks it as waiting
+  .fa.wait-badge
+    position relative
+
+    &::after
+      content '\f017' // fa-clock-o
+      position absolute
+      right -0.55em
+      bottom -0.35em
+      font-size 0.6em
+
 body.theme-compact
   --gap 0.4em
 

@@ -66,7 +66,7 @@ const icons = {
   'DOWNLOAD': 'download',
   'CORE':     'download',
   'RUN':      'refresh',
-  'FINISH':   'refresh',
+  'FINISH':   'flag-checkered',
   'UPLOAD':   'upload',
   'CLEAN':    'check', // Deprecated
   'WAIT':     'clock-o',
@@ -75,6 +75,16 @@ const icons = {
   'DUMPED':   'trash',
   'EXPIRED':  'calendar-times-o',
   'CREDITED': 'star',
+}
+
+
+const wait_icons = {
+  'ASSIGN':   'clock-o',
+  'DOWNLOAD': 'cloud-download',
+  'CORE':     'cogs',
+  'RUN':      'refresh',
+  'UPLOAD':   'cloud-upload',
+  'DUMP':     'trash-o',
 }
 
 
@@ -220,7 +230,20 @@ class Unit {
     return this.unit.state
   }
 
-  get status() {return `<div class="fa fa-${this.icon}"></div>`}
+  status_icon(labeled) {
+    // Badge wait icons with a clock so waiting is not conveyed by color alone
+    let badge = this.state == 'WAIT' && this.icon != 'clock-o'
+    let label = this.util.escape_html(this._status_text || this.state || '')
+    let a11y = labeled ? `role="img" aria-label="${label}"` :
+      'aria-hidden="true"'
+    return `<div class="fa fa-${this.icon}${badge ? ' wait-badge' : ''}" ` +
+      `${a11y}></div>`
+  }
+
+
+  get status() {return this.status_icon(true)}
+
+
   get status_title() {return this._status_text}
 
 
@@ -232,11 +255,17 @@ class Unit {
 
 
   get status_text() {
-    return `${this.status} ${this._status_text} ${this.warnings}`
+    return `${this.status_icon(false)} ${this._status_text} ${this.warnings}`
   }
 
 
-  get icon()    {return icons[this.state] || 'times'}
+  get icon() {
+    if (this.state == 'WAIT')
+      return wait_icons[this.unit.state] || icons.WAIT
+    return icons[this.state] || 'times'
+  }
+
+
   get ppd_raw() {return this.unit.ppd || 0}
   get ppd()     {return this.ppd_raw.toLocaleString()}
 
