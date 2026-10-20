@@ -35,6 +35,9 @@ Folding@home Web Control Changelog
  - Reduced table cell padding in compact mode.
  - Remember last account settings tab.
  - Allow all characters except tab in user names.
+ - Reduce CPU use on Work Units page.  re:#315 @Wedge009
+ - Don't refresh time fields of finished WUs every second.
+ - Fix ETA past deadline warning.
 
 ## v8.5.3
  - Added user timeseries charts

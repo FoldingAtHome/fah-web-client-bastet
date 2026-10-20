@@ -287,24 +287,33 @@ class Unit {
   }
 
 
+  // Force updates, except on finished WUs
+  _refresh() {if (!this.unit.result) this.$refresh.value}
+
+
   get deadline() {
-    this.$refresh.value // Force updates
+    this._refresh()
     return this.util.format_timeout(this.assign.time, this.assign.deadline)
   }
 
 
   get timeout()  {
-    this.$refresh.value // Force updates
+    this._refresh()
     return this.util.format_timeout(this.assign.time, this.assign.timeout)
   }
 
 
   get assign_time() {
-    this.$refresh.value // Force updates
+    this._refresh()
     return this.util.since(this.assign.time) + ' ago'
   }
 
   get assign_time_title() {return this.util.format_time(this.assign.time)}
+
+
+  get deadline_secs() {
+    return (to_ms(this.assign.time) - Date.now()) / 1000 + this.assign.deadline
+  }
 
 
   get deadline_time() {
@@ -343,8 +352,8 @@ class Unit {
 
     let s = this.util.time_interval(eta)
 
-    if (this.deadline < eta)
-      s = `<div class="eta-warning",
+    if (this.deadline_secs < eta)
+      s = `<div class="eta-warning"
         title="WARNING: May not complete before deadline.">
         <i class="fa fa-exclamation-triangle"></i> ${s}
         <i class="fa fa-exclamation-triangle"></i></div>`
