@@ -31,12 +31,14 @@ font-url = 'https://fonts.googleapis.com/css2?family=%s&display=swap'
 @import url(s(font-url, Source Code Pro))
 
 
-state_color(state, color)
+// Icons and text use the theme's state color.  Fills use a darker shade in
+// both themes so the white text on them stays readable.
+state_color(state)
   .state-{state}
-    color color
+    color s('var(--state-%s)', state)
 
     &.button, .progress-bar .progress
-      background-color color
+      background-color s('var(--state-%s-fill)', state)
 
 
 body
@@ -53,13 +55,19 @@ body
                      var(--progress-band) 50%, var(--progress-band) 75%, \
                      transparent 75%, transparent)
 
+  --state-run-fill      #008000
+  --state-finish-fill   #007a62
+  --state-pause-fill    #a65300
+  --state-credited-fill #7d6300
+  --state-wait-fill     #b51100
+
   font-family var(--base-font)
 
-  state_color run      green
-  state_color credited gold
-  state_color pause    orange
-  state_color finish   #00cc99
-  state_color wait     var(--error-color)
+  state_color run
+  state_color credited
+  state_color pause
+  state_color finish
+  state_color wait
 
   // Small clock in the corner of a step icon marks it as waiting
   .fa.wait-badge
