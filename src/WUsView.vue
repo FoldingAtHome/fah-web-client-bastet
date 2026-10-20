@@ -191,7 +191,7 @@ export default {
 
 
     credit_estimated_sum() {
-      return Math.round(this.historical_stats.credit).toLocaleString()
+      return Math.round(this.historical_stats.credit ?? 0).toLocaleString()
     },
   },
 
