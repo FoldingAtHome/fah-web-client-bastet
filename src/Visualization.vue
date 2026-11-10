@@ -50,6 +50,12 @@ const _up    = new THREE.Vector3(0, 1, 0)
 const _quat  = new THREE.Quaternion()
 const _mat   = new THREE.Matrix4()
 
+// Zoom limits, in nm or as multiples of the distance that fits the protein
+const ATOM_MAX_RADIUS = 0.2  // Largest atom radius drawn
+const NEAR_GAP        = 0.5  // Closest the camera gets to an atom
+const FIT_MARGIN      = 1.1  // Space around the protein when it is fitted
+const ZOOM_OUT_MAX    = 8    // Furthest zoom out, in fitted distances
+
 
 export default {
   props: ['mach', 'unitID'],
@@ -294,6 +300,7 @@ export default {
         }
       }
 
+      this.update_zoom()
       this.renderer.render(this.scene, this.camera)
     },
 
@@ -310,6 +317,7 @@ export default {
       this.camera.aspect = dims.width / dims.height
       this.camera.updateProjectionMatrix()
       this.renderer.setSize(dims.width, dims.height)
+      this.update_zoom()
     },
 
 
@@ -460,6 +468,11 @@ export default {
       center.divideScalar(body.length)
       this.protein.children[0].position.copy(center).negate()
 
+      let extent = 0
+      for (let i of body)
+        extent = Math.max(extent, center.distanceTo(_pos.fromArray(pos[i])))
+      this.extent = extent + ATOM_MAX_RADIUS
+
       for (let mesh of this.atom_meshes) {
         if (mesh == undefined) continue
         let atoms = mesh.userData.atoms
@@ -486,16 +499,6 @@ export default {
     },
 
 
-    compute_bounds(index) {
-      let bbox = new THREE.Box3 // Empty, so it does not always contain origin
-      let pos  = this.positions[index]
-
-      for (let i of this.body) bbox.expandByPoint(_pos.fromArray(pos[i]))
-
-      return bbox
-    },
-
-
     draw() {
       this.clear_protein()
 
@@ -505,29 +508,20 @@ export default {
       this.protein.add(this.draw_protein(this.draw_type))
       this.update_frame()
 
-      if (!this.camera.position.z) {
-        let bbox     = this.compute_bounds(0)
-        let dims     = bbox.getSize(new THREE.Vector3())
-        let maxDim   = Math.max(dims.x, dims.y, dims.z)
-        let initialZ = maxDim / Math.tan(Math.PI * this.camera.fov / 360)
-        let wDims    = this.get_dims()
-
-        initialZ *= wDims.height / wDims.width / 1.5
-
-        this.zoom_min = maxDim / 2.
-        this.zoom_max = initialZ * 16
-
-        this.camera.position.z = initialZ
+      // Fit to the first frame drawn, so the view does not jump per frame
+      if (this.zoom_level == undefined) {
+        this.radius     = this.extent
+        this.zoom_level = FIT_MARGIN
       }
+
+      this.update_zoom()
     },
 
 
     set_draw_type(type) {
       if (0 < type && type < 4 && this.draw_type != type) {
-        let zoom = this.camera.position.z
         this.draw_type = type
         this.draw()
-        this.camera.position.z = zoom
       }
     },
 
@@ -553,11 +547,60 @@ export default {
     },
 
 
+    // Distance at which the protein just fills the narrower field of view
+    fit_distance() {
+      let half = toRadians(this.camera.fov) / 2
+      let aspect = this.camera.aspect
+      if (aspect < 1) half = Math.atan(Math.tan(half) * aspect)
+      return this.radius / Math.sin(half)
+    },
+
+
+    // Closest the camera can be without passing the nearest atom
+    near_limit() {
+      let pos = this.positions[this.frame]
+      if (pos == undefined) return 0
+
+      let offset = this.protein.children[0].position
+      let quat   = this.protein.quaternion
+      let front  = -Infinity
+
+      for (let i of this.body) {
+        let z = _pos.fromArray(pos[i]).add(offset).applyQuaternion(quat).z
+        if (front < z) front = z
+      }
+
+      return front + ATOM_MAX_RADIUS + NEAR_GAP
+    },
+
+
+    // The zoom level is kept as a multiple of the fitted distance so it
+    // survives window resizes.  The camera backs off when the protein turns
+    // an atom toward it, then returns to the chosen level.
+    update_zoom() {
+      if (this.radius == undefined) return
+      let z = this.zoom_level * this.fit_distance()
+
+      // Only atoms within the bounding sphere can be in the way
+      if (z < this.extent + NEAR_GAP) z = Math.max(z, this.near_limit())
+
+      this.camera.position.z = z
+    },
+
+
     zoom(scale) {
-      if (this.zoom_min == undefined) return
-      let z = this.camera.position.z * scale
-      this.camera.position.z =
-        Math.min(Math.max(z, this.zoom_min), this.zoom_max)
+      if (this.radius == undefined) return
+      let fit   = this.fit_distance()
+      let level = this.zoom_level * scale
+
+      // Stop at the nearest atom, but never undo zoom already chosen
+      if (scale < 1) {
+        let near = this.near_limit() / fit
+        level = Math.max(level, Math.min(near, this.zoom_level))
+      }
+
+      this.zoom_level = Math.min(level, ZOOM_OUT_MAX)
+      this.update_zoom()
     },
 
 
