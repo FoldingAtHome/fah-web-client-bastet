@@ -76,6 +76,17 @@ export default {
     atoms()     {return this.topology ? this.topology.atoms.length : 0},
     drawable()  {return !!(this.atoms && this.frames)},
 
+    // Unbonded atoms, such as ions, can be spread across the whole simulation
+    // box.  Center and frame the view on the bonded atoms only.
+    body() {
+      let bonds = this.topology ? this.topology.bonds : undefined
+      if (!bonds || !bonds.length) return [...Array(this.atoms).keys()]
+
+      let bonded = new Set
+      for (let b of bonds) {bonded.add(b[0]); bonded.add(b[1])}
+      return [...bonded]
+    },
+
     // An empty topology means the core had nothing to visualize
     message() {
       if (!this.topology) return 'Loading...'
@@ -443,9 +454,10 @@ export default {
       if (pos == undefined) return
 
       // Center the protein
+      let body   = this.body
       let center = new THREE.Vector3()
-      for (let p of pos) center.add(_pos.fromArray(p))
-      center.divideScalar(pos.length)
+      for (let i of body) center.add(_pos.fromArray(pos[i]))
+      center.divideScalar(body.length)
       this.protein.children[0].position.copy(center).negate()
 
       for (let mesh of this.atom_meshes) {
@@ -478,10 +490,7 @@ export default {
       let bbox = new THREE.Box3 // Empty, so it does not always contain origin
       let pos  = this.positions[index]
 
-      for (let i = 0; i < this.topology.atoms.length; i++) {
-        let p = pos[i]
-        bbox.expandByPoint(new THREE.Vector3(p[0], p[1], p[2]))
-      }
+      for (let i of this.body) bbox.expandByPoint(_pos.fromArray(pos[i]))
 
       return bbox
     },
