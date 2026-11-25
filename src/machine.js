@@ -48,7 +48,16 @@ class Machine {
 
 
   get_id()      {return this.state.id}
-  get_name()    {return this.state.name}
+
+
+  // While connected, use the name the machine reports.  The account's machine
+  // list is not reloaded when a machine is renamed, so its name can be stale.
+  get_name() {
+    let name = this.is_connected() && this.get_info().mach_name
+    return name || this.state.name
+  }
+
+
   get_data()    {return this.state.data}
   get_viz(unit) {return (this.get_data().viz || {})[unit] || {}}
   get_url(path) {return this.get_id() + path}
