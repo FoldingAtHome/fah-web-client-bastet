@@ -48,16 +48,7 @@ class Machine {
 
 
   get_id()      {return this.state.id}
-
-
-  // While connected, use the name the machine reports.  The account's machine
-  // list is not reloaded when a machine is renamed, so its name can be stale.
-  get_name() {
-    let name = this.is_connected() && this.get_info().mach_name
-    return name || this.state.name
-  }
-
-
+  get_name()    {return this.state.name}
   get_data()    {return this.state.data}
   get_viz(unit) {return (this.get_data().viz || {})[unit] || {}}
   get_url(path) {return this.get_id() + path}
@@ -309,6 +300,15 @@ class Machine {
       this.first = false
       this.state.connected = true
       this.state.data = new Updatable(msg)
+
+      // A renamed machine reconnects with its new name, but the account's
+      // machine list is not reloaded.  The client reads its name from the
+      // account when it connects, so a different name means the list is out of
+      // date.
+      let name   = this.get_info().mach_name
+      let config = (this.ctx.$account.data.machines || [])
+        .find(config => config.id == this.get_id())
+      if (name && config && config.name != name) this.ctx.$account.update()
 
       if (this.vizUnit)    this._send_viz_enable()
       if (this.logEnabled) this._send_log_enable()
