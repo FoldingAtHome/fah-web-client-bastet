@@ -301,6 +301,15 @@ class Machine {
       this.state.connected = true
       this.state.data = new Updatable(msg)
 
+      // A renamed machine reconnects with its new name, but the account's
+      // machine list is not reloaded.  The client reads its name from the
+      // account when it connects, so a different name means the list is out of
+      // date.
+      let name   = this.get_info().mach_name
+      let config = (this.ctx.$account.data.machines || [])
+        .find(config => config.id == this.get_id())
+      if (name && config && config.name != name) this.ctx.$account.update()
+
       if (this.vizUnit)    this._send_viz_enable()
       if (this.logEnabled) this._send_log_enable()
       if (this.wusEnabled) this._send_wus_enable()
